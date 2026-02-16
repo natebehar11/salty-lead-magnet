@@ -109,7 +109,7 @@ function HowItWorksSteps({ steps }: { steps: typeof steps }) {
                 <span className={`font-display text-2xl ${step.color} block mb-4`}>
                   {step.num}
                 </span>
-                <h3 className="font-display text-lg text-salty-cream mb-3">{step.title}</h3>
+                <h3 className={`font-display text-lg ${step.color} mb-3`}>{step.title}</h3>
                 <p className="font-body text-sm leading-relaxed" style={{ color: '#f7f4ed' }}>
                   {step.description}
                 </p>
