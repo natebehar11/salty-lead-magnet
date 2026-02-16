@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Button from '@/components/shared/Button';
@@ -65,16 +66,88 @@ const stats = [
   { value: '100%', label: 'Fun' },
 ];
 
+function HowItWorksSteps({ steps }: { steps: typeof steps }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (!scrollRef.current) return;
+    const cardWidth = scrollRef.current.querySelector('[data-step-card]')?.getBoundingClientRect().width ?? 320;
+    const gap = 32;
+    const step = cardWidth + gap;
+    scrollRef.current.scrollBy({ left: direction === 'left' ? -step : step, behavior: 'smooth' });
+  };
+
+  return (
+    <section className="py-20 px-6 bg-salty-deep-teal">
+      <div className="max-w-6xl mx-auto">
+        <ScrollReveal>
+          <h2 className="font-display text-section text-white text-center mb-10">
+            How it works.
+          </h2>
+        </ScrollReveal>
+
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => scroll('left')}
+            aria-label="Previous step"
+            className="flex-shrink-0 w-[52px] min-w-[52px] flex items-center justify-center text-[#b6d4ea] hover:opacity-80 transition-opacity"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+          </button>
+
+          <div
+            ref={scrollRef}
+            className="flex-1 min-w-0 flex gap-8 overflow-x-auto snap-x snap-mandatory py-2 hide-scrollbar scroll-smooth"
+          >
+            {steps.map((step) => (
+              <div
+                key={step.num}
+                data-step-card
+                className="flex-shrink-0 w-[300px] snap-center text-center"
+              >
+                <span className={`font-display text-2xl ${step.color} block mb-4`}>
+                  {step.num}
+                </span>
+                <h3 className="font-display text-lg text-salty-cream mb-3">{step.title}</h3>
+                <p className="font-body text-sm leading-relaxed" style={{ color: '#f7f4ed' }}>
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => scroll('right')}
+            aria-label="Next step"
+            className="flex-shrink-0 w-[52px] min-w-[52px] flex items-center justify-center text-[#b6d4ea] hover:opacity-80 transition-opacity"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function HomePage() {
   return (
-    <div className="min-h-screen">
+    <div
+      className="min-h-screen h-[4000px]"
+      style={{
+        backgroundClip: 'unset',
+        WebkitBackgroundClip: 'unset',
+        color: 'rgba(1, 2, 4, 1)',
+      }}
+    >
       {/* ===================== HERO ===================== */}
-      <section className="min-h-[90vh] flex flex-col items-center justify-center px-6 bg-salty-cream relative overflow-hidden">
+      <section className="min-h-[90vh] h-[800px] flex flex-row flex-wrap items-center justify-center px-6 bg-salty-cream relative overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center max-w-2xl relative z-10"
+          className="text-center max-w-2xl static z-10"
         >
           {/* Wordmark */}
           <Image
@@ -120,45 +193,21 @@ export default function HomePage() {
         />
       </section>
 
-      <WaveDivider variant="sunset" />
+      <WaveDivider variant="lines" />
 
       {/* ===================== HOW IT WORKS — 6 Steps ===================== */}
-      <section className="py-20 px-6 bg-salty-deep-teal">
-        <div className="max-w-5xl mx-auto">
-          <ScrollReveal>
-            <h2 className="font-display text-section text-white text-center mb-16">
-              How it works.
-            </h2>
-          </ScrollReveal>
+      <HowItWorksSteps steps={steps} />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {steps.map((step, i) => (
-              <ScrollReveal key={step.num} delay={i * 0.1}>
-                <div className="text-center">
-                  <div className={`w-12 h-12 ${step.accent}/20 rounded-full flex items-center justify-center mx-auto mb-4`}>
-                    <span className={`font-display text-2xl ${step.color}`}>
-                      {step.num}
-                    </span>
-                  </div>
-                  <h3 className={`font-display text-lg ${step.color} mb-3`}>{step.title}</h3>
-                  <p className="font-body text-white/60 leading-relaxed text-sm">{step.description}</p>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <WaveDivider variant="ocean" flip />
+      <WaveDivider variant="linesSun" />
 
       {/* ===================== STATS ===================== */}
-      <section className="py-16 px-6 bg-salty-light-blue/30">
-        <div className="max-w-4xl mx-auto">
+      <section className="min-h-[180px] px-6 py-0 flex flex-col justify-center bg-[#e7d7c0]">
+        <div className="max-w-2xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {stats.map((stat) => (
               <div key={stat.label}>
                 <p className="font-display text-4xl text-salty-orange-red">{stat.value}</p>
-                <p className="font-body text-sm text-salty-deep-teal/50 uppercase tracking-wide mt-1">
+                <p className="font-body text-sm text-salty-deep-teal uppercase tracking-wide mt-1">
                   {stat.label}
                 </p>
               </div>
@@ -167,13 +216,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      <WaveDivider variant="warm" />
+      <WaveDivider variant="linesBlueWhite" />
 
       {/* ===================== GOOGLE REVIEWS (Elfsight) ===================== */}
-      <section className="py-20 px-6 bg-salty-beige/50">
+      <section className="px-6 pt-2 pb-8 bg-[#b6d4ea]">
         <div className="max-w-4xl mx-auto">
           <ScrollReveal>
-            <h2 className="font-display text-section text-salty-deep-teal text-center mb-12 whitespace-nowrap">
+            <h2 className="font-display text-section text-salty-deep-teal text-center mb-0 whitespace-nowrap mt-0 pt-10 pb-4">
               Don&apos;t take our word for it.
             </h2>
           </ScrollReveal>
@@ -183,17 +232,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      <WaveDivider variant="cool" flip />
+      <WaveDivider variant="linesCoralSun" />
 
       {/* ===================== DIY PRICE COMPARISON TEASER ===================== */}
       <section className="py-16 px-6 bg-salty-cream">
         <div className="max-w-xl mx-auto text-center">
           <ScrollReveal>
-            {/* Stamp Badge — Scalloped postage stamp style */}
-            <div className="stamp-badge mx-auto mb-6">
-              <div className="stamp-badge-inner">
-                <span className="stamp-amount">SAVE UP TO</span>
-                <span className="stamp-amount">40%</span>
+            {/* Stamp Badge — SVG from brand assets */}
+            <div className="relative w-[140px] h-[140px] mx-auto pt-2 pb-0 mt-8 mb-8 flex items-center justify-center">
+              <img
+                src="/images/brand-elements/stamp-badge.svg"
+                alt="Save up to 40%"
+                className="absolute inset-0 w-full h-full object-contain"
+              />
+              <div className="relative z-10 text-center text-salty-light-blue font-display font-bold text-sm uppercase tracking-wider leading-tight">
+                <span className="block text-xs">SAVE UP TO</span>
+                <span className="block text-2xl">40%</span>
               </div>
             </div>
             <h2 className="font-display text-section text-salty-deep-teal mb-4">
@@ -210,14 +264,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      <WaveDivider variant="earth" />
+      <WaveDivider variant="linesTealOrange" />
 
       {/* ===================== FLIGHT TOOL TEASER ===================== */}
       <section className="py-16 px-6 bg-salty-seafoam/20">
         <div className="max-w-xl mx-auto text-center">
           <ScrollReveal>
-            <h2 className="font-display text-section text-salty-deep-teal mb-4">
-              Already know where you&apos;re going?
+<h2 className="font-display text-section text-salty-deep-teal mb-4 pt-6 pb-6">
+            Already know where you&apos;re going?
             </h2>
             <p className="font-body text-salty-slate/60 mb-8 leading-relaxed">
               Skip the quiz and go straight to flight prices. We&apos;ll find the cheapest,
@@ -230,13 +284,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      <WaveDivider variant="sunset" flip />
+      <WaveDivider variant="linesGoldSand" />
 
       {/* ===================== FINAL CTA ===================== */}
       <section className="py-20 px-6 bg-salty-deep-teal">
         <div className="max-w-xl mx-auto text-center">
           <ScrollReveal>
-            <h2 className="font-display text-section text-salty-salmon mb-4">
+            <h2 className="font-display text-section text-salty-light-blue mb-0">
               Your next trip is closer than you think.
             </h2>
             <p className="font-body text-white/60 mb-8 leading-relaxed">
