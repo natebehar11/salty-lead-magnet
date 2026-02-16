@@ -8,7 +8,15 @@ import ScrollReveal from '@/components/shared/ScrollReveal';
 import HumanCTA from '@/components/shared/HumanCTA';
 import WaveDivider from '@/components/shared/WaveDivider';
 
-const steps = [
+interface Step {
+  num: string;
+  title: string;
+  description: string;
+  color: string;
+  accent: string;
+}
+
+const steps: Step[] = [
   {
     num: '01',
     title: 'Take the quiz',
@@ -66,7 +74,7 @@ const stats = [
   { value: '100%', label: 'Fun' },
 ];
 
-function HowItWorksSteps({ steps }: { steps: typeof steps }) {
+function HowItWorksSteps({ steps }: { steps: Step[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -240,9 +248,11 @@ export default function HomePage() {
           <ScrollReveal>
             {/* Stamp Badge — SVG from brand assets */}
             <div className="relative w-[140px] h-[140px] mx-auto pt-2 pb-0 mt-8 mb-8 flex items-center justify-center">
-              <img
+              <Image
                 src="/images/brand-elements/stamp-badge.svg"
                 alt="Save up to 40%"
+                width={140}
+                height={140}
                 className="absolute inset-0 w-full h-full object-contain"
               />
               <div className="relative z-10 text-center text-salty-light-blue font-display font-bold text-sm uppercase tracking-wider leading-tight">
