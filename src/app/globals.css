@@ -1,0 +1,339 @@
+@import "tailwindcss";
+
+/* ========================================
+   SALTY RETREATS — Visual Style Guide
+   13-Color Palette · TAN Headline · Roca One
+   ======================================== */
+
+/* Custom Fonts */
+@font-face {
+  font-family: 'TAN Headline';
+  src: url('/fonts/TanHeadline/TANHEADLINE-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roca';
+  src: url('/fonts/Roca/Roca Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roca';
+  src: url('/fonts/Roca/Roca Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roca';
+  src: url('/fonts/Roca/Roca Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ========================================
+   Tailwind Theme — SALTY 13-Color Palette
+   ======================================== */
+@theme inline {
+  /* Warm & Energetic */
+  --color-salty-salmon: #FF7E70;
+  --color-salty-yellow: #FED260;
+  --color-salty-orange-red: #F75A3D;
+  --color-salty-orange-red-dark: #E04A2D;
+  --color-salty-burnt-red: #C74235;
+  --color-salty-mauve: #CCB4B3;
+
+  /* Cool & Calming */
+  --color-salty-light-blue: #B6D4EA;
+  --color-salty-seafoam: #A4E5D9;
+  --color-salty-deep-teal: #0E3A2D;
+  --color-salty-deep-teal-light: #1A5A45;
+  --color-salty-forest-green: #3A6B35;
+
+  /* Neutrals & Backgrounds */
+  --color-salty-cream: #F7F4ED;
+  --color-salty-beige: #E7D7C0;
+  --color-salty-slate: #4A4E58;
+  --color-salty-charcoal: #383838;
+
+  /* Legacy aliases for backward compatibility */
+  --color-salty-teal: #0E3A2D;
+  --color-salty-teal-light: #1A5A45;
+  --color-salty-teal-dark: #0E3A2D;
+  --color-salty-coral: #F75A3D;
+  --color-salty-coral-dark: #E04A2D;
+  --color-salty-sand: #E7D7C0;
+  --color-salty-sand-dark: #D4C4A8;
+  --color-salty-gold: #FED260;
+  --color-salty-gold-dark: #E0B83A;
+  --color-salty-sky: #B6D4EA;
+  --color-salty-sky-dark: #94BDCF;
+  --color-salty-rust: #C74235;
+  --color-salty-olive: #3A6B35;
+
+  /* Typography */
+  --font-display: 'TAN Headline', 'Cooper Black', Georgia, serif;
+  --font-body: 'Roca', 'Nunito', system-ui, sans-serif;
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-salty-cream);
+  color: var(--color-salty-slate);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+::selection {
+  background-color: var(--color-salty-orange-red);
+  color: white;
+}
+
+/* ========================================
+   Typography — Style Guide Rules
+   Headlines: TAN Headline, ALWAYS UPPERCASE
+   Body: Roca One, sentence case
+   ======================================== */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--color-salty-deep-teal);
+  line-height: 1.3;
+}
+
+h1 {
+  line-height: 1.25;
+}
+
+h2 {
+  line-height: 1.3;
+}
+
+/* Hero text sizing with clamp */
+.text-hero {
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+}
+
+.text-section {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+}
+
+/* ========================================
+   Scrollbar
+   ======================================== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-salty-beige);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-salty-deep-teal);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-salty-forest-green);
+}
+
+/* ========================================
+   Decorative Elements — Stamp Frame (CSS)
+   ======================================== */
+.stamp-frame {
+  background: var(--color-salty-cream);
+  padding: 2rem;
+  --scallop-size: 10px;
+  -webkit-mask:
+    radial-gradient(circle at var(--scallop-size) 0, transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) calc(-1 * var(--scallop-size)) 0 / calc(2 * var(--scallop-size)) 100%,
+    radial-gradient(circle at var(--scallop-size) 100%, transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) calc(-1 * var(--scallop-size)) 0 / calc(2 * var(--scallop-size)) 100%,
+    radial-gradient(circle at 0 var(--scallop-size), transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) 0 calc(-1 * var(--scallop-size)) / 100% calc(2 * var(--scallop-size)),
+    radial-gradient(circle at 100% var(--scallop-size), transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) 0 calc(-1 * var(--scallop-size)) / 100% calc(2 * var(--scallop-size));
+  mask:
+    radial-gradient(circle at var(--scallop-size) 0, transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) calc(-1 * var(--scallop-size)) 0 / calc(2 * var(--scallop-size)) 100%,
+    radial-gradient(circle at var(--scallop-size) 100%, transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) calc(-1 * var(--scallop-size)) 0 / calc(2 * var(--scallop-size)) 100%,
+    radial-gradient(circle at 0 var(--scallop-size), transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) 0 calc(-1 * var(--scallop-size)) / 100% calc(2 * var(--scallop-size)),
+    radial-gradient(circle at 100% var(--scallop-size), transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) 0 calc(-1 * var(--scallop-size)) / 100% calc(2 * var(--scallop-size));
+}
+
+/* ========================================
+   Star Badge (starburst) — legacy
+   ======================================== */
+.star-badge {
+  width: 120px;
+  height: 120px;
+  background: var(--color-salty-forest-green);
+  clip-path: polygon(
+    50% 0%, 63% 13%, 79% 5%, 82% 22%, 100% 25%,
+    92% 40%, 100% 55%, 85% 62%, 85% 80%, 68% 78%,
+    58% 95%, 45% 82%, 30% 95%, 25% 78%, 8% 80%,
+    12% 62%, 0% 50%, 10% 38%, 0% 25%, 18% 20%,
+    20% 5%, 37% 12%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+/* ========================================
+   Stamp Badge — Scalloped postage stamp style
+   (matches SALTY brand element: forest-green outer, deep-teal inner, light-blue text)
+   ======================================== */
+.stamp-badge {
+  width: 140px;
+  height: 140px;
+  background: var(--color-salty-forest-green);
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  --scallop-size: 8px;
+  -webkit-mask:
+    radial-gradient(circle at var(--scallop-size) 0, transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) calc(-1 * var(--scallop-size)) 0 / calc(2 * var(--scallop-size)) 100%,
+    radial-gradient(circle at var(--scallop-size) 100%, transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) calc(-1 * var(--scallop-size)) 0 / calc(2 * var(--scallop-size)) 100%,
+    radial-gradient(circle at 0 var(--scallop-size), transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) 0 calc(-1 * var(--scallop-size)) / 100% calc(2 * var(--scallop-size)),
+    radial-gradient(circle at 100% var(--scallop-size), transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) 0 calc(-1 * var(--scallop-size)) / 100% calc(2 * var(--scallop-size));
+  mask:
+    radial-gradient(circle at var(--scallop-size) 0, transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) calc(-1 * var(--scallop-size)) 0 / calc(2 * var(--scallop-size)) 100%,
+    radial-gradient(circle at var(--scallop-size) 100%, transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) calc(-1 * var(--scallop-size)) 0 / calc(2 * var(--scallop-size)) 100%,
+    radial-gradient(circle at 0 var(--scallop-size), transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) 0 calc(-1 * var(--scallop-size)) / 100% calc(2 * var(--scallop-size)),
+    radial-gradient(circle at 100% var(--scallop-size), transparent calc(var(--scallop-size) - 1px), #000 var(--scallop-size)) 0 calc(-1 * var(--scallop-size)) / 100% calc(2 * var(--scallop-size));
+}
+
+.stamp-badge-inner {
+  width: 100%;
+  height: 100%;
+  background: var(--color-salty-deep-teal);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-salty-light-blue);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 0.75rem;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+.stamp-badge-inner .stamp-amount {
+  font-size: 1.5rem;
+  line-height: 1;
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* ========================================
+   Section seamless transitions
+   ======================================== */
+section + div,
+div + section {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* ========================================
+   Slider Styles
+   ======================================== */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--color-salty-beige);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-salty-orange-red);
+  cursor: pointer;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-salty-orange-red);
+  cursor: pointer;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* ========================================
+   Swiper overrides
+   ======================================== */
+.swiper-pagination-bullet {
+  background: var(--color-salty-deep-teal) !important;
+  opacity: 0.3 !important;
+}
+
+.swiper-pagination-bullet-active {
+  opacity: 1 !important;
+  background: var(--color-salty-orange-red) !important;
+}
+
+/* ========================================
+   Horizontal Scroll Container (for flights)
+   ======================================== */
+.scroll-x-snap {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.scroll-x-snap::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-x-snap > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}

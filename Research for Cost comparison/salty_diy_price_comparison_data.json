@@ -1,0 +1,887 @@
+[
+  {
+    "destination": "Sicily",
+    "retreatName": "Endless Summer Round Due",
+    "retreatDates": "August 9-16, 2026",
+    "nights": 7,
+    "saltyPrices": {
+      "shared_4_5": 2099,
+      "double": 2549,
+      "single": 3399
+    },
+    "saltyPriceShown": 2099,
+    "saltyPriceLabel": "from / person (shared 4-5, early bird)",
+    "researchDate": "2026-02-09",
+    "exchangeRates": {
+      "EUR_to_USD": 1.09,
+      "note": "All EUR prices converted at €1 = $1.09 USD"
+    },
+    "diyLineItems": [
+      {
+        "category": "Accommodation",
+        "emoji": "🏠",
+        "description": "Premium boutique beachside hotel, 7 nights (La Moresca-level, 4-star)",
+        "diyPrice": 1678,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.lamorescahotel.it/en",
+        "sourceName": "La Moresca Maison de Charme",
+        "sourceUrl2": "https://www.hotels-sicily.net/en/h/lamoresca.html",
+        "sourceName2": "Hotels-Sicily.net",
+        "methodology": "La Moresca is a documented 4-star boutique with Art Nouveau/Baroque design — 'chicest place to stay in Marina di Ragusa.' Base rate €189/night, August peak surcharge ~16%. Used €220/night × 7 = €1,540 ≈ $1,678 USD. This matches the quality level SALTY books.",
+        "searchParams": "1 guest, Aug 9-16 2026, Marina di Ragusa/Maria del Focallo, premium boutique",
+        "originalCurrency": "€1,540 EUR"
+      },
+      {
+        "category": "Meals — Breakfast",
+        "emoji": "☕",
+        "description": "Full hotel/café breakfast (pastry, eggs, juice, coffee), 7 days",
+        "diyPrice": 76,
+        "saltyIncluded": true,
+        "sourceUrl": "https://italyfocusguide.com/blog/how-much-is-breakfast-in-italy/",
+        "sourceName": "Italy Focus Guide",
+        "methodology": "Premium property breakfast €8-12/day (full service vs €3 bar cornetto). Used €10/day × 7 = €70 ≈ $76 USD.",
+        "originalCurrency": "€70 EUR"
+      },
+      {
+        "category": "Meals — Lunch",
+        "emoji": "🍽️",
+        "description": "Multi-course lunch at Zuma Beach Club or equivalent (antipasto + primo/secondo + drink), 7 days",
+        "diyPrice": 305,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.tripadvisor.com/Restaurant_Review-g12080374-d28148041-Reviews-Zuma_Beach_Club-Santa_Maria_del_Focallo_Ispica_Province_of_Ragusa_Sicily.html",
+        "sourceName": "TripAdvisor — Zuma Beach Club",
+        "methodology": "Beach club lunch in August: antipasto €8-12 + primo/secondo €12-18 + beverage €3-5 = €35-45/person. Used €40/day × 7 = €280 ≈ $305 USD. No group discount as solo diner.",
+        "originalCurrency": "€280 EUR"
+      },
+      {
+        "category": "Meals — Dinner",
+        "emoji": "🍷",
+        "description": "Multi-course dinner at quality trattoria (antipasto + main + wine), 5 nights (SALTY-covered group dinners)",
+        "diyPrice": 207,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.tripadvisor.com/Restaurants-g194872-Ragusa_Province_of_Ragusa_Sicily.html",
+        "sourceName": "TripAdvisor — Ragusa Restaurants",
+        "sourceUrl2": "https://www.isulatravel.com/blog/20-best-restaurants-in-ragusa-modica-and-surroundings",
+        "sourceName2": "Isula Travel — Best Restaurants Ragusa/Modica",
+        "methodology": "Quality trattoria: antipasto €8-15 + primo/secondo €10-20 + wine €5-10 = €30-45. Used €38/dinner × 5 SALTY-covered dinners = €190 ≈ $207 USD. Seafood-heavy Ragusa area justifies upper-mid pricing.",
+        "originalCurrency": "€190 EUR"
+      },
+      {
+        "category": "Fitness & Yoga",
+        "emoji": "💪",
+        "description": "Daily private instruction, 7 days (no public studios in rural Ragusa)",
+        "diyPrice": 458,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.floripa.it/",
+        "sourceName": "Floripa Yoga & Kitesurf House, Sicily",
+        "methodology": "Rural southeastern Sicily has NO documented daily group yoga studios. Floripa offers private instruction; rates not published. Private yoga/fitness instruction in Italy: €40-80/session. Used €60/session × 7 = €420 ≈ $458 USD. LOW AVAILABILITY — this is a genuine pain point for DIY travelers.",
+        "originalCurrency": "€420 EUR",
+        "confidenceLevel": "medium — rate estimated from Italy regional standards"
+      },
+      {
+        "category": "Beach Club Access",
+        "emoji": "🏖️",
+        "description": "Daily sunbed + umbrella at quality lido, 7 days (August peak pricing)",
+        "diyPrice": 168,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.locandadonserafino.it/en/beach-club-ragusa-sicily",
+        "sourceName": "Lido Azzurro Beach Club",
+        "methodology": "Documented Zuma pricing: €18-25/day for sunbed + umbrella. August peak. Used €22/day × 7 = €154 ≈ $168 USD. Solo traveler pays full retail — no group rate.",
+        "originalCurrency": "€154 EUR"
+      },
+      {
+        "category": "Bike Rental",
+        "emoji": "🚲",
+        "description": "Quality touring bicycle, 7 days",
+        "diyPrice": 164,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.rasirent.it/",
+        "sourceName": "RASI RENT Marina di Ragusa",
+        "methodology": "Trekking bike rentals: €20-25/day, minimal weekly discount for solo. Used €21.50/day × 7 = €150 ≈ $164 USD.",
+        "originalCurrency": "€150 EUR"
+      },
+      {
+        "category": "Cultural Excursions",
+        "emoji": "🏛️",
+        "description": "2 major guided day trips covering Noto, Modica, Syracuse (UNESCO baroque towns)",
+        "diyPrice": 436,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.tourofsicily.com/tour/full-day-tour-to-noto-ragusa-modica-from-siracusa/",
+        "sourceName": "Tour of Sicily",
+        "sourceUrl2": "https://www.getyourguide.com/syracuse-l1115/from-syracuse-ragusa-ibla-noto-and-modica-private-day-trip-t394861/",
+        "sourceName2": "GetYourGuide — Baroque Towns Private Tour",
+        "methodology": "SALTY includes 'vehicle for excursions' = organized/guided. Private guided Val di Noto tour (Ragusa, Modica, Noto): €963 for up to 7 people. Shared small-group: €80-120/person/day. Used €200/day × 2 major day trips = €400 ≈ $436 USD. Includes guide fees and entry.",
+        "originalCurrency": "€400 EUR"
+      },
+      {
+        "category": "Car Rental + Fuel",
+        "emoji": "🚗",
+        "description": "Mid-range car, 7 days + fuel (~450km). Essential in rural Sicily — no viable public transit.",
+        "diyPrice": 320,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.kayak.com/Sicily-Italy-Car-Rentals.1674.crr.html",
+        "sourceName": "KAYAK Car Rentals Sicily",
+        "sourceUrl2": "https://www.sixt.com/car-rental/italy/catania/sicily-catania-airport/",
+        "sourceName2": "SIXT Car Rental Catania",
+        "methodology": "August peak: €35-50/day for mid-range car. Used €35/day × 7 = €245 + €45 fuel (30L × €1.55/L for ~450km) = €290 ≈ $320 USD.",
+        "originalCurrency": "€290 EUR"
+      },
+      {
+        "category": "Hosted Cocktail Evenings",
+        "emoji": "🍸",
+        "description": "2 curated cocktail bar nights (premium cocktails + appetizers)",
+        "diyPrice": 98,
+        "saltyIncluded": true,
+        "sourceUrl": "https://officina31ibla.it/",
+        "sourceName": "Officina31 Cocktail Bar, Ragusa Ibla",
+        "methodology": "Premium cocktails €12-18/drink at Officina31, Prima Classe. Per evening: 2 cocktails (€30) + appetizers (€12-15) = €42-45/person. Used €45 × 2 evenings = €90 ≈ $98 USD.",
+        "originalCurrency": "€90 EUR"
+      },
+      {
+        "category": "Airport Transfer",
+        "emoji": "✈️",
+        "description": "Private transfer Catania CTA ↔ Ragusa (one-way, ~2 hrs)",
+        "diyPrice": 174,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.transfeero.com/en/catania-flughafentransfers-cta/transfer-from-airport-catania-to-ragusa/",
+        "sourceName": "Transfeero Catania-Ragusa",
+        "methodology": "Private transfer (1-4 people): €160 per vehicle. Solo traveler pays full rate. €160 ≈ $174 USD. Note: Return transfer would add another €160 — SALTY covers both directions.",
+        "originalCurrency": "€160 EUR"
+      }
+    ],
+    "diyTotal": 4084,
+    "savings": 1985,
+    "savingsPercent": "49%",
+    "savingsDirection": "SALTY saves you $1,985 vs. doing it yourself",
+    "comparisonStrength": "STRONG",
+    "pricelessItems": [
+      {"category": "Community", "emoji": "👥", "description": "25-30 fun-loving humans who become your crew"},
+      {"category": "Trip Planning", "emoji": "📋", "description": "Every detail handled — you just show up"},
+      {"category": "Professional Coaching", "emoji": "💪", "description": "Coaches with Olympic and Cirque du Soleil credentials"},
+      {"category": "Professional Photography", "emoji": "📸", "description": "Content you'd normally need to book a shoot for (estimated value: $300-500)"}
+    ],
+    "comparisonNotes": "STRONG COMPARISON. August peak season drives accommodation to $1,678 alone. The car rental necessity in rural Sicily ($320), private yoga instruction ($458 — no public studios exist), and premium beach club access ($168) make DIY dramatically more expensive. SALTY's group buying power on the vehicle, accommodation, and organized excursions delivers massive value. Note: only one-way airport transfer priced — adding return would push DIY to ~$4,258."
+  },
+  {
+    "destination": "Panama",
+    "retreatName": "City to Sea",
+    "retreatDates": "March 14-22, 2026",
+    "nights": 8,
+    "days": 9,
+    "saltyPrices": {
+      "lowest": 2249
+    },
+    "saltyPriceShown": 2249,
+    "saltyPriceLabel": "from / person (lowest tier)",
+    "researchDate": "2026-02-09",
+    "exchangeRates": {
+      "note": "Panama uses USD — no conversion needed"
+    },
+    "diyLineItems": [
+      {
+        "category": "Accommodation — Panama City",
+        "emoji": "🏨",
+        "description": "Premium boutique hotel in Casco Viejo (American Trade Hotel level), 4 nights",
+        "diyPrice": 1280,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.booking.com/hotel/pa/american-trade.html",
+        "sourceName": "American Trade Hotel — Booking.com",
+        "sourceUrl2": "https://www.kayak.com/Panama-City-Hotels_Casco-Viejo.N217929.18478.hotel.ksp",
+        "sourceName2": "KAYAK Casco Viejo Hotels",
+        "methodology": "American Trade Hotel (4-star heritage boutique with pool, gym, jazz bar): $264-359/night in March peak season. Mid-point $320/night × 4 = $1,280. Also researched: Casa Sucre ($621/night), Sofitel Legend ($288/night), Las Clementinas ($196/night). American Trade selected as representative premium boutique.",
+        "searchParams": "1 guest, March 2026, Casco Viejo, premium boutique"
+      },
+      {
+        "category": "Accommodation — Santa Catalina",
+        "emoji": "🏠",
+        "description": "Best available boutique resort in Santa Catalina, 5 nights",
+        "diyPrice": 475,
+        "saltyIncluded": true,
+        "sourceUrl": "https://bambuda.com/santa-catalina/",
+        "sourceName": "Bambuda Santa Catalina",
+        "methodology": "Santa Catalina is remote — limited premium options. Bambuda is the only true oceanfront boutique with pool, restaurant, and beach access. $87-95/night. Used $95/night × 5 = $475.",
+        "searchParams": "1 guest, March 2026, Santa Catalina, oceanfront"
+      },
+      {
+        "category": "Meals — Panama City",
+        "emoji": "🍽️",
+        "description": "Multi-course meals in Casco Viejo (appetizer + main + drink), 4 days × 3 meals",
+        "diyPrice": 340,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.tripadvisor.com/RestaurantsNear-g294480-d317494-Casco_Viejo-Panama_City_Panama_Province.html",
+        "sourceName": "TripAdvisor Casco Viejo Restaurants",
+        "methodology": "Quality Casco Viejo dining: breakfast at café $13, lunch at restaurant $22, multi-course dinner (appetizer + main + drink at Tantalo, Santa Rita, Fonda Lo Que Hay) $50. Daily $85 × 4 days = $340."
+      },
+      {
+        "category": "Meals — Santa Catalina",
+        "emoji": "🍽️",
+        "description": "Multi-course meals at best restaurants (fresh seafood), 5 days × 3 meals",
+        "diyPrice": 305,
+        "saltyIncluded": true,
+        "sourceUrl": "https://coiba-island.com/restaurants-santa-catalina-panama/",
+        "sourceName": "Coiba Island — Santa Catalina Restaurant Guide",
+        "sourceUrl2": "https://www.tripadvisor.com/Restaurants-g1091103-Santa_Catalina_Veraguas_Province.html",
+        "sourceName2": "TripAdvisor Santa Catalina Restaurants",
+        "methodology": "Premium seafood restaurants (Pescao, Chano's, Donde Viancka's). Breakfast $9, lunch (fresh catch + appetizer) $22, dinner (multi-course seafood) $30. Daily $61 × 5 = $305."
+      },
+      {
+        "category": "Surf Lessons",
+        "emoji": "🏄",
+        "description": "3 group surf sessions in Santa Catalina, 2 hrs each",
+        "diyPrice": 270,
+        "saltyIncluded": true,
+        "sourceUrl": "https://waluaa.com/surfschoolsantacatalinapanama",
+        "sourceName": "Waluaa Surf School",
+        "methodology": "Waluaa group lessons: $45/person/hour including board, leash, rash guard, GoPro. 3 sessions × 2 hours × $45 = $270."
+      },
+      {
+        "category": "Coiba National Park",
+        "emoji": "🏝️",
+        "description": "Full-day boat trip to Coiba UNESCO site — snorkeling + lunch + guide",
+        "diyPrice": 100,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.tourscoiba.com/en/tour-full-day-coiba/",
+        "sourceName": "Tours Coiba",
+        "sourceUrl2": "https://snorkelcoiba.com/",
+        "sourceName2": "Snorkel Coiba",
+        "methodology": "Shared boat tour $60-90/person + $20 national park entrance fee. Mid-range operator with lunch, snorkel gear, certified guide. $80 tour + $20 fee = $100."
+      },
+      {
+        "category": "Fitness & Yoga",
+        "emoji": "🧘",
+        "description": "Daily class drop-in, 9 days (Panama City studios + Santa Catalina)",
+        "diyPrice": 180,
+        "saltyIncluded": true,
+        "sourceUrl": "https://cascoyogapanama.com/prices/",
+        "sourceName": "Casco Yoga Panama",
+        "methodology": "Casco Yoga Panama $15-25/class. Santa Catalina options scarce. Used $20/class × 9 days = $180."
+      },
+      {
+        "category": "Transfer — Panama City to Santa Catalina",
+        "emoji": "🚐",
+        "description": "PRIVATE transfer (~5.5 hrs). SALTY provides private group transport.",
+        "diyPrice": 530,
+        "saltyIncluded": true,
+        "sourceUrl": "https://daytrip.com/en/transfers/panama-city-pa/santa-catalina-pa",
+        "sourceName": "Daytrip Private Transfers",
+        "sourceUrl2": "https://www.tiqy.com/tour-activity-info/private-transfer-from-panama-city-to-santa-catalina",
+        "sourceName2": "Tiqy Private Transfers",
+        "methodology": "Private transfer (solo traveler pays full vehicle rate): $500-553. Used $530. SALTY splits this across 20-30 guests. A public bus is $14.65 but takes 8-9 hours — not comparable to SALTY's private transport."
+      },
+      {
+        "category": "Airport Transfer",
+        "emoji": "✈️",
+        "description": "Private transfer Tocumen → Casco Viejo",
+        "diyPrice": 35,
+        "saltyIncluded": true,
+        "sourceUrl": "https://airporttransfer.com/blog/tocumen-airport-to-casco-viejo",
+        "sourceName": "Airport Transfer Panama",
+        "methodology": "Private transfer from Tocumen International: $30-40. Used $35."
+      },
+      {
+        "category": "Hosted Cultural/Cocktail Evenings",
+        "emoji": "🍸",
+        "description": "2 quality cocktail bar experiences (cocktails + appetizers)",
+        "diyPrice": 130,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.opentable.com/r/element-bar-pty-casco-viejo",
+        "sourceName": "Element Bar PTY",
+        "methodology": "Premium cocktail bars (Element Bar, Tantalo Rooftop): 2-3 premium cocktails $10-12 each + appetizers $20-25 = ~$65/person/night × 2 = $130."
+      }
+    ],
+    "diyTotal": 3645,
+    "savings": 1396,
+    "savingsPercent": "38%",
+    "savingsDirection": "SALTY saves you $1,396 vs. doing it yourself",
+    "comparisonStrength": "STRONG",
+    "pricelessItems": [
+      {"category": "Community", "emoji": "👥", "description": "25-30 fun-loving humans who become your crew"},
+      {"category": "Trip Planning", "emoji": "📋", "description": "Every detail handled — you just show up"},
+      {"category": "Professional Coaching", "emoji": "💪", "description": "Coaches with Olympic and Cirque du Soleil credentials"},
+      {"category": "Professional Photography", "emoji": "📸", "description": "Content you'd normally need to book a shoot for (estimated value: $300-500)"}
+    ],
+    "comparisonNotes": "STRONG COMPARISON. The private inter-city transfer ($530 for a solo traveler vs. split across 20-30 with SALTY) is a major cost driver. Premium Casco Viejo accommodation ($320/night) and multi-course dining ($85/day in PC) add up fast. Note: return transfer (Santa Catalina → airport) not included — would add another ~$530, pushing DIY to ~$4,175. SALTY's two-location logistics handling is a massive value-add."
+  },
+  {
+    "destination": "Morocco",
+    "retreatName": "Beyond the Dunes Part Two",
+    "retreatDates": "May 16-23, 2026",
+    "nights": 7,
+    "saltyPrices": {
+      "dorm": 1999,
+      "shared": 2149,
+      "double": 2399,
+      "single": 3199
+    },
+    "saltyPriceShown": 1999,
+    "saltyPriceLabel": "from / person (dorm, early bird)",
+    "researchDate": "2026-02-09",
+    "exchangeRates": {
+      "MAD_to_USD": 0.109,
+      "USD_to_MAD": 9.18,
+      "EUR_to_USD": 1.09,
+      "note": "1 USD = 9.18 MAD. Some activities priced in EUR."
+    },
+    "diyLineItems": [
+      {
+        "category": "Accommodation",
+        "emoji": "🏠",
+        "description": "Premium boutique riad or surf villa in Taghazout (Munga Guesthouse / Hyatt Place level), 7 nights",
+        "diyPrice": 1190,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.booking.com/hotel/ma/munga-guesthouse-taghazout.html",
+        "sourceName": "Munga Guesthouse — Booking.com",
+        "sourceUrl2": "https://www.kayak.com/Tamraght-Ou-Fella-Hotels-Fairmont-Taghazout-Bay.1070292736.ksp",
+        "sourceName2": "KAYAK — Taghazout Bay Hotels",
+        "methodology": "Premium boutique (NOT budget surf camp dorms). Munga Guesthouse €103-216/night, Hyatt Place $134-237/night, Fairmont $243-465/night. Used $170/night (mid-premium, solo double room at boutique property with pool and quality furnishings) × 7 = $1,190.",
+        "searchParams": "1 guest, May 16-23 2026, Taghazout, premium boutique with private bath + pool"
+      },
+      {
+        "category": "Meals — Breakfast",
+        "emoji": "☕",
+        "description": "Quality café breakfast (eggs/omelette + bread + juice + coffee), 7 days",
+        "diyPrice": 42,
+        "saltyIncluded": true,
+        "sourceUrl": "https://surfberbere.com/culinary-delights-exploring-the-best-places-to-eat-in-taghazout-morocco/",
+        "sourceName": "Surf Berbere — Taghazout Culinary Guide",
+        "methodology": "Quality cafés (Red Clay, Teapot, Windy Bay): omelette + pastries + juice + coffee = 40-60 MAD (€5-8). Used $6/day × 7 = $42.",
+        "originalCurrency": "~385 MAD"
+      },
+      {
+        "category": "Meals — Lunch",
+        "emoji": "🍽️",
+        "description": "Multi-course lunch (starter + main + drink), 5 days (SALTY covers 3 lodge + 2 café)",
+        "diyPrice": 90,
+        "saltyIncluded": true,
+        "sourceUrl": "https://safartomorocco.com/taghazout-restaurants-where-to-eat/",
+        "sourceName": "Safari Morocco — Taghazout Restaurants",
+        "methodology": "Quality restaurants: salad/starter 40-80 MAD + main 70-120 MAD + drink 20-30 MAD = 130-230 MAD. Used $18/day × 5 days = $90.",
+        "originalCurrency": "~825 MAD"
+      },
+      {
+        "category": "Meals — Dinner",
+        "emoji": "🍷",
+        "description": "Multi-course dinner (starter + tagine/main + drink), 5 nights (SALTY-covered group dinners)",
+        "diyPrice": 100,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.waverick.com/articles/morocco/taghazout/best-restaurants-taghazout-where-to-eat/",
+        "sourceName": "Waverick — Best Restaurants Taghazout",
+        "methodology": "Quality restaurants (The Favela rooftop, fine dining spots): starter + tagine/seafood main + cocktail/drink = 150-200 MAD. Used $20/dinner × 5 SALTY-covered dinners = $100.",
+        "originalCurrency": "~918 MAD"
+      },
+      {
+        "category": "Surf Lessons",
+        "emoji": "🏄",
+        "description": "3 premium surf sessions (private or semi-private instruction + board + wetsuit)",
+        "diyPrice": 327,
+        "saltyIncluded": true,
+        "sourceUrl": "https://taghazoutsurfingschool.com/surf-lessons/",
+        "sourceName": "Taghazout Surfing School",
+        "sourceUrl2": "https://surfberbere.com/",
+        "sourceName2": "Surf Berbere",
+        "methodology": "Premium instruction (not group camp): €70-100/private session. Used €100/session × 3 = €300 ≈ $327 USD. Includes board, wetsuit, transport to breaks.",
+        "originalCurrency": "€300 EUR"
+      },
+      {
+        "category": "Imsouane Day Trip",
+        "emoji": "🚌",
+        "description": "Full-day organized surf trip to Imsouane (transport + session + lunch)",
+        "diyPrice": 100,
+        "saltyIncluded": true,
+        "sourceUrl": "https://taghazoutsurfingschool.com/",
+        "sourceName": "Taghazout Surfing School — Imsouane trips",
+        "methodology": "Fully organized package: transport (~1.5 hrs each way) + surf session + board rental + lunch. Estimated $100 for premium organized day trip.",
+        "originalCurrency": "€92 EUR"
+      },
+      {
+        "category": "Paradise Valley Excursion",
+        "emoji": "🏊",
+        "description": "Guided day trip to Paradise Valley (natural pools, cliff jumping, guide, transport)",
+        "diyPrice": 18,
+        "saltyIncluded": true,
+        "sourceUrl": "https://marocknrolltours.com/product/paradise-valley-from-taghazout/",
+        "sourceName": "Marocknroll Tours — Paradise Valley",
+        "methodology": "Established guided tour: 200 MAD/person ($18 USD). 5-hour trip includes transport, guide, lunch, water, Argan cooperative tour.",
+        "originalCurrency": "200 MAD"
+      },
+      {
+        "category": "Souk Tour",
+        "emoji": "🛍️",
+        "description": "Guided souk exploration (Souk El Had) with local guide + hotel pickup",
+        "diyPrice": 33,
+        "saltyIncluded": true,
+        "sourceUrl": "https://marocknrolltours.com/product/souk-el-hed-guided-tour/",
+        "sourceName": "Marocknroll Tours — Souk El Had",
+        "methodology": "Professional guided tour: €30/adult including hotel pickup/dropoff, multilingual guide, 2-hour exploration. €30 ≈ $33 USD.",
+        "originalCurrency": "€30 EUR"
+      },
+      {
+        "category": "Yoga & Fitness",
+        "emoji": "🧘",
+        "description": "Daily premium yoga drop-in, 7 days",
+        "diyPrice": 105,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.dfrostsurfandyoga.com/taghazout-yoga",
+        "sourceName": "DFrost Almugar Surf & Yoga",
+        "methodology": "Premium studio drop-ins: DFrost €10/class, Blue Mind €15/class, Yozi €20-22/day. Used $15/class × 7 = $105.",
+        "originalCurrency": "€96 EUR"
+      },
+      {
+        "category": "Welcome Drinks + Hosted Nights",
+        "emoji": "🍸",
+        "description": "2-3 quality cocktail/drinks evenings",
+        "diyPrice": 60,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.waverick.com/articles/morocco/taghazout/taghazout-nightlife-bars-tamraght-agadir/",
+        "sourceName": "Waverick — Taghazout Nightlife",
+        "methodology": "Premium venues (Seaven Bar, Bohemian Berber Bar): cocktails €8-15/drink. 2 drinks per event × 3 events = 6 drinks × $10 = $60."
+      },
+      {
+        "category": "Airport Transfer",
+        "emoji": "✈️",
+        "description": "Private transfer Agadir ↔ Taghazout (round-trip)",
+        "diyPrice": 60,
+        "saltyIncluded": true,
+        "sourceUrl": "https://agadirairporttransfer.com/",
+        "sourceName": "Agadir Airport Transfer",
+        "methodology": "Private transfer: 300 MAD (~$30) one-way. Round-trip = $60.",
+        "originalCurrency": "600 MAD"
+      },
+      {
+        "category": "Local Transport",
+        "emoji": "🚕",
+        "description": "Daily taxis/shared transport to surf spots, restaurants, 7 days",
+        "diyPrice": 56,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.findingouradventure.com/travel-diaries/Taghazout-morocco-travel-guide",
+        "sourceName": "Finding Our Adventure — Taghazout Guide",
+        "methodology": "Mix of shared taxis (15 MAD/trip) and short rides. ~4 trips/day × 7 days × $2/trip = $56."
+      }
+    ],
+    "diyTotal": 2181,
+    "savings": 182,
+    "savingsPercent": "8%",
+    "savingsDirection": "SALTY saves you $182 vs. doing it yourself",
+    "comparisonStrength": "MODERATE-WEAK",
+    "pricelessItems": [
+      {"category": "Community", "emoji": "👥", "description": "25-30 fun-loving humans who become your crew"},
+      {"category": "Trip Planning", "emoji": "📋", "description": "Every detail handled — you just show up"},
+      {"category": "Professional Coaching", "emoji": "💪", "description": "Coaches with Olympic and Cirque du Soleil credentials"},
+      {"category": "Professional Photography", "emoji": "📸", "description": "Content you'd normally need to book a shoot for (estimated value: $300-500)"}
+    ],
+    "comparisonNotes": "MODERATE-WEAK COMPARISON. Morocco's low cost of living keeps DIY affordable even at premium accommodation levels. The $182 savings (8%) is thin — largely driven by accommodation ($1,190) and surf instruction ($327). The comparison improves significantly against SALTY's shared ($2,149) and double ($2,399) tiers. Value prop should emphasize coaching quality, curated excursions, and community over cost savings. Note: SALTY's dorm tier ($1,999) is only $182 less than DIY, but the double tier ($2,399) shows $218 MORE value."
+  },
+  {
+    "destination": "Sri Lanka",
+    "retreatName": "Island Tides",
+    "retreatDates": "February 12-21, 2026",
+    "nights": 9,
+    "saltyPrices": {
+      "dorm": 1999,
+      "triple": 2249,
+      "cozy_double": 2599,
+      "split_double": 2699
+    },
+    "saltyPriceShown": 1999,
+    "saltyPriceLabel": "from / person (dorm, early bird)",
+    "researchDate": "2026-02-09",
+    "exchangeRates": {
+      "LKR_to_USD": 0.00323,
+      "USD_to_LKR": 309,
+      "note": "1 USD = 309 LKR"
+    },
+    "diyLineItems": [
+      {
+        "category": "Accommodation — Coast",
+        "emoji": "🏠",
+        "description": "Premium boutique hotel near Ahangama/Weligama, 6 nights (The Kip / Abode level)",
+        "diyPrice": 750,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.booking.com/fourstars/city/lk/ahangama.html",
+        "sourceName": "Booking.com — 4-Star Hotels Ahangama",
+        "methodology": "4-star boutique average $99-249/night. The Kip $249/night, Abode Ahangama from $117/night. Used $125/night (mid-premium boutique with beach access, quality furnishings) × 6 = $750.",
+        "searchParams": "1 guest, Feb 12-18 2026, Ahangama/Weligama, premium boutique 4-star"
+      },
+      {
+        "category": "Accommodation — Mountains",
+        "emoji": "🏔️",
+        "description": "Premium boutique resort in Ella, 3 nights (98 Acres / Ella Flower Garden level)",
+        "diyPrice": 450,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.kayak.com/Bandarawela-Hotels-98-Acres-Resort-Spa.453456.ksp",
+        "sourceName": "KAYAK — 98 Acres Resort & Spa",
+        "methodology": "Ella Flower Garden $76-207/night, 98 Acres Resort $251+/night. Used $150/night (mid-premium with scenic views) × 3 = $450.",
+        "searchParams": "1 guest, Feb 18-21 2026, Ella, premium boutique with views"
+      },
+      {
+        "category": "Meals — Breakfast",
+        "emoji": "☕",
+        "description": "Quality restaurant breakfast (eggs, fruit, juice, coffee), 9 days",
+        "diyPrice": 73,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.numbeo.com/food-prices/in/Weligama-Sri-Lanka",
+        "sourceName": "Numbeo — Weligama Food Prices",
+        "methodology": "Full quality breakfast: 2,500 LKR (~$8.10). Egg/avocado sandwich 1,000 LKR + granola 700 LKR + coffee 500 LKR. $8.10 × 9 = $73."
+      },
+      {
+        "category": "Meals — Lunch",
+        "emoji": "🍽️",
+        "description": "Multi-course lunch (soup/appetizer + main + drink), ~7 days (SALTY covers most meals)",
+        "diyPrice": 79,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.numbeo.com/food-prices/in/Weligama-Sri-Lanka",
+        "sourceName": "Numbeo — Weligama Food Prices",
+        "methodology": "Quality multi-course lunch: 3,500 LKR (~$11.33). Curry dish 1,500 LKR + starter + beverage. $11.33 × 7 = $79."
+      },
+      {
+        "category": "Meals — Dinner",
+        "emoji": "🍷",
+        "description": "Multi-course dinner (starter + main + drink), ~7 days (SALTY covers most dinners)",
+        "diyPrice": 102,
+        "saltyIncluded": true,
+        "sourceUrl": "https://alike.io/blog/sri-lanka-food-guide-2025-cost-indian-travellers",
+        "sourceName": "Alike.io — Sri Lanka Food Guide",
+        "methodology": "Quality multi-course dinner: 4,500 LKR (~$14.57). Fine dining range 3,000-8,000 LKR. $14.57 × 7 = $102."
+      },
+      {
+        "category": "Surf Lessons",
+        "emoji": "🏄",
+        "description": "4 premium surf sessions with video analysis coaching",
+        "diyPrice": 220,
+        "saltyIncluded": true,
+        "sourceUrl": "https://ceylonsliders.com/weligama/surf-lessons/",
+        "sourceName": "Ceylon Sliders Weligama",
+        "sourceUrl2": "https://surfschoolsrilanka.com/video-analysis/",
+        "sourceName2": "Surf School Sri Lanka — Video Analysis",
+        "methodology": "Premium coaching with video: group $25-60/session, video analysis premium +$15. Used $55/session × 4 = $220."
+      },
+      {
+        "category": "Yoga Classes",
+        "emoji": "🧘",
+        "description": "Daily drop-in yoga, 9 days",
+        "diyPrice": 38,
+        "saltyIncluded": true,
+        "sourceUrl": "https://girlonazebra.com/yoga-in-weligama/",
+        "sourceName": "Girl on a Zebra — Yoga in Weligama",
+        "methodology": "Drop-in yoga: 1,300 LKR (~$4.21). Many free/donation-based options exist. Used $4.21 × 9 = $38. Sri Lanka yoga is genuinely affordable — honest pricing."
+      },
+      {
+        "category": "Galle Fort Tour",
+        "emoji": "🏛️",
+        "description": "Guided half-day walking tour of Galle Fort",
+        "diyPrice": 15,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.viator.com/Galle-attractions/Galle-Fort/d22288-a21375",
+        "sourceName": "Viator — Galle Fort Walking Tour",
+        "methodology": "Guided walking tour including entrance and refreshments: $15/person on Viator."
+      },
+      {
+        "category": "Train — Kandy to Ella",
+        "emoji": "🚂",
+        "description": "Scenic train ride Kandy → Ella (1st class reserved)",
+        "diyPrice": 15,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.rome2rio.com/Train/Kandy/Ella",
+        "sourceName": "Rome2Rio — Kandy to Ella Train",
+        "methodology": "Official 1st class: 3,000 LKR (~$10). With booking platform fee: $15. This is famously cheap — honest pricing."
+      },
+      {
+        "category": "Little Adam's Peak",
+        "emoji": "🥾",
+        "description": "Self-guided hike + tuk-tuk to trailhead",
+        "diyPrice": 5,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.laurewanders.com/little-adams-peak-hike-ella/",
+        "sourceName": "Laure Wanders — Little Adam's Peak",
+        "methodology": "No entrance fee. Tuk-tuk roundtrip 300-500 LKR each way ≈ $5."
+      },
+      {
+        "category": "Nine Arches Bridge",
+        "emoji": "🌉",
+        "description": "Tuk-tuk to Nine Arches Bridge from Ella",
+        "diyPrice": 6,
+        "saltyIncluded": true,
+        "sourceUrl": "https://travelnania.com/nine-arch-bridge-ella/",
+        "sourceName": "Travelnania — Nine Arch Bridge Guide",
+        "methodology": "No entrance fee. Tuk-tuk roundtrip 200-300 LKR each way ≈ $6."
+      },
+      {
+        "category": "Inland Transfers",
+        "emoji": "🚗",
+        "description": "3 private car transfers: CMB→Ahangama + Ahangama→Ella + Ella→CMB",
+        "diyPrice": 295,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.mytransfers.com/en/destination/sri-lanka/sri-lanka-colombo-airport-cmb/ahangama/",
+        "sourceName": "MyTransfers — Colombo to Ahangama",
+        "sourceUrl2": "https://ellapremiertaxi.com/tour/ella-to-colombo-airport/",
+        "sourceName2": "Ella Premier Taxi",
+        "methodology": "3 legs, solo traveler pays full vehicle rate: CMB→Ahangama $110 + Ahangama→Ella $85 + Ella→CMB $100. Total $295. SALTY splits this across the group."
+      },
+      {
+        "category": "Welcome Drinks + Cocktail Nights",
+        "emoji": "🍸",
+        "description": "3 quality drinks events (welcome drinks + 2 hosted cocktail nights)",
+        "diyPrice": 36,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.numbeo.com/cost-of-living/country_result.jsp?country=Sri+Lanka",
+        "sourceName": "Numbeo — Sri Lanka Cost of Living",
+        "methodology": "Quality cocktails in Weligama/Ella: $5-7/drink. 2 drinks × 3 events = 6 drinks × $6 = $36."
+      }
+    ],
+    "diyTotal": 2084,
+    "savings": 85,
+    "savingsPercent": "4%",
+    "savingsDirection": "SALTY saves you $85 vs. doing it yourself",
+    "comparisonStrength": "WEAK",
+    "pricelessItems": [
+      {"category": "Community", "emoji": "👥", "description": "25-30 fun-loving humans who become your crew"},
+      {"category": "Trip Planning", "emoji": "📋", "description": "Every detail handled — you just show up"},
+      {"category": "Professional Coaching", "emoji": "💪", "description": "Coaches with Olympic and Cirque du Soleil credentials"},
+      {"category": "Professional Photography", "emoji": "📸", "description": "Content you'd normally need to book a shoot for (estimated value: $300-500)"}
+    ],
+    "comparisonNotes": "WEAK COMPARISON against dorm tier ($1,999). Sri Lanka is genuinely affordable — even premium boutique accommodation and multi-course meals are cheap by Western standards. The 4% savings is thin. However, comparison strengthens significantly against higher tiers: triple ($2,249) saves $165, cozy double ($2,599) saves $515. The strongest SALTY value prop here is multi-location logistics — 3 private transfers ($295) that solo travelers must arrange themselves, plus the complexity of coordinating coast + mountains itinerary. Recommend framing around 'hassle-free multi-location' and showing comparison against triple/double tiers."
+  },
+  {
+    "destination": "Costa Rica",
+    "retreatName": "Surf Sweat Flow v4",
+    "retreatDates": "January 9-16, 2027",
+    "nights": 7,
+    "saltyPrices": {
+      "quad": 1949,
+      "triple": 2199,
+      "double": 2399
+    },
+    "saltyPriceShown": 1949,
+    "saltyPriceLabel": "from / person (quad room, early bird)",
+    "researchDate": "2026-02-09",
+    "exchangeRates": {
+      "note": "Osa Peninsula prices mostly in USD. Costa Rica tax: 13% IVA + 10-15% service."
+    },
+    "diyLineItems": [
+      {
+        "category": "Accommodation",
+        "emoji": "🏠",
+        "description": "Premium eco-lodge near Puerto Jimenez, 7 nights (Lapa Rios / El Remanso level)",
+        "diyPrice": 2800,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.kayak.com/Puerto-Jimenez-Hotels-Lapa-Rios-Lodge.300758.ksp",
+        "sourceName": "KAYAK — Lapa Rios Lodge",
+        "sourceUrl2": "https://www.kayak.com/Puerto-Jimenez-Hotels-El-Remanso-Lodge.2336097.ksp",
+        "sourceName2": "KAYAK — El Remanso Lodge",
+        "methodology": "Osa eco-lodges: Lapa Rios $594-1,711/night, El Remanso $185-285/night, Crocodile Bay $372+/night. Used $400/night (mid-premium eco-lodge, single occupancy, January high season) × 7 = $2,800. This reflects the TYPE of property SALTY books — not a basic $72/night hotel.",
+        "searchParams": "1 guest, Jan 9-16 2027, Osa Peninsula, premium eco-lodge"
+      },
+      {
+        "category": "Meals",
+        "emoji": "🍽️",
+        "description": "Multi-course restaurant meals (ALL meals — breakfast, lunch, dinner), 7 days",
+        "diyPrice": 735,
+        "saltyIncluded": true,
+        "sourceUrl": "https://costa-rica-guide.com/practical/budget/how-much-does-food-cost/",
+        "sourceName": "Costa Rica Guide — Food Costs",
+        "sourceUrl2": "https://www.fodors.com/world/mexico-and-central-america/costa-rica/the-osa-peninsula-and-the-south-pacific/restaurants",
+        "sourceName2": "Fodor's — Osa Peninsula Restaurants",
+        "methodology": "SALTY includes ALL chef-prepared multi-course meals. DIY equivalent at quality Osa restaurants: breakfast $20 (full with eggs, fruit, juice), lunch $32 (starter + main + drink), dinner $38 (appetizer + main + wine). Daily $90 + ~15% tax/service = $105/day × 7 = $735. Osa Peninsula is remote — restaurant options limited and premium-priced."
+      },
+      {
+        "category": "Fitness & Yoga",
+        "emoji": "🧘",
+        "description": "Daily yoga/fitness classes, 7 days (private instruction — no public studios in Osa)",
+        "diyPrice": 400,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.blueosa.com/",
+        "sourceName": "Blue Osa Yoga Retreat",
+        "sourceUrl2": "https://lunalodge.com/osa-peninsula-yoga/",
+        "sourceName2": "Luna Lodge Yoga",
+        "methodology": "Osa Peninsula has NO standalone yoga studios with drop-in. Blue Osa and Luna Lodge offer yoga only for retreat guests. Private instruction: $50-80/session in Costa Rica. Used $57/session × 7 = $400. This is a MAJOR SALTY differentiator — daily workouts + yoga are impossible to access DIY in Osa.",
+        "confidenceLevel": "medium — rate estimated, availability is the real issue"
+      },
+      {
+        "category": "Surf Lesson",
+        "emoji": "🏄",
+        "description": "1 group surf lesson at Pan Dulce (2.5 hrs + board + transport)",
+        "diyPrice": 100,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.pollosurfschool.com/",
+        "sourceName": "Pollo Surf School",
+        "sourceUrl2": "https://www.osawild.travel/product/surfing-lessons/",
+        "sourceName2": "Osa Wild Travel — Surf Lessons",
+        "methodology": "Pollo Surf School group lesson: $65/person for 2hrs + board. Transport to Pan Dulce: $20 round-trip taxi. Plus 13% IVA ≈ $100 total."
+      },
+      {
+        "category": "Waterfall Hike",
+        "emoji": "🌊",
+        "description": "Guided Matapalo Waterfall hike (professional guide + transport + snacks)",
+        "diyPrice": 100,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.osawild.travel/product/matapalo-tour/",
+        "sourceName": "Osa Wild Travel — Matapalo Tour",
+        "methodology": "Osa Wild Travel Matapalo tour: per-person price not listed online (minimum 2 people). Comparable Osa guided nature tours: $80-150/person. Used $100 conservative estimate."
+      },
+      {
+        "category": "Spa Treatment",
+        "emoji": "💆",
+        "description": "60-minute therapeutic massage at premium Osa spa",
+        "diyPrice": 120,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.blueosa.com/experience/luxury-spa/",
+        "sourceName": "Blue Osa Luxury Spa",
+        "sourceUrl2": "https://lunalodge.com/spa-osa-peninsula/",
+        "sourceName2": "Luna Lodge Spa",
+        "methodology": "Premium Osa spas: Luna Lodge, Blue Osa, Botanika. Individual pricing not published (bundled into retreat packages). Costa Rica premium spa: $100-150 for 60-min. Used $120. SALTY includes $50 spa credit — actual value higher."
+      },
+      {
+        "category": "Airport Transfer",
+        "emoji": "✈️",
+        "description": "Local taxi from Puerto Jimenez airport (round-trip)",
+        "diyPrice": 80,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.transfeero.com/en/puerto-jimenez-airport-transfers-pjm/",
+        "sourceName": "Transfeero — PJM Airport Transfers",
+        "methodology": "Round-trip local taxi: $70 + 13% IVA ≈ $80. Taxis unmetered in Osa. SANSA flight (~$310) excluded from both sides."
+      },
+      {
+        "category": "Ground Transport",
+        "emoji": "🚕",
+        "description": "Daily taxis in remote Osa (restaurants, beaches, activities), 7 days",
+        "diyPrice": 150,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.tripadvisor.com/ShowTopic-g309279-i4523-k10567329-Transportation_sanity_check-Osa_Peninsula_Province_of_Puntarenas.html",
+        "sourceName": "TripAdvisor — Osa Transportation",
+        "methodology": "Osa is remote with no public transit. Taxis unmetered. 5 days casual transport at $20-30/day = $125, plus activity days at $25/day. Total $150. This is expensive and unpredictable — a SALTY value-add."
+      }
+    ],
+    "diyTotal": 4485,
+    "savings": 2536,
+    "savingsPercent": "57%",
+    "savingsDirection": "SALTY saves you $2,536 vs. doing it yourself",
+    "comparisonStrength": "STRONGEST",
+    "pricelessItems": [
+      {"category": "Community", "emoji": "👥", "description": "25-30 fun-loving humans who become your crew"},
+      {"category": "Trip Planning", "emoji": "📋", "description": "Every detail handled — you just show up"},
+      {"category": "Professional Coaching", "emoji": "💪", "description": "Coaches with Olympic and Cirque du Soleil credentials"},
+      {"category": "Professional Photography", "emoji": "📸", "description": "Content you'd normally need to book a shoot for (estimated value: $300-500)"}
+    ],
+    "comparisonNotes": "STRONGEST COMPARISON. Osa Peninsula is remote and premium — eco-lodge accommodation alone ($2,800) exceeds SALTY's entire price ($1,949). Multi-course meals at $105/day, impossible-to-access yoga/fitness ($400 for private instruction because no studios exist), and expensive ground transport all compound. SALTY's group buying power is most visible here: splitting a premium eco-lodge 4 ways plus negotiated rates cuts the biggest cost driver dramatically. This should be the LEAD comparison on the tool."
+  },
+  {
+    "destination": "El Salvador",
+    "retreatName": "Mar de Flores",
+    "retreatDates": "November 21-28, 2026",
+    "nights": 7,
+    "saltyPrices": {
+      "group_of_4": 1949,
+      "group_of_3": 2149,
+      "standard_double": 2399,
+      "premium_double": 2699
+    },
+    "saltyPriceShown": 1949,
+    "saltyPriceLabel": "from / person (group of 4, early bird)",
+    "researchDate": "2026-02-09",
+    "exchangeRates": {
+      "note": "El Salvador uses USD — no conversion needed"
+    },
+    "diyLineItems": [
+      {
+        "category": "Accommodation",
+        "emoji": "🏠",
+        "description": "Premium beachfront resort in El Tunco with pools (Boca Olas level), 7 nights",
+        "diyPrice": 1610,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.kayak.com/La-Libertad-Hotels-Boca-Olas-Resort-Villas.2326819.ksp",
+        "sourceName": "KAYAK — Boca Olas Resort Villas",
+        "sourceUrl2": "https://www.momondo.com/hotels/la-libertad-city/Boca-Olas-Resort-Villas.mhd2326819.ksp",
+        "sourceName2": "Momondo — Boca Olas Resort",
+        "methodology": "SALTY provides Mar de Flores luxury villa complex with 4 private pools. Closest solo equivalent: Boca Olas Resort Villas ($187-286/night, 3.5-star, pools, beachfront). Used $230/night × 7 = $1,610. NOTE: Still only 2 pools vs. SALTY's 4 private pools — not fully comparable.",
+        "searchParams": "1 guest, Nov 21-28 2026, El Tunco, premium resort with pool"
+      },
+      {
+        "category": "Meals",
+        "emoji": "🍽️",
+        "description": "Multi-course restaurant meals (16 SALTY-covered + 5 on own)",
+        "diyPrice": 348,
+        "saltyIncluded": true,
+        "sourceUrl": "https://tuncolife.com/best-restaurants-el-tunco-beach/",
+        "sourceName": "TuncoLife — Best Restaurants El Tunco",
+        "sourceUrl2": "https://gatheringwaves.com/best-el-tunco-restaurants/",
+        "sourceName2": "Gathering Waves — El Tunco Restaurants",
+        "methodology": "SALTY includes ~16 rotating-chef multi-course meals. DIY restaurant equivalent: appetizer ($5) + main ($12) + drink ($6) = $18/meal × 16 = $288. Remaining 5 meals at mid-range: $12/meal × 5 = $60. Total $348. NOTE: restaurant meals are not equivalent to private chef meals — SALTY's dining experience is significantly elevated."
+      },
+      {
+        "category": "Gym Access",
+        "emoji": "🏋️",
+        "description": "Daily gym passes, 7 days",
+        "diyPrice": 70,
+        "saltyIncluded": true,
+        "sourceUrl": "https://www.atami.com.sv/en/day-pass/",
+        "sourceName": "Atami Escape Resort Day Pass",
+        "methodology": "El Tunco has limited dedicated gyms. Resort/hotel gym day passes: $10-12/day. Used $10/day × 7 = $70.",
+        "confidenceLevel": "low — limited options, pricing estimated"
+      },
+      {
+        "category": "Yoga Classes",
+        "emoji": "🧘",
+        "description": "Daily quality yoga class, 7 days",
+        "diyPrice": 105,
+        "saltyIncluded": true,
+        "sourceUrl": "https://elsalvadoryoga.com/yoga-classes-in-el-salvador/",
+        "sourceName": "Balancé Yoga — El Salvador",
+        "methodology": "Balancé Yoga & Surf Retreat: $15/class for general public (includes mat, towel, tax). $15 × 7 = $105."
+      },
+      {
+        "category": "Tamanique Waterfall",
+        "emoji": "🌊",
+        "description": "Organized guided day trip (transport, guide, fees)",
+        "diyPrice": 40,
+        "saltyIncluded": true,
+        "sourceUrl": "https://tuncolife.com/tamanique-waterfalls-hike-tour-el-salvador/",
+        "sourceName": "TuncoLife — Tamanique Waterfall Tour",
+        "methodology": "Organized half-day tour from El Tunco: $40/person including transport, mandatory guide, and entrance. 45-min hike each way."
+      },
+      {
+        "category": "Pool Access",
+        "emoji": "🏊",
+        "description": "Included with Boca Olas accommodation (2 pools vs. SALTY's 4 private pools)",
+        "diyPrice": 0,
+        "saltyIncluded": true,
+        "sourceUrl": "",
+        "sourceName": "Included with resort stay",
+        "methodology": "Boca Olas includes 2 pools with room. SALTY's 4 private pools in a luxury villa complex are a key differentiator that cannot be fully replicated as a solo traveler at ANY price point in El Tunco."
+      },
+      {
+        "category": "Airport Transfer",
+        "emoji": "✈️",
+        "description": "Private transfer SAL ↔ El Tunco (round-trip)",
+        "diyPrice": 240,
+        "saltyIncluded": true,
+        "sourceUrl": "https://tuncolife.com/airport-transfers-el-salvador-san-salvador/",
+        "sourceName": "TuncoLife — Airport Transfers",
+        "sourceUrl2": "https://www.viator.com/tours/La-Libertad/Airport-transfer-to-El-Tunco-beach-or-nearby-areas/d22202-90789P5",
+        "sourceName2": "Viator — El Salvador Airport Transfer",
+        "methodology": "Private transfer: $85-160 one-way. Used $120/direction × 2 (round-trip) = $240."
+      },
+      {
+        "category": "Hosted Cocktail Nights",
+        "emoji": "🍸",
+        "description": "2 curated cocktail bar evenings (premium drinks + appetizers)",
+        "diyPrice": 102,
+        "saltyIncluded": true,
+        "sourceUrl": "https://tuncolife.com/tunco-beach-night-life-a-definitive-guide-to-unforgettable-nights/",
+        "sourceName": "TuncoLife — Nightlife Guide",
+        "methodology": "La Bonita Beach Club: $20 entry + 2 premium cocktails ($8 each) + appetizers ($15) = $51/night × 2 = $102."
+      }
+    ],
+    "diyTotal": 2515,
+    "savings": 566,
+    "savingsPercent": "23%",
+    "savingsDirection": "SALTY saves you $566 vs. doing it yourself",
+    "comparisonStrength": "MODERATE",
+    "pricelessItems": [
+      {"category": "Community", "emoji": "👥", "description": "25-30 fun-loving humans who become your crew"},
+      {"category": "Trip Planning", "emoji": "📋", "description": "Every detail handled — you just show up"},
+      {"category": "Professional Coaching", "emoji": "💪", "description": "Coaches with Olympic and Cirque du Soleil credentials"},
+      {"category": "Professional Photography", "emoji": "📸", "description": "Content you'd normally need to book a shoot for (estimated value: $300-500)"}
+    ],
+    "comparisonNotes": "MODERATE COMPARISON. The $566 savings (23%) is driven primarily by accommodation — solo traveler pays $1,610 for a resort that still doesn't match SALTY's luxury villa with 4 private pools. The private chef meals are the other major differentiator: SALTY provides rotating local chefs preparing multi-course meals that restaurant dining ($348) can't replicate in quality. El Salvador's low cost of living keeps food/activity costs low, but the accommodation gap and premium experiences (private pools, chef meals, professional photography) make SALTY's value clear. Including professional photography (~$450 value) would push DIY to ~$2,965 and savings to 52%."
+  }
+]
