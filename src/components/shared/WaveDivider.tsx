@@ -1,6 +1,6 @@
 'use client';
 
-type WaveVariant = 'sunset' | 'ocean' | 'warm' | 'cool' | 'earth';
+type WaveVariant = 'sunset' | 'ocean' | 'warm' | 'cool' | 'earth' | 'lines' | 'linesSun' | 'linesBlueWhite' | 'linesGoldSand' | 'linesCoralSun' | 'linesTealOrange';
 
 interface WaveDividerProps {
   variant?: WaveVariant;
@@ -8,7 +8,7 @@ interface WaveDividerProps {
   className?: string;
 }
 
-const waveColors: Record<WaveVariant, string[]> = {
+const waveColors: Record<Exclude<WaveVariant, 'lines' | 'linesSun' | 'linesBlueWhite' | 'linesGoldSand' | 'linesCoralSun' | 'linesTealOrange'>, string[]> = {
   sunset: ['#FF7E70', '#FED260', '#F75A3D', '#CCB4B3'],
   ocean: ['#B6D4EA', '#A4E5D9', '#0E3A2D', '#3A6B35'],
   warm: ['#FED260', '#F75A3D', '#C74235', '#FF7E70'],
@@ -17,6 +17,63 @@ const waveColors: Record<WaveVariant, string[]> = {
 };
 
 export default function WaveDivider({ variant = 'sunset', flip = false, className = '' }: WaveDividerProps) {
+  if (variant === 'lines') {
+    const topColor = flip ? '#F75A3D' : '#b6d4ea';
+    const bottomColor = flip ? '#b6d4ea' : '#F75A3D';
+
+    return (
+      <div className={`w-full leading-[0] ${className}`} aria-hidden="true">
+        <div className="h-[6px] w-full" style={{ backgroundColor: topColor }} />
+        <div className="h-[6px] w-full" style={{ backgroundColor: bottomColor }} />
+      </div>
+    );
+  }
+
+  if (variant === 'linesSun') {
+    return (
+      <div className={`w-full leading-[0] ${className}`} aria-hidden="true">
+        <div className="h-[6px] w-full bg-[#FED260]" />
+        <div className="h-[6px] w-full bg-[#0E3A2D]" />
+      </div>
+    );
+  }
+
+  if (variant === 'linesBlueWhite') {
+    return (
+      <div className={`w-full leading-[0] ${className}`} aria-hidden="true">
+        <div className="h-[6px] w-full bg-[#0E3A2D]" />
+        <div className="h-[6px] w-full bg-[#f75a3d]" />
+      </div>
+    );
+  }
+
+  if (variant === 'linesGoldSand') {
+    return (
+      <div className={`w-full leading-[0] ${className}`} aria-hidden="true">
+        <div className="h-[6px] w-full bg-salty-gold" />
+        <div className="h-[6px] w-full bg-salty-sand" />
+      </div>
+    );
+  }
+
+  if (variant === 'linesCoralSun') {
+    return (
+      <div className={`w-full leading-[0] ${className}`} aria-hidden="true">
+        <div className="h-[6px] w-full bg-[#F75A3D]" />
+        <div className="h-[6px] w-full bg-[#FED260]" />
+      </div>
+    );
+  }
+
+  if (variant === 'linesTealOrange') {
+    return (
+      <div className={`w-full leading-[0] ${className}`} aria-hidden="true">
+        <div className="h-[6px] w-full bg-[#0E3A2D]" />
+        <div className="h-[6px] w-full bg-[#F75A3D]" />
+      </div>
+    );
+  }
+
   const colors = waveColors[variant];
 
   return (
