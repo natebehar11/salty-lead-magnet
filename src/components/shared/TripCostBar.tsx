@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { formatCurrency } from '@/lib/utils';
+import { useCurrencyStore } from '@/stores/currency-store';
+import { convertAmount } from '@/lib/currency';
 import Button from './Button';
 
 interface TripCostBarProps {
@@ -21,7 +23,7 @@ export default function TripCostBar({
   destination,
   retreatSlug,
   retreatPrice,
-  flightLabel,
+  flightLabel: _flightLabel,
   flightAmount,
   isFlightEstimated: _isFlightEstimated,
   valueSummary,
@@ -30,12 +32,20 @@ export default function TripCostBar({
   status = 'available',
 }: TripCostBarProps) {
   void _isFlightEstimated;
+  void _flightLabel;
+
+  const { selectedCurrency, rates } = useCurrencyStore();
+  const rate = rates[selectedCurrency];
+
   if (retreatPrice === 0) return null;
+  const fmtConverted = (usd: number) => formatCurrency(convertAmount(usd, rate), selectedCurrency);
 
   const total = retreatPrice + flightAmount;
   const totalLabel = flightAmount > 0
-    ? `~${formatCurrency(total)}`
-    : formatCurrency(retreatPrice);
+    ? `~${fmtConverted(total)}`
+    : fmtConverted(retreatPrice);
+
+  const flightDisplay = flightAmount > 0 ? `~${fmtConverted(flightAmount)}` : '';
 
   const bookingUrl = `https://getsaltyretreats.com/retreats/${retreatSlug}`;
   const ctaLabel = status === 'available' ? 'Book Your Spot' : status === 'coming_soon' ? 'Get Notified' : 'Learn More';
@@ -49,7 +59,7 @@ export default function TripCostBar({
         </div>
         {flightAmount > 0 && (
           <p className="font-body text-xs text-salty-slate/50 mt-0.5">
-            (retreat from {formatCurrency(retreatPrice)} + flights {flightLabel})
+            (retreat from {fmtConverted(retreatPrice)} + flights {flightDisplay})
           </p>
         )}
       </div>
@@ -65,11 +75,11 @@ export default function TripCostBar({
         <div className="space-y-1.5 mb-3">
           <div className="flex justify-between font-body text-sm text-salty-deep-teal/70">
             <span>Retreat</span>
-            <span>from {formatCurrency(retreatPrice)}</span>
+            <span>from {fmtConverted(retreatPrice)}</span>
           </div>
           <div className="flex justify-between font-body text-sm text-salty-deep-teal/70">
             <span>Flights</span>
-            <span>{isLoading ? 'Searching...' : flightAmount > 0 ? flightLabel : 'Select flights below'}</span>
+            <span>{isLoading ? 'Searching...' : flightAmount > 0 ? flightDisplay : 'Select flights below'}</span>
           </div>
           <div className="border-t border-salty-deep-teal/10 pt-1.5 flex justify-between">
             <span className="font-display text-salty-deep-teal">Total</span>
@@ -100,11 +110,11 @@ export default function TripCostBar({
 
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
           <span className="font-body text-salty-deep-teal">
-            Retreat from {formatCurrency(retreatPrice)}
+            Retreat from {fmtConverted(retreatPrice)}
           </span>
           <span className="text-salty-deep-teal/40">+</span>
           <span className="font-body text-salty-deep-teal">
-            {isLoading ? 'Searching flights...' : flightAmount > 0 ? `Flights ${flightLabel}` : 'No flights found'}
+            {isLoading ? 'Searching flights...' : flightAmount > 0 ? `Flights ${flightDisplay}` : 'No flights found'}
           </span>
           {flightAmount > 0 && (
             <>

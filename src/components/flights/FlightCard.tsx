@@ -3,20 +3,22 @@
 import { FlightOption } from '@/types/flight';
 import { formatCurrency, formatDuration, cn } from '@/lib/utils';
 import { useFlightStore } from '@/stores/flight-store';
+import { useCurrencyStore } from '@/stores/currency-store';
+import { convertAmount } from '@/lib/currency';
 import { generateGoogleFlightsUrl } from '@/lib/google-flights';
 
 interface FlightCardProps {
   flight: FlightOption;
-  currency: string;
   showCheckbox?: boolean;
   originCode?: string;
   destCode?: string;
 }
 
-export default function FlightCard({ flight, currency, showCheckbox = false, originCode, destCode }: FlightCardProps) {
+export default function FlightCard({ flight, showCheckbox = false, originCode, destCode }: FlightCardProps) {
   const firstSegment = flight.segments[0];
   const lastSegment = flight.segments[flight.segments.length - 1];
   const { favouriteFlightIds, toggleFavourite, selectedOutboundIds, toggleOutboundSelection } = useFlightStore();
+  const { selectedCurrency, rates } = useCurrencyStore();
   const isFavourited = favouriteFlightIds.includes(flight.id);
   const isSelected = selectedOutboundIds.includes(flight.id);
 
@@ -120,7 +122,7 @@ export default function FlightCard({ flight, currency, showCheckbox = false, ori
         </p>
         <div className="flex items-center gap-3">
           <p className="font-display text-xl text-salty-orange-red leading-none">
-            {formatCurrency(flight.price, currency)}
+            {formatCurrency(convertAmount(flight.price, rates[selectedCurrency]), selectedCurrency)}
           </p>
           <a
             href={bookingUrl}

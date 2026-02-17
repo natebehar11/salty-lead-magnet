@@ -8,8 +8,8 @@ import {
   availableCities,
   CityAnchor,
 } from '@/data/city-cost-anchors';
-import { formatCurrency } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import PriceDisplay from '@/components/shared/PriceDisplay';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CostOfStayingHomeProps {
@@ -99,15 +99,13 @@ export default function CostOfStayingHome({ retreatPrice, retreatName }: CostOfS
         <div className="flex items-baseline justify-between mb-3">
           <span className="font-body text-sm text-salty-slate/60">Total in {cityData.cityName}</span>
           <span className="font-display text-xl text-salty-deep-teal font-bold line-through opacity-60">
-            {formatCurrency(cityData.totalCost)} {cityData.currency}
+            ${cityData.totalCost.toLocaleString()} {cityData.currency}
           </span>
         </div>
 
         <div className="flex items-baseline justify-between mb-4">
           <span className="font-body text-sm text-salty-deep-teal font-semibold">{retreatName}</span>
-          <span className="font-display text-2xl text-salty-orange-red font-bold">
-            from {formatCurrency(retreatPrice)} USD
-          </span>
+          <PriceDisplay amountUSD={retreatPrice} label="from" size="md" />
         </div>
 
         <AnimatePresence>

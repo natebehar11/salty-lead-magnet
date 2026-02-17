@@ -43,6 +43,20 @@ export default function SharePlanButton({ retreatSlug, retreatName, retreatDates
       if (data.plan?.id) {
         const url = `${window.location.origin}/plan/${data.plan.id}`;
         setShareUrl(url);
+
+        // Attempt native share first
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: `${retreatName} Trip Plan`,
+              text: message || `Check out my ${retreatName} trip plan!`,
+              url,
+            });
+            return; // Native share succeeded
+          } catch {
+            // User cancelled or share failed — fall through to copy UI
+          }
+        }
       }
     } catch (error) {
       console.error('Failed to create shared plan:', error);
@@ -56,6 +70,20 @@ export default function SharePlanButton({ retreatSlug, retreatName, retreatDates
       navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleNativeShare = async () => {
+    if (shareUrl && navigator.share) {
+      try {
+        await navigator.share({
+          title: `${retreatName} Trip Plan`,
+          text: message || `Check out my ${retreatName} trip plan!`,
+          url: shareUrl,
+        });
+      } catch {
+        // User cancelled — do nothing
+      }
     }
   };
 
@@ -76,6 +104,14 @@ export default function SharePlanButton({ retreatSlug, retreatName, retreatDates
           >
             {copied ? 'Copied!' : 'Copy'}
           </button>
+          {typeof navigator !== 'undefined' && 'share' in navigator && (
+            <button
+              onClick={handleNativeShare}
+              className="px-4 py-2 bg-salty-deep-teal text-white font-body text-xs font-bold rounded-full hover:bg-salty-deep-teal/80 transition-colors"
+            >
+              Share
+            </button>
+          )}
         </div>
         <p className="font-body text-[10px] text-salty-slate/40">
           Anyone with this link can see your trip plan and signal interest
