@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import FlightCard from '../FlightCard';
-import { createMockFlight, createMockSegment } from '@/test/store-mocks';
+import FlightCard from '@/components/flights/FlightCard';
+import { createMockFlight, createMockSegment } from '@test/helpers/store-mocks';
 import { useFlightStore } from '@/stores/flight-store';
 import { useCurrencyStore } from '@/stores/currency-store';
 import { FALLBACK_RATES } from '@/lib/currency';
