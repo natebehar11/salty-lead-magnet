@@ -1,5 +1,5 @@
-import { POST } from '../route';
-import { createMockRequest } from '@/test/api-helpers';
+import { POST } from '@/app/api/planner/suggest/route';
+import { createMockRequest } from '@test/helpers/api-helpers';
 
 // Force fallback mode by ensuring no ANTHROPIC_API_KEY
 beforeAll(() => {
