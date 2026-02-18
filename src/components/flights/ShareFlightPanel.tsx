@@ -3,57 +3,122 @@
 import { useState } from 'react';
 import { FlightOption } from '@/types/flight';
 import { useFlightStore } from '@/stores/flight-store';
+import { useCurrencyStore } from '@/stores/currency-store';
+import { convertAmount } from '@/lib/currency';
+import { formatCurrency } from '@/lib/utils';
 import Button from '@/components/shared/Button';
 import ShareButton from '@/components/shared/ShareButton';
 import { cn } from '@/lib/utils';
 
 interface ShareFlightPanelProps {
-  flights: FlightOption[];
+  departingFlights: FlightOption[];
+  returnFlights: FlightOption[];
   retreatName: string;
 }
 
-export default function ShareFlightPanel({ flights, retreatName }: ShareFlightPanelProps) {
-  const { hasSubmittedLead, leadData } = useFlightStore();
+export default function ShareFlightPanel({ departingFlights, returnFlights, retreatName }: ShareFlightPanelProps) {
+  const { hasSubmittedLead, leadData, selectedOutboundIds, selectedReturnIds } = useFlightStore();
+  const { selectedCurrency, rates } = useCurrencyStore();
   const [isSending, setIsSending] = useState(false);
-  const [sent, setSent] = useState<'email' | 'whatsapp' | 'both' | null>(null);
-  const [showEmailPreview, setShowEmailPreview] = useState(false);
-  const [selectedFlights, setSelectedFlights] = useState<Set<string>>(
-    new Set(flights.slice(0, 3).map((f) => f.id))
-  );
+  const [sent, setSent] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'departing' | 'return'>('departing');
+  const [showFallbackShare, setShowFallbackShare] = useState(false);
 
-  if (!hasSubmittedLead || flights.length === 0) return null;
+  if (!hasSubmittedLead || (departingFlights.length === 0 && returnFlights.length === 0)) return null;
 
-  const toggleFlight = (id: string) => {
-    const next = new Set(selectedFlights);
-    if (next.has(id)) {
-      next.delete(id);
-    } else {
-      next.add(id);
-    }
-    setSelectedFlights(next);
+  const selectedDeparting = departingFlights.filter((f) => selectedOutboundIds.includes(f.id));
+  const selectedReturn = returnFlights.filter((f) => selectedReturnIds.includes(f.id));
+  const totalSelected = selectedDeparting.length + selectedReturn.length;
+
+  const formatFlightPrice = (price: number) => {
+    return formatCurrency(convertAmount(price, rates[selectedCurrency]), selectedCurrency);
   };
 
-  const selectedFlightDetails = flights.filter((f) => selectedFlights.has(f.id));
+  const buildShareText = (): string => {
+    const lines: string[] = [`Flight plans for SALTY ${retreatName}`, ''];
 
-  const handleShare = async (method: 'email' | 'whatsapp' | 'both') => {
+    if (selectedDeparting.length > 0) {
+      lines.push('DEPARTING FLIGHTS:');
+      selectedDeparting.forEach((f, i) => {
+        const airline = [...new Set(f.segments.map(s => s.airline))].join(' + ');
+        const price = formatFlightPrice(f.price);
+        const stops = f.stops === 0 ? 'Direct' : `${f.stops} stop${f.stops > 1 ? 's' : ''}`;
+        lines.push(`${i + 1}. ${airline} | ${price} | ${stops} | ${f.segments[0].departure.date}`);
+      });
+      lines.push('');
+    }
+
+    if (selectedReturn.length > 0) {
+      lines.push('RETURN FLIGHTS:');
+      selectedReturn.forEach((f, i) => {
+        const airline = [...new Set(f.segments.map(s => s.airline))].join(' + ');
+        const price = formatFlightPrice(f.price);
+        const stops = f.stops === 0 ? 'Direct' : `${f.stops} stop${f.stops > 1 ? 's' : ''}`;
+        lines.push(`${i + 1}. ${airline} | ${price} | ${stops} | ${f.segments[0].departure.date}`);
+      });
+      lines.push('');
+    }
+
+    lines.push('Found on explore.getsaltyretreats.com/flights');
+    return lines.join('\n');
+  };
+
+  const openMailtoFallback = () => {
+    const subject = encodeURIComponent(`Your flight plans for ${retreatName}`);
+    const body = encodeURIComponent(buildShareText());
+    window.open(`mailto:${leadData?.email || ''}?subject=${subject}&body=${body}`, '_self');
+  };
+
+  const handleEmailMe = async () => {
+    if (totalSelected === 0) return;
     setIsSending(true);
     try {
-      const selected = flights.filter((f) => selectedFlights.has(f.id));
-      await fetch('/api/leads/share-flights', {
+      const res = await fetch('/api/leads/send-flights', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           leadData,
-          flightOptions: selected,
+          departingFlights: selectedDeparting,
+          returnFlights: selectedReturn,
           retreatName,
-          deliveryMethod: method,
+          currency: selectedCurrency,
         }),
       });
-      setSent(method);
+      const data = await res.json();
+      if (data.success) {
+        setSent('email');
+      } else {
+        openMailtoFallback();
+        setSent('email');
+      }
     } catch {
-      console.log('Share failed, but non-blocking');
+      openMailtoFallback();
+      setSent('email');
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleWhatsApp = () => {
+    const text = encodeURIComponent(buildShareText());
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+    setSent('whatsapp');
+  };
+
+  const handleShareWithFriends = async () => {
+    const text = buildShareText();
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Flight options for SALTY ${retreatName}`,
+          text,
+          url: 'https://explore.getsaltyretreats.com/flights',
+        });
+      } catch {
+        // User cancelled share — no-op
+      }
+    } else {
+      setShowFallbackShare(true);
     }
   };
 
@@ -61,7 +126,7 @@ export default function ShareFlightPanel({ flights, retreatName }: ShareFlightPa
     return (
       <div className="mt-8 p-6 bg-salty-olive/10 border-2 border-salty-olive/30 rounded-xl text-center">
         <p className="font-display text-lg text-salty-deep-teal mb-1">
-          Sent! Check your {sent === 'email' ? 'inbox' : sent === 'whatsapp' ? 'WhatsApp' : 'inbox and WhatsApp'}.
+          Sent! Check your {sent === 'email' ? 'inbox' : 'WhatsApp'}.
         </p>
         <p className="font-body text-sm text-salty-deep-teal/60">
           Come back anytime to search again. These prices update regularly.
@@ -70,115 +135,124 @@ export default function ShareFlightPanel({ flights, retreatName }: ShareFlightPa
     );
   }
 
+  const currentFlights = activeTab === 'departing' ? departingFlights : returnFlights;
+  const currentSelectedIds = activeTab === 'departing' ? selectedOutboundIds : selectedReturnIds;
+
   return (
     <div className="mt-8 p-6 bg-salty-beige/50 rounded-xl">
       <h4 className="font-display text-lg text-salty-deep-teal mb-2">
-        Send these flight plans to yourself
+        Save These Flight Plans
       </h4>
       <p className="font-body text-sm text-salty-deep-teal/60 mb-4">
-        Save your top options so you can compare later. We&apos;ll send them from SALTY.
+        Send your top options to yourself, or a friend. Track them and save.
       </p>
 
-      {/* Flight selection */}
-      <div className="space-y-2 mb-4">
-        {flights.slice(0, 5).map((flight) => (
-          <label
-            key={flight.id}
-            className={cn(
-              'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors',
-              selectedFlights.has(flight.id)
-                ? 'border-salty-orange-red bg-salty-orange-red/5'
-                : 'border-salty-beige bg-salty-cream'
-            )}
-          >
-            <input
-              type="checkbox"
-              checked={selectedFlights.has(flight.id)}
-              onChange={() => toggleFlight(flight.id)}
-              className="w-4 h-4 accent-salty-orange-red"
-            />
-            <span className="font-body text-sm text-salty-deep-teal flex-1">
-              {flight.segments[0].airline} &middot; ${flight.price} &middot;{' '}
-              {flight.stops === 0 ? 'Direct' : `${flight.stops} stop`}
-            </span>
-          </label>
-        ))}
+      {/* Departing / Return Tabs */}
+      <div className="flex gap-1 mb-3 bg-salty-beige/30 p-1 rounded-xl">
+        <button
+          onClick={() => setActiveTab('departing')}
+          className={cn(
+            'flex-1 py-2 px-3 rounded-lg font-body text-xs font-bold transition-all',
+            activeTab === 'departing'
+              ? 'bg-salty-cream text-salty-deep-teal shadow-sm'
+              : 'text-salty-slate/50 hover:text-salty-deep-teal'
+          )}
+        >
+          Departing ({selectedDeparting.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('return')}
+          className={cn(
+            'flex-1 py-2 px-3 rounded-lg font-body text-xs font-bold transition-all',
+            activeTab === 'return'
+              ? 'bg-salty-cream text-salty-deep-teal shadow-sm'
+              : 'text-salty-slate/50 hover:text-salty-deep-teal'
+          )}
+        >
+          Return ({selectedReturn.length})
+        </button>
       </div>
 
-      {/* Preview email button */}
-      <button
-        onClick={() => setShowEmailPreview(!showEmailPreview)}
-        className="font-body text-xs text-salty-deep-teal/50 hover:text-salty-deep-teal underline underline-offset-2 mb-4 block"
-      >
-        {showEmailPreview ? 'Hide email preview' : 'Preview what we\'ll send'}
-      </button>
+      {/* Selection count */}
+      <p className="font-body text-xs text-salty-slate/50 mb-4">
+        {selectedDeparting.length} departing, {selectedReturn.length} return selected
+      </p>
 
-      {/* Email Preview */}
-      {showEmailPreview && (
-        <div className="mb-4 p-4 bg-white rounded-lg border border-salty-beige text-sm">
-          <div className="border-b border-salty-beige/50 pb-3 mb-3">
-            <p className="font-body text-xs text-salty-slate/40">From: SALTY Retreats &lt;hello@getsaltyretreats.com&gt;</p>
-            <p className="font-body text-xs text-salty-slate/40">To: {leadData?.email || 'you'}</p>
-            <p className="font-body text-xs text-salty-slate/40 font-bold">Subject: Your flight plans for {retreatName}</p>
-          </div>
-          <div className="font-body text-salty-charcoal space-y-3">
-            <p>Hey {leadData?.firstName || 'there'}!</p>
-            <p>Here are the flight options you saved for the <strong>{retreatName}</strong> retreat:</p>
-
-            {selectedFlightDetails.map((f, i) => (
-              <div key={f.id} className="p-3 bg-salty-cream rounded-lg">
-                <p className="font-bold text-salty-deep-teal">Option {i + 1}: {f.segments[0].airline} — ${f.price}</p>
-                <p className="text-xs text-salty-slate/70">
-                  {f.segments[0].departure.time} {f.segments[0].departure.airport} → {f.segments[f.segments.length - 1].arrival.time} {f.segments[f.segments.length - 1].arrival.airport}
-                  {' · '}{f.stops === 0 ? 'Direct' : `${f.stops} stop${f.stops > 1 ? 's' : ''}`}
-                  {' · '}{f.segments[0].departure.date}
-                </p>
+      {/* Flight list for active tab */}
+      <div className="space-y-2 mb-4 max-h-64 overflow-y-auto">
+        {currentFlights.length === 0 ? (
+          <p className="font-body text-xs text-salty-slate/40 text-center py-4">
+            {activeTab === 'return' ? 'Search return flights to see options here.' : 'No flights available.'}
+          </p>
+        ) : (
+          currentFlights.slice(0, 8).map((flight) => {
+            const isChecked = currentSelectedIds.includes(flight.id);
+            return (
+              <div
+                key={flight.id}
+                className={cn(
+                  'flex items-center gap-3 p-3 rounded-lg border transition-colors',
+                  isChecked
+                    ? 'border-salty-orange-red bg-salty-orange-red/5'
+                    : 'border-salty-beige bg-salty-cream'
+                )}
+              >
+                <span
+                  className={cn(
+                    'w-3 h-3 rounded-full border-2 flex-shrink-0',
+                    isChecked ? 'bg-salty-orange-red border-salty-orange-red' : 'border-salty-beige'
+                  )}
+                />
+                <span className="font-body text-sm text-salty-deep-teal flex-1">
+                  {[...new Set(flight.segments.map(s => s.airline))].join(' + ')} &middot;{' '}
+                  {formatFlightPrice(flight.price)} &middot;{' '}
+                  {flight.stops === 0 ? 'Direct' : `${flight.stops} stop${flight.stops > 1 ? 's' : ''}`}
+                </span>
               </div>
-            ))}
-
-            <div className="p-3 bg-salty-deep-teal/5 rounded-lg">
-              <p className="font-bold text-salty-deep-teal text-xs">About {retreatName}</p>
-              <p className="text-xs text-salty-slate/70 mt-1">7 days of surf, yoga, adventure, and unforgettable experiences. All-inclusive pricing covers accommodation, meals, activities, and airport transfers.</p>
-            </div>
-
-            <div className="p-3 bg-salty-yellow/10 rounded-lg">
-              <p className="text-xs text-salty-slate/70">&quot;Best week of my life. The people, the waves, the food — everything was perfect.&quot; — Past SALTY Guest</p>
-            </div>
-
-            <p className="text-xs text-salty-slate/50 mt-2">Ready to book? Reply to this email or reach out on WhatsApp and we&apos;ll help you lock it in.</p>
-          </div>
-        </div>
-      )}
+            );
+          })
+        )}
+      </div>
 
       {/* Send buttons */}
       <div className="flex flex-col sm:flex-row gap-3">
         <Button
-          onClick={() => handleShare('email')}
+          onClick={handleEmailMe}
           variant="primary"
           size="sm"
-          disabled={isSending || selectedFlights.size === 0}
+          disabled={isSending || totalSelected === 0}
           className="flex-1"
         >
           {isSending ? 'Sending...' : 'Email Me'}
         </Button>
         <Button
-          onClick={() => handleShare('whatsapp')}
+          onClick={handleWhatsApp}
           variant="secondary"
           size="sm"
-          disabled={isSending || selectedFlights.size === 0}
+          disabled={totalSelected === 0}
           className="flex-1"
         >
-          {isSending ? 'Sending...' : 'WhatsApp Me'}
+          WhatsApp Me
         </Button>
       </div>
 
       {/* Share with friends */}
       <div className="mt-4 pt-4 border-t border-salty-beige/50 text-center">
-        <ShareButton
-          title={`Flight options for SALTY ${retreatName}`}
-          text={`Check out these flight options for the SALTY ${retreatName} retreat! Found some great deals.`}
-          url="https://explore.getsaltyretreats.com/flights"
-        />
+        <button
+          onClick={handleShareWithFriends}
+          className="font-body text-sm font-bold text-salty-orange-red hover:underline"
+        >
+          Share with Friends
+        </button>
+        {showFallbackShare && (
+          <div className="mt-2">
+            <ShareButton
+              title={`Flight options for SALTY ${retreatName}`}
+              text={buildShareText()}
+              url="https://explore.getsaltyretreats.com/flights"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

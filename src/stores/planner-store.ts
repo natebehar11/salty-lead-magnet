@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { PlannerCity, ItinerarySuggestion } from '@/types/planner';
+import { PlannerCity, ItinerarySuggestion, ChatMessage } from '@/types/planner';
 
 interface PlannerState {
   selectedRetreatSlug: string | null;
@@ -11,6 +11,8 @@ interface PlannerState {
   prompt: string;
   suggestion: ItinerarySuggestion | null;
   formSubmitted: boolean;
+  conversationHistory: ChatMessage[];
+  checkedCityIds: string[];
 
   setSelectedRetreatSlug: (slug: string | null) => void;
   addCity: (type: 'before' | 'after') => void;
@@ -19,6 +21,10 @@ interface PlannerState {
   setPrompt: (prompt: string) => void;
   setSuggestion: (suggestion: ItinerarySuggestion | null) => void;
   setFormSubmitted: (submitted: boolean) => void;
+  addMessage: (message: ChatMessage) => void;
+  clearConversation: () => void;
+  toggleCityChecked: (cityId: string) => void;
+  setAllCitiesChecked: (cityIds: string[]) => void;
   reset: () => void;
 }
 
@@ -31,8 +37,15 @@ export const usePlannerStore = create<PlannerState>()(
       prompt: '',
       suggestion: null,
       formSubmitted: false,
+      conversationHistory: [],
+      checkedCityIds: [],
 
-      setSelectedRetreatSlug: (slug) => set({ selectedRetreatSlug: slug, suggestion: null }),
+      setSelectedRetreatSlug: (slug) => set({
+        selectedRetreatSlug: slug,
+        suggestion: null,
+        conversationHistory: [],
+        checkedCityIds: [],
+      }),
 
       addCity: (type) => {
         const newCity: PlannerCity = {
@@ -64,6 +77,23 @@ export const usePlannerStore = create<PlannerState>()(
       setPrompt: (prompt) => set({ prompt }),
       setSuggestion: (suggestion) => set({ suggestion }),
       setFormSubmitted: (submitted) => set({ formSubmitted: submitted }),
+
+      addMessage: (message) =>
+        set((state) => ({
+          conversationHistory: [...state.conversationHistory, message],
+        })),
+
+      clearConversation: () => set({ conversationHistory: [] }),
+
+      toggleCityChecked: (cityId) =>
+        set((state) => ({
+          checkedCityIds: state.checkedCityIds.includes(cityId)
+            ? state.checkedCityIds.filter((id) => id !== cityId)
+            : [...state.checkedCityIds, cityId],
+        })),
+
+      setAllCitiesChecked: (cityIds) => set({ checkedCityIds: cityIds }),
+
       reset: () => set({
         selectedRetreatSlug: null,
         beforeCities: [],
@@ -71,6 +101,8 @@ export const usePlannerStore = create<PlannerState>()(
         prompt: '',
         suggestion: null,
         formSubmitted: false,
+        conversationHistory: [],
+        checkedCityIds: [],
       }),
     }),
     {
@@ -82,6 +114,8 @@ export const usePlannerStore = create<PlannerState>()(
         prompt: state.prompt,
         suggestion: state.suggestion,
         formSubmitted: state.formSubmitted,
+        conversationHistory: state.conversationHistory,
+        checkedCityIds: state.checkedCityIds,
       }),
     }
   )

@@ -12,15 +12,17 @@ interface FlightCardProps {
   showCheckbox?: boolean;
   originCode?: string;
   destCode?: string;
+  onToggleSelection?: (flightId: string) => void;
+  isSelected?: boolean;
 }
 
-export default function FlightCard({ flight, showCheckbox = false, originCode, destCode }: FlightCardProps) {
+export default function FlightCard({ flight, showCheckbox = false, originCode, destCode, onToggleSelection, isSelected: isSelectedProp }: FlightCardProps) {
   const firstSegment = flight.segments[0];
   const lastSegment = flight.segments[flight.segments.length - 1];
-  const { favouriteFlightIds, toggleFavourite, selectedOutboundIds, toggleOutboundSelection } = useFlightStore();
+  const { selectedOutboundIds, toggleOutboundSelection } = useFlightStore();
   const { selectedCurrency, rates } = useCurrencyStore();
-  const isFavourited = favouriteFlightIds.includes(flight.id);
-  const isSelected = selectedOutboundIds.includes(flight.id);
+  const isSelected = isSelectedProp !== undefined ? isSelectedProp : selectedOutboundIds.includes(flight.id);
+  const handleToggle = onToggleSelection || toggleOutboundSelection;
 
   // Build booking URL: use flight's bookingUrl if available, otherwise Google Flights
   const bookingUrl =
@@ -44,14 +46,14 @@ export default function FlightCard({ flight, showCheckbox = false, originCode, d
           : 'border-salty-beige'
       )}
     >
-      {/* Top Row: Checkbox + Airlines + Favourite */}
-      <div className="flex items-center justify-between mb-2">
+      {/* Top Row: Checkbox + Airlines */}
+      <div className="flex items-center mb-2">
         <div className="flex items-center gap-2">
           {showCheckbox && (
             <input
               type="checkbox"
               checked={isSelected}
-              onChange={() => toggleOutboundSelection(flight.id)}
+              onChange={() => handleToggle(flight.id)}
               className="w-4 h-4 rounded border-salty-beige text-salty-orange-red focus:ring-salty-orange-red accent-salty-orange-red"
             />
           )}
@@ -59,21 +61,6 @@ export default function FlightCard({ flight, showCheckbox = false, originCode, d
             {[...new Set(flight.segments.map((s) => s.airline))].join(' + ')}
           </span>
         </div>
-        {/* Favourite Heart */}
-        <button
-          onClick={() => toggleFavourite(flight.id)}
-          className={cn(
-            'p-1.5 rounded-full transition-all',
-            isFavourited
-              ? 'text-salty-orange-red bg-salty-orange-red/10'
-              : 'text-salty-slate/30 hover:text-salty-orange-red/60 hover:bg-salty-beige/50'
-          )}
-          title={isFavourited ? 'Remove from favourites' : 'Add to favourites'}
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill={isFavourited ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-          </svg>
-        </button>
       </div>
 
       {/* Route: Time → Connection → Time */}

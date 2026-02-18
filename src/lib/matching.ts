@@ -10,12 +10,12 @@ const vibeToMeterKey: Record<VibePreference, keyof Omit<SaltyMeter, 'groupSize'>
   rest: 'rest',
 };
 
-// Room preference → price tier mapping
+// Room preference → price tier mapping (aligned with new budget ranges)
 const roomPriceTiers: Record<RoomPreference, { min: number; max: number }> = {
   dorm: { min: 0, max: 2000 },
-  triple: { min: 2000, max: 2500 },
-  premium: { min: 2500, max: 3000 },
-  single: { min: 3000, max: 99999 },
+  triple: { min: 2000, max: 2400 },
+  premium: { min: 2300, max: 2800 },
+  single: { min: 2800, max: 99999 },
 };
 
 function calculateVibeScore(meter: SaltyMeter, vibes: VibePreference[]): number {

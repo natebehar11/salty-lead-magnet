@@ -53,6 +53,7 @@ export interface FlightSearchResults {
   fastest: FlightOption[];
   unlisted: FlightOption[];
   lastUpdated: string;
+  sourceCurrency: string;
 }
 
 export type FlightDateOption = 'day-of' | 'day-before' | 'two-days-before';

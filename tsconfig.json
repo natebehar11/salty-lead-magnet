@@ -38,6 +38,11 @@
   ],
   "exclude": [
     "node_modules",
-    "Research for Cost comparison"
+    "Research for Cost comparison",
+    "src/test",
+    "src/**/__tests__",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "vitest.config.ts"
   ]
 }

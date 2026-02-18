@@ -23,6 +23,7 @@ import TripCostBar from '@/components/shared/TripCostBar';
 import { getFlightEstimate } from '@/lib/trip-cost';
 import { retreatValueSummaries } from '@/data/retreat-value-summaries';
 import { getRetreatBySlug } from '@/data/retreats';
+import CompareFlightSaveBar from '@/components/flights/CompareFlightSaveBar';
 
 const sortModes: { value: FlightSortMode; label: string }[] = [
   { value: 'cheapest', label: 'Cheapest' },
@@ -303,12 +304,12 @@ function FlightsContent() {
                       <input
                         type="range"
                         min={100}
-                        max={2000}
-                        step={50}
-                        value={filters.maxPrice ?? 2000}
+                        max={5000}
+                        step={100}
+                        value={filters.maxPrice ?? 5000}
                         onChange={(e) => {
                           const val = parseInt(e.target.value);
-                          setFilters({ maxPrice: val >= 2000 ? null : val });
+                          setFilters({ maxPrice: val >= 5000 ? null : val });
                         }}
                         className="flex-1"
                       />
@@ -374,6 +375,14 @@ function FlightsContent() {
                                 from {formatCurrency(convertAmount(cheapestPrice, rates[selectedCurrency]), selectedCurrency)}
                               </p>
                             )}
+                            <a
+                              href={`https://getsaltyretreats.com/retreats/${result.search.retreatSlug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-block mt-2 font-body text-xs font-bold text-salty-salmon hover:text-white hover:underline transition-colors"
+                            >
+                              Learn more about this trip &rarr;
+                            </a>
                           </div>
                           {/* Flight List */}
                           <div className="p-4 space-y-3 max-h-[500px] overflow-y-auto">
@@ -382,7 +391,7 @@ function FlightsContent() {
                             ) : (
                               <>
                                 {displayFlights.map((flight) => (
-                                  <FlightCard key={flight.id} flight={flight} />
+                                  <FlightCard key={flight.id} flight={flight} showCheckbox />
                                 ))}
                                 {filtered.length > 3 && (
                                   <button
@@ -420,6 +429,9 @@ function FlightsContent() {
                       );
                     })}
                   </div>
+
+                  {/* Compare mode floating save bar */}
+                  <CompareFlightSaveBar allResults={visibleResults} />
                 </div>
               </section>
             </>

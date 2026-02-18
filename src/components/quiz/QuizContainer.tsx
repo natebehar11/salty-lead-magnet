@@ -3,10 +3,14 @@
 import { useCallback, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useQuizStore } from '@/stores/quiz-store';
+import { useFlightStore } from '@/stores/flight-store';
 import { QUIZ_STEPS } from '@/types/quiz';
+import { retreats } from '@/data/retreats';
+import { calculateAllMatches } from '@/lib/matching';
+import { useRouter } from 'next/navigation';
 import QuizProgress from './QuizProgress';
 import VibeQuestion from './questions/VibeQuestion';
-import RoomPreferenceQuestion from './questions/RoomPreferenceQuestion';
+import BudgetQuestion from './questions/BudgetQuestion';
 import AvailabilityQuestion from './questions/AvailabilityQuestion';
 import RegionQuestion from './questions/RegionQuestion';
 import PartyRestQuestion from './questions/PartyRestQuestion';
@@ -29,13 +33,55 @@ const slideVariants = {
 };
 
 export default function QuizContainer() {
-  const { currentStep, nextStep, prevStep } = useQuizStore();
+  const { currentStep, nextStep, prevStep, answers, hasSubmittedLead, leadData, setLeadData, setResults } = useQuizStore();
+  const flightStore = useFlightStore();
+  const router = useRouter();
+
+  const hasExistingLead = hasSubmittedLead || flightStore.hasSubmittedLead;
+
+  // If lead data exists in flight store but not quiz store, copy it over
+  useEffect(() => {
+    if (flightStore.leadData && !leadData) {
+      setLeadData(flightStore.leadData);
+    }
+  }, [flightStore.leadData, leadData, setLeadData]);
 
   const handleNext = useCallback(() => {
+    const nextStepIndex = currentStep + 1;
+    const isLeadCaptureStep = nextStepIndex === QUIZ_STEPS.length - 1;
+
+    // Skip lead capture for returning users
+    if (isLeadCaptureStep && hasExistingLead) {
+      const results = calculateAllMatches(retreats, answers);
+      setResults(results);
+
+      // Submit to GHL as quiz_completed event (non-blocking)
+      const existingLead = leadData || flightStore.leadData;
+      if (existingLead) {
+        fetch('/api/leads/capture', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            firstName: existingLead.firstName,
+            email: existingLead.email,
+            whatsappNumber: existingLead.whatsappNumber,
+            source: 'quiz',
+            quizAnswers: answers,
+            topMatch: results[0]?.retreat.slug,
+          }),
+        }).catch(() => {
+          console.log('Lead capture API call failed, continuing to results');
+        });
+      }
+
+      router.push('/quiz/results');
+      return;
+    }
+
     if (currentStep < QUIZ_STEPS.length - 1) {
       nextStep();
     }
-  }, [currentStep, nextStep]);
+  }, [currentStep, nextStep, hasExistingLead, answers, leadData, flightStore.leadData, setResults, router]);
 
   const handleBack = useCallback(() => {
     if (currentStep > 0) {
@@ -55,13 +101,17 @@ export default function QuizContainer() {
 
   const stepComponents = [
     <VibeQuestion key="vibes" onNext={handleNext} />,
-    <RoomPreferenceQuestion key="roomPreference" onNext={handleNext} />,
+    <BudgetQuestion key="budget" onNext={handleNext} />,
     <AvailabilityQuestion key="availability" onNext={handleNext} />,
     <RegionQuestion key="regions" onNext={handleNext} />,
     <PartyRestQuestion key="partyVsRest" onNext={handleNext} />,
     <MustHavesQuestion key="mustHaves" onNext={handleNext} />,
     <LeadCaptureGate key="leadCapture" />,
   ];
+
+  // Adjust displayed total steps for returning users (skip lead capture)
+  const totalDisplaySteps = hasExistingLead ? QUIZ_STEPS.length - 1 : QUIZ_STEPS.length;
+  const displayStep = Math.min(currentStep + 1, totalDisplaySteps);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -84,7 +134,7 @@ export default function QuizContainer() {
             <div />
           )}
           <span className="font-body text-xs text-salty-deep-teal/40 uppercase tracking-widest">
-            {currentStep + 1} of {QUIZ_STEPS.length}
+            {displayStep} of {totalDisplaySteps}
           </span>
         </div>
 
