@@ -3,7 +3,7 @@
 import { useCallback, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useQuizStore } from '@/stores/quiz-store';
-import { QUIZ_STEPS } from '@/types/quiz';
+import { QUIZ_STEPS } from '@/types';
 import QuizProgress from './QuizProgress';
 import VibeQuestion from './questions/VibeQuestion';
 import RoomPreferenceQuestion from './questions/RoomPreferenceQuestion';

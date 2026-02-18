@@ -1,6 +1,6 @@
 'use client';
 
-import { SaltyMeter } from '@/types/retreat';
+import { SaltyMeter } from '@/types';
 import { motion } from 'framer-motion';
 
 const categories = [

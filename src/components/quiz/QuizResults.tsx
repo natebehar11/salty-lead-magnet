@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuizStore } from '@/stores/quiz-store';
-import { QuizResult } from '@/types/quiz';
+import { QuizResult } from '@/types';
 import { formatCurrency, formatDateRange } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import CompactSaltyMeter from './CompactSaltyMeter';
@@ -11,7 +11,7 @@ import ShareButton from '@/components/shared/ShareButton';
 import HumanCTA from '@/components/shared/HumanCTA';
 import { motion } from 'framer-motion';
 import { getMatchedTestimonials } from '@/lib/testimonial-matching';
-import { Testimonial } from '@/types/retreat';
+import { Testimonial } from '@/types';
 import CostPerDay from '@/components/shared/CostPerDay';
 import PaymentPlanToggle from '@/components/shared/PaymentPlanToggle';
 import SharePlanButton from '@/components/shared/SharePlanButton';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Retreat } from '@/types/retreat';
+import { Retreat } from '@/types';
 import { cn } from '@/lib/utils';
 
 interface PlannerCity {

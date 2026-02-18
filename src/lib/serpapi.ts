@@ -8,7 +8,7 @@
  * Docs: https://serpapi.com/google-flights-api
  */
 
-import { FlightOption, FlightSegment } from '@/types/flight';
+import { FlightOption, FlightSegment } from '@/types';
 import { generateGoogleFlightsUrl } from './google-flights';
 
 // ---------------------------------------------------------------------------

@@ -10,8 +10,8 @@ import {
   mapAirportToCity,
   getFlightEstimate,
   availableCities,
-  type CityAnchor,
 } from '@/data/city-cost-anchors';
+import { CityAnchor } from '@/types';
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 

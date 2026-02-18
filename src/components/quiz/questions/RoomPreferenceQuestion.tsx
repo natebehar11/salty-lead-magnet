@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuizStore } from '@/stores/quiz-store';
-import { RoomPreference, QuizAnswers } from '@/types/quiz';
+import { RoomPreference, QuizAnswers } from '@/types';
 import { cn } from '@/lib/utils';
 
 const options: { value: RoomPreference; label: string; note: string; icon: string }[] = [

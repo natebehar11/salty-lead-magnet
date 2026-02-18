@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuizStore } from '@/stores/quiz-store';
-import { VibePreference } from '@/types/quiz';
+import { VibePreference } from '@/types';
 import { cn } from '@/lib/utils';
 import Button from '@/components/shared/Button';
 

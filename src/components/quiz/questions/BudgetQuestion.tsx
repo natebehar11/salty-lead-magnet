@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuizStore } from '@/stores/quiz-store';
-import { BudgetRange } from '@/types/quiz';
+import { BudgetRange } from '@/types';
 import { cn } from '@/lib/utils';
 
 const options: { value: BudgetRange; label: string; note: string }[] = [

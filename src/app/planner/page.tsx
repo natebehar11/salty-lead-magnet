@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getUpcomingRetreats } from '@/data/retreats';
-import { Retreat } from '@/types/retreat';
+import { Retreat } from '@/types';
 import { formatDateRange } from '@/lib/utils';
 import Button from '@/components/shared/Button';
 import ScrollReveal from '@/components/shared/ScrollReveal';

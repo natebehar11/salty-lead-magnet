@@ -1,14 +1,7 @@
-import { FlightOption } from '@/types/flight';
+import { FlightOption, MockFlightConfig } from '@/types';
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
-}
-
-interface MockFlightConfig {
-  origin: string;
-  destination: string;
-  dateOffset: number; // -2, -1, 0 days from retreat start
-  baseDate: string;
 }
 
 function addDays(date: string, days: number): string {

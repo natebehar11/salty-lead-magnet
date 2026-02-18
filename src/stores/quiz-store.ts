@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { QuizAnswers, QuizResult, LeadCaptureData, QUIZ_STEPS, QuizStep } from '@/types/quiz';
+import { QuizAnswers, QuizResult, LeadCaptureData, QUIZ_STEPS, QuizStep } from '@/types';
 
 interface QuizState {
   currentStep: number;

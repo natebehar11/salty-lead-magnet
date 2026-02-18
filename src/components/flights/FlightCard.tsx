@@ -1,6 +1,6 @@
 'use client';
 
-import { FlightOption } from '@/types/flight';
+import { FlightOption } from '@/types';
 import { formatCurrency, formatDuration, cn } from '@/lib/utils';
 import { useFlightStore } from '@/stores/flight-store';
 import { generateGoogleFlightsUrl } from '@/lib/google-flights';

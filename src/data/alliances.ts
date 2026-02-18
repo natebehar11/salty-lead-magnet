@@ -3,14 +3,7 @@
  * Last Updated: 2026
  */
 
-export interface Alliance {
-  id: string;
-  name: string;
-  color: string;
-  founded: number;
-  description: string;
-  airlines: string[];
-}
+import { Alliance } from '@/types';
 
 export const alliances: Alliance[] = [
   {

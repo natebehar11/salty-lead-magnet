@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { alliances, independentAirlines, Alliance } from '@/data/alliances';
+import { alliances, independentAirlines } from '@/data/alliances';
+import { Alliance } from '@/types';
 import { cn } from '@/lib/utils';
 
 interface AllianceFilterProps {

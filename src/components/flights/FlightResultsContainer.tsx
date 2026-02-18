@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useFlightStore } from '@/stores/flight-store';
-import { FlightOption, FlightSortMode } from '@/types/flight';
+import { FlightOption, FlightSortMode } from '@/types';
 import { flightMatchesAlliances } from '@/data/alliances';
 import FlightCard from './FlightCard';
 import FlightCardSkeleton from './FlightCardSkeleton';

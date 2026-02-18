@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRetreatBySlug } from '@/data/retreats';
 import { getMockFlights } from '@/data/mock-flights';
-import { type FlightOption, FlightSearchResults } from '@/types/flight';
+import { type FlightOption, FlightSearchResults } from '@/types';
 import { searchFlightsSerpApi } from '@/lib/serpapi';
 
 function addDays(date: string, days: number): string {

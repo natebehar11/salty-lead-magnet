@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FlightOption } from '@/types/flight';
+import { FlightOption } from '@/types';
 import { useFlightStore } from '@/stores/flight-store';
 import Button from '@/components/shared/Button';
 import ShareButton from '@/components/shared/ShareButton';

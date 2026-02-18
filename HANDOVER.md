@@ -121,9 +121,14 @@ src/
 │   ├── shared-plans.ts             # In-memory plan store (swap to Vercel KV)
 │   └── utils.ts                    # cn(), date/price formatters
 └── types/
+    ├── index.ts                    # Barrel export for all types (single import entry point)
     ├── quiz.ts                     # QuizAnswers, QuizResult, QUIZ_STEPS, enums
-    ├── retreat.ts                   # Retreat, SaltyMeter, RoomTier, Testimonial, etc.
-    └── flight.ts                   # Airport, FlightOption, FlightSearchResults, etc.
+    ├── retreat.ts                  # Retreat, SaltyMeter, RoomTier, Testimonial, Coach, etc.
+    ├── flight.ts                   # Airport, FlightOption, FlightSearchResults, etc.
+    ├── alliances.ts                # Alliance
+    ├── diy-pricing.ts              # DIYLineItem, DIYComparison
+    ├── city-cost-anchors.ts        # CityAnchor, CityLineItem
+    └── mock-flights.ts             # MockFlightConfig
 ```
 
 ---

@@ -2,8 +2,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Airport, FlightSearchResults, FlightFilters, FlightDateOption, FlightSortMode } from '@/types/flight';
-import { LeadCaptureData } from '@/types/quiz';
+import { Airport, FlightSearchResults, FlightFilters, FlightDateOption, FlightSortMode, LeadCaptureData } from '@/types';
 
 interface FlightState {
   originAirport: Airport | null;
