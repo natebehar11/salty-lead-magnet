@@ -8,10 +8,30 @@ import Button from '@/components/shared/Button';
 import ScrollReveal from '@/components/shared/ScrollReveal';
 import WaveDivider from '@/components/shared/WaveDivider';
 import HumanCTA from '@/components/shared/HumanCTA';
+import ShareButton from '@/components/shared/ShareButton';
 import TripConfidenceScore from '@/components/planner/TripConfidenceScore';
 import CityAutocompleteInput from '@/components/planner/CityAutocompleteInput';
+import PlannerChat from '@/components/planner/PlannerChat';
+import SuggestedCityCard from '@/components/planner/SuggestedCityCard';
 import { useFlightStore } from '@/stores/flight-store';
 import { usePlannerStore } from '@/stores/planner-store';
+import { countryCodes } from '@/data/country-codes';
+import { ItinerarySuggestion } from '@/types/planner';
+import { Retreat } from '@/types/retreat';
+
+function buildShareText(
+  suggestion: ItinerarySuggestion,
+  checkedCityIds: string[],
+  retreat: Retreat
+): string {
+  const checkedCities = suggestion.cities.filter((c) =>
+    checkedCityIds.includes(c.id)
+  );
+  const cityList = checkedCities
+    .map((c) => `${c.name}, ${c.country} (${c.days} days)`)
+    .join('\n');
+  return `My trip plan around ${retreat.title} in ${retreat.destination}:\n${cityList}\n\nTotal: ${suggestion.totalDays} days`;
+}
 
 export default function PlannerPage() {
   const retreats = getUpcomingRetreats().filter((r) => r.status !== 'sold_out');
@@ -20,61 +40,27 @@ export default function PlannerPage() {
     selectedRetreatSlug,
     beforeCities,
     afterCities,
-    prompt,
     suggestion,
     formSubmitted,
+    checkedCityIds,
     setSelectedRetreatSlug,
     addCity,
     updateCity,
     removeCity,
-    setPrompt,
-    setSuggestion,
+    toggleCityChecked,
     setFormSubmitted,
   } = usePlannerStore();
 
   const selectedRetreat = selectedRetreatSlug ? getRetreatBySlug(selectedRetreatSlug) ?? null : null;
 
-  const [isGenerating, setIsGenerating] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ firstName: '', email: '', whatsappNumber: '' });
+  const [plannerCountryCode, setPlannerCountryCode] = useState('+1');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasExpandedCity, setHasExpandedCity] = useState(false);
 
   const hasAdditionalDestinations = beforeCities.length > 0 || afterCities.length > 0;
   const { hasSubmittedLead, favouriteFlightIds, searchResults: flightSearchResults } = useFlightStore();
-
-  const handleGenerate = async () => {
-    if (!selectedRetreat) return;
-    setIsGenerating(true);
-
-    try {
-      const existingCities = [
-        ...beforeCities.filter((c) => c.name).map((c) => c.name),
-        ...afterCities.filter((c) => c.name).map((c) => c.name),
-      ];
-
-      const res = await fetch('/api/planner/suggest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          destination: selectedRetreat.destination,
-          retreatName: selectedRetreat.title,
-          userPrompt: prompt || undefined,
-          existingCities: existingCities.length > 0 ? existingCities : undefined,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setSuggestion(data);
-      } else {
-        console.error('Planner suggest failed:', res.status);
-      }
-    } catch (error) {
-      console.error('Planner suggest error:', error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const totalTripDays = (selectedRetreat?.duration.days || 0) +
     beforeCities.reduce((s, c) => s + c.days, 0) +
@@ -269,6 +255,7 @@ export default function PlannerPage() {
                   beforeCities={beforeCities}
                   afterCities={afterCities}
                   hasSuggestion={!!suggestion}
+                  hasExpandedCity={hasExpandedCity}
                   hasSubmittedLead={hasSubmittedLead}
                   hasSearchedFlights={!!flightSearchResults}
                   hasFavouritedFlights={favouriteFlightIds.length > 0}
@@ -277,37 +264,17 @@ export default function PlannerPage() {
               </div>
             </ScrollReveal>
 
-            {/* AI Suggestion */}
+            {/* AI Chat / Planner */}
             <ScrollReveal>
-              <div className="bg-salty-beige/30 rounded-2xl p-6 sm:p-8 mb-8">
-                <h3 className="font-display text-xl text-salty-deep-teal mb-2">
-                  Need inspiration?
-                </h3>
-                <p className="font-body text-sm text-salty-slate/60 mb-4">
-                  Tell us what you&apos;re into and we&apos;ll suggest cities to explore
-                  around your {selectedRetreat.destination} retreat.
-                </p>
-
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder={`e.g., "I love food scenes and nightlife" or "I want to see nature and wildlife" or just leave blank for our top picks`}
-                  className="w-full p-4 rounded-xl border-2 border-salty-beige bg-salty-cream font-body text-sm resize-none h-24 focus:outline-none focus:border-salty-orange-red transition-colors"
+              <div className="mb-8">
+                <PlannerChat
+                  destination={selectedRetreat.destination}
+                  retreatName={selectedRetreat.title}
                 />
-
-                <Button
-                  onClick={handleGenerate}
-                  variant="yellow"
-                  size="md"
-                  disabled={isGenerating}
-                  className="mt-4"
-                >
-                  {isGenerating ? 'Thinking...' : 'Suggest Cities'}
-                </Button>
               </div>
             </ScrollReveal>
 
-            {/* AI Suggestions Results */}
+            {/* AI Suggestion Results — Expandable City Cards */}
             <AnimatePresence>
               {suggestion && (
                 <motion.div
@@ -318,58 +285,36 @@ export default function PlannerPage() {
                 >
                   <div className="bg-salty-cream rounded-2xl border-2 border-salty-beige p-6">
                     <h3 className="font-display text-xl text-salty-deep-teal mb-2">
-                      Our suggestion
+                      Your suggested itinerary
                     </h3>
                     <p className="font-body text-sm text-salty-slate/60 mb-6">
                       {suggestion.reasoning}
                     </p>
 
-                    <div className="space-y-4">
-                      {suggestion.cities.map((city, i) => (
-                        <div key={i} className="p-4 bg-salty-beige/30 rounded-xl">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-display text-lg text-salty-deep-teal">
-                              <a
-                                href={`https://www.google.com/search?q=${encodeURIComponent(city.name + ' travel guide')}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover:text-salty-orange-red underline underline-offset-2 decoration-salty-orange-red/30 hover:decoration-salty-orange-red transition-colors"
-                              >
-                                {city.name}
-                              </a>
-                              , {city.country}
-                            </h4>
-                            <span className="font-body text-xs text-salty-orange-red font-bold bg-salty-orange-red/10 px-3 py-1 rounded-full">
-                              {city.days} days
-                            </span>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {city.highlights.map((h) => (
-                              <span key={h} className="font-body text-xs text-salty-slate/60 bg-salty-cream px-2 py-1 rounded-full border border-salty-beige">
-                                {h}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
+                    <div className="space-y-3">
+                      {suggestion.cities.map((city) => (
+                        <SuggestedCityCard
+                          key={city.id}
+                          city={city}
+                          isChecked={checkedCityIds.includes(city.id)}
+                          onToggleChecked={toggleCityChecked}
+                          onExpand={() => setHasExpandedCity(true)}
+                        />
                       ))}
                     </div>
 
-                    <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                    {/* Share + Save actions */}
+                    <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
+                      <ShareButton
+                        title={`My ${selectedRetreat.destination} trip plan`}
+                        text={buildShareText(suggestion, checkedCityIds, selectedRetreat)}
+                      />
                       <Button
                         onClick={() => setShowForm(true)}
                         variant="primary"
                         size="md"
-                        className="flex-1"
                       >
                         Save This Itinerary
-                      </Button>
-                      <Button
-                        href="/flights"
-                        variant="secondary"
-                        size="md"
-                        className="flex-1"
-                      >
-                        Check Multi-City Flights
                       </Button>
                     </div>
                   </div>
@@ -416,7 +361,7 @@ export default function PlannerPage() {
                             body: JSON.stringify({
                               firstName: formData.firstName,
                               email: formData.email,
-                              whatsappNumber: formData.whatsappNumber,
+                              whatsappNumber: `${plannerCountryCode}${formData.whatsappNumber.replace(/^0+/, '')}`,
                               source: 'planner',
                               retreatSlug: selectedRetreatSlug,
                               citiesCount: totalCities,
@@ -446,14 +391,32 @@ export default function PlannerPage() {
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl border-2 border-white/20 bg-white/10 font-body text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-salty-salmon"
                       />
-                      <input
-                        type="tel"
-                        placeholder="WhatsApp number"
-                        required
-                        value={formData.whatsappNumber}
-                        onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border-2 border-white/20 bg-white/10 font-body text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-salty-salmon"
-                      />
+                      <div>
+                        <div className="flex gap-2">
+                          <select
+                            value={plannerCountryCode}
+                            onChange={(e) => setPlannerCountryCode(e.target.value)}
+                            className="w-28 px-2 py-3 rounded-xl border-2 border-white/20 bg-white/10 font-body text-sm text-white focus:outline-none focus:border-salty-salmon"
+                          >
+                            {countryCodes.map((cc) => (
+                              <option key={cc.code} value={cc.dialCode} className="text-salty-deep-teal">
+                                {cc.flag} {cc.dialCode}
+                              </option>
+                            ))}
+                          </select>
+                          <input
+                            type="tel"
+                            placeholder="(555) 123-4567"
+                            required
+                            value={formData.whatsappNumber}
+                            onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
+                            className="flex-1 px-4 py-3 rounded-xl border-2 border-white/20 bg-white/10 font-body text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-salty-salmon"
+                          />
+                        </div>
+                        <p className="font-body text-[10px] text-white/30 mt-1">
+                          Include your country code for WhatsApp.
+                        </p>
+                      </div>
                       <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
                         {isSubmitting ? 'Saving...' : 'Send Me My Trip Plan'}
                       </Button>

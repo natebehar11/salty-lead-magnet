@@ -21,5 +21,6 @@ export interface DIYComparison {
   nights: number;
   saltyPriceFrom: number;
   estimatedDate: string; // Month Year when prices were last verified (e.g. "February 2026")
+  estimatedPlanningHours: number; // Hours you'd spend planning a DIY version of this trip
   items: DIYLineItem[];
 }

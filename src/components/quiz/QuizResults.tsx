@@ -94,11 +94,6 @@ function HeroMatchCard({ result, answers }: { result: QuizResult; answers: impor
                 <PriceDisplay amountUSD={retreat.lowestPrice} label="From" size="md" />
               </div>
             )}
-            {retreat.spotsRemaining !== null && retreat.spotsRemaining <= 15 && (
-              <p className="font-body text-sm text-salty-burnt-red mt-1 font-semibold">
-                {retreat.spotsRemaining} spots remaining
-              </p>
-            )}
           </div>
 
           {/* Tagline */}
@@ -147,11 +142,16 @@ function HeroMatchCard({ result, answers }: { result: QuizResult; answers: impor
             <div className="mb-6 space-y-3">
               <CostPerDay totalPrice={retreat.lowestPrice} nights={retreat.duration.nights} />
               {retreat.deposit > 0 && (
-                <PaymentPlanToggle
-                  totalPrice={retreat.lowestPrice}
-                  deposit={retreat.deposit}
-                  balanceDueDate={retreat.balanceDueDate}
-                />
+                <>
+                  <PaymentPlanToggle
+                    totalPrice={retreat.lowestPrice}
+                    deposit={retreat.deposit}
+                    balanceDueDate={retreat.balanceDueDate}
+                  />
+                  <p className="font-body text-xs text-salty-slate/50">
+                    Payment plans are available. Pay in 3 installments: deposit + 50% + 50% remaining. Final payment due 1 month before departure.
+                  </p>
+                </>
               )}
             </div>
           )}
@@ -244,11 +244,6 @@ function AlsoConsiderCard({ result, answers }: { result: QuizResult; answers: im
                 <div className="mt-1">
                   <PriceDisplay amountUSD={retreat.lowestPrice} label="From" size="sm" />
                 </div>
-              )}
-              {retreat.spotsRemaining !== null && retreat.spotsRemaining <= 10 && (
-                <p className="font-body text-xs text-salty-burnt-red mt-1">
-                  {retreat.spotsRemaining} spots remaining
-                </p>
               )}
             </div>
           </div>

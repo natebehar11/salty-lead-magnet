@@ -16,6 +16,7 @@ export const diyComparisons: DIYComparison[] = [
     nights: 7,
     saltyPriceFrom: 2399,
     estimatedDate: 'February 2026',
+    estimatedPlanningHours: 25,
     items: [
       {
         category: 'Accommodation',
@@ -25,23 +26,9 @@ export const diyComparisons: DIYComparison[] = [
         sourceName: 'Airbnb Nosara',
       },
       {
-        category: 'Breakfast',
-        description: 'Daily breakfast at a quality cafe like Robin\'s Cafe in Nosara (7 days, ~$20/day)',
-        saltyIncluded: true, saltyPrice: 0, diyPrice: 140, perDay: true, emoji: '🥞',
-        sourceUrl: 'https://www.tripadvisor.com/Restaurants-g644053-Nosara_Province_of_Guanacaste.html',
-        sourceName: 'TripAdvisor Nosara',
-      },
-      {
-        category: 'Lunch',
-        description: 'Lunch at mid-range spots like La Luna or local sodas (7 days, ~$25/day)',
-        saltyIncluded: false, saltyPrice: 0, diyPrice: 175, perDay: true, emoji: '🥗',
-        sourceUrl: 'https://www.tripadvisor.com/Restaurants-g644053-Nosara_Province_of_Guanacaste.html',
-        sourceName: 'TripAdvisor Nosara',
-      },
-      {
-        category: 'Dinner',
-        description: 'Dinner at restaurants like La Luna beachfront or Rosi\'s Soda Tica (7 days, ~$35/day)',
-        saltyIncluded: false, saltyPrice: 0, diyPrice: 245, perDay: true, emoji: '🍽',
+        category: 'Full Board',
+        description: 'All meals — breakfast, lunch, and dinner daily (7 days). Quality restaurants, local cuisine, and group dining experiences.',
+        saltyIncluded: true, saltyPrice: 0, diyPrice: 560, emoji: '🍽',
         sourceUrl: 'https://www.tripadvisor.com/Restaurants-g644053-Nosara_Province_of_Guanacaste.html',
         sourceName: 'TripAdvisor Nosara',
       },
@@ -84,6 +71,7 @@ export const diyComparisons: DIYComparison[] = [
     nights: 9,
     saltyPriceFrom: 1999,
     estimatedDate: 'February 2026',
+    estimatedPlanningHours: 30,
     items: [
       {
         category: 'Accommodation',
@@ -93,25 +81,11 @@ export const diyComparisons: DIYComparison[] = [
         sourceName: 'Airbnb Weligama',
       },
       {
-        category: 'Breakfast',
-        description: 'Daily breakfast at both locations (9 days, ~$15/day)',
-        saltyIncluded: true, saltyPrice: 0, diyPrice: 135, perDay: true, emoji: '🥞',
+        category: 'Full Board',
+        description: 'All meals — breakfast, lunch, and dinner daily (9 days). Local cuisine, beachside seafood, and quality restaurants.',
+        saltyIncluded: true, saltyPrice: 0, diyPrice: 495, emoji: '🍽',
         sourceUrl: 'https://www.tripadvisor.com/Restaurants-g1581498-Weligama_Southern_Province.html',
         sourceName: 'TripAdvisor Weligama',
-      },
-      {
-        category: 'Lunch',
-        description: 'Lunch at spots like Wijaya Beach Restaurant or local rice & curry (9 days, ~$15/day)',
-        saltyIncluded: false, saltyPrice: 0, diyPrice: 135, perDay: true, emoji: '🥗',
-        sourceUrl: 'https://www.tripadvisor.com/Restaurants-g616010-Mirissa_Southern_Province.html',
-        sourceName: 'TripAdvisor Mirissa',
-      },
-      {
-        category: 'Dinner',
-        description: 'Dinner at restaurants like The Rock Mirissa or beachfront seafood (9 days, ~$25/day)',
-        saltyIncluded: false, saltyPrice: 0, diyPrice: 225, perDay: true, emoji: '🍽',
-        sourceUrl: 'https://www.tripadvisor.com/Restaurants-g616010-Mirissa_Southern_Province.html',
-        sourceName: 'TripAdvisor Mirissa',
       },
       {
         category: 'Surf Lesson',
@@ -159,6 +133,7 @@ export const diyComparisons: DIYComparison[] = [
     nights: 7,
     saltyPriceFrom: 1999,
     estimatedDate: 'February 2026',
+    estimatedPlanningHours: 25,
     items: [
       {
         category: 'Accommodation',
@@ -168,25 +143,11 @@ export const diyComparisons: DIYComparison[] = [
         sourceName: 'Airbnb Taghazout',
       },
       {
-        category: 'Breakfast',
-        description: 'Daily Moroccan breakfast with msemen, amlou, and mint tea (7 days, ~$15/day)',
-        saltyIncluded: true, saltyPrice: 0, diyPrice: 105, perDay: true, emoji: '🥞',
+        category: 'Full Board',
+        description: 'All meals — breakfast, lunch, and dinner daily (7 days). Moroccan cuisine, beachside cafes, and local tagine restaurants.',
+        saltyIncluded: true, saltyPrice: 0, diyPrice: 455, emoji: '🍽',
         sourceUrl: 'https://www.tripadvisor.com/Restaurants-g304016-Taghazout_Souss_Massa.html',
         sourceName: 'TripAdvisor Taghazout',
-      },
-      {
-        category: 'Lunch',
-        description: 'Lunch at Caravane Cafe or beachside restaurants (7 days, ~$20/day)',
-        saltyIncluded: false, saltyPrice: 0, diyPrice: 140, perDay: true, emoji: '🥗',
-        sourceUrl: 'https://www.google.com/maps/search/Caravane+Cafe+Taghazout+Morocco',
-        sourceName: 'Google Maps',
-      },
-      {
-        category: 'Dinner',
-        description: 'Dinner at Dar Josephine or local tagine restaurants (7 days, ~$30/day)',
-        saltyIncluded: false, saltyPrice: 0, diyPrice: 210, perDay: true, emoji: '🍽',
-        sourceUrl: 'https://www.google.com/maps/search/Dar+Josephine+Taghazout+Morocco',
-        sourceName: 'Google Maps',
       },
       {
         category: 'Surf Lesson',
@@ -226,6 +187,7 @@ export const diyComparisons: DIYComparison[] = [
     nights: 7,
     saltyPriceFrom: 2099,
     estimatedDate: 'February 2026',
+    estimatedPlanningHours: 25,
     items: [
       {
         category: 'Accommodation',
@@ -235,25 +197,11 @@ export const diyComparisons: DIYComparison[] = [
         sourceName: 'Booking.com Cefalu',
       },
       {
-        category: 'Breakfast',
-        description: 'Daily Italian breakfast with fresh cornetti and espresso (7 days, ~$20/day)',
-        saltyIncluded: true, saltyPrice: 0, diyPrice: 140, perDay: true, emoji: '🥐',
+        category: 'Full Board',
+        description: 'All meals — breakfast, lunch, and dinner daily (7 days). Italian trattorias, fresh seafood, and Sicilian specialties.',
+        saltyIncluded: true, saltyPrice: 0, diyPrice: 665, emoji: '🍽',
         sourceUrl: 'https://www.tripadvisor.com/Restaurants-g187888-Cefalu_Province_of_Palermo_Sicily.html',
         sourceName: 'TripAdvisor Cefalu',
-      },
-      {
-        category: 'Lunch',
-        description: 'Trattoria lunch at spots like Cortile Pepe or La Galleria (7 days, ~$30/day)',
-        saltyIncluded: false, saltyPrice: 0, diyPrice: 210, perDay: true, emoji: '🍝',
-        sourceUrl: 'https://www.tripadvisor.com/Restaurants-g187888-Cefalu_Province_of_Palermo_Sicily.html',
-        sourceName: 'TripAdvisor Cefalu',
-      },
-      {
-        category: 'Dinner',
-        description: 'Dinner at seafood restaurants like Lo Scoglio Ubriaco (7 days, ~$45/day)',
-        saltyIncluded: false, saltyPrice: 0, diyPrice: 315, perDay: true, emoji: '🍷',
-        sourceUrl: 'https://www.google.com/maps/search/Lo+Scoglio+Ubriaco+Cefalu+Sicily',
-        sourceName: 'Google Maps',
       },
       {
         category: 'Yoga',
@@ -293,6 +241,7 @@ export const diyComparisons: DIYComparison[] = [
     nights: 7,
     saltyPriceFrom: 1949,
     estimatedDate: 'February 2026',
+    estimatedPlanningHours: 20,
     items: [
       {
         category: 'Accommodation',
@@ -302,25 +251,11 @@ export const diyComparisons: DIYComparison[] = [
         sourceName: 'Airbnb El Tunco',
       },
       {
-        category: 'Breakfast',
-        description: 'Daily breakfast at cafes like Dale Dale Cafe (7 days, ~$15/day)',
-        saltyIncluded: true, saltyPrice: 0, diyPrice: 105, perDay: true, emoji: '🥞',
-        sourceUrl: 'https://www.google.com/maps/search/Dale+Dale+Cafe+El+Tunco+El+Salvador',
-        sourceName: 'Google Maps',
-      },
-      {
-        category: 'Lunch',
-        description: 'Quality lunch including pupusas at beachside spots (7 days, ~$15/day)',
-        saltyIncluded: false, saltyPrice: 0, diyPrice: 105, perDay: true, emoji: '🥗',
+        category: 'Full Board',
+        description: 'All meals — breakfast, lunch, and dinner daily (7 days). Beachside restaurants, local pupusas, and quality seafood spots.',
+        saltyIncluded: true, saltyPrice: 0, diyPrice: 385, emoji: '🍽',
         sourceUrl: 'https://www.google.com/maps/search/restaurants+El+Tunco+El+Salvador',
         sourceName: 'El Tunco restaurants',
-      },
-      {
-        category: 'Dinner',
-        description: 'Dinner at Bocas Rock Cafe or local seafood spots (7 days, ~$25/day)',
-        saltyIncluded: false, saltyPrice: 0, diyPrice: 175, perDay: true, emoji: '🍽',
-        sourceUrl: 'https://www.google.com/maps/search/Bocas+Rock+Cafe+El+Tunco+El+Salvador',
-        sourceName: 'Google Maps',
       },
       {
         category: 'Surf Lesson',

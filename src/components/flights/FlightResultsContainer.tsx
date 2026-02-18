@@ -13,6 +13,7 @@ import ShareFlightPanel from './ShareFlightPanel';
 import HumanCTA from '@/components/shared/HumanCTA';
 import Button from '@/components/shared/Button';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const sortModes: { value: FlightSortMode; label: string }[] = [
   { value: 'cheapest', label: 'Cheapest' },
@@ -32,11 +33,9 @@ export default function FlightResultsContainer() {
     isLoading,
     selectedOutboundIds,
     clearOutboundSelection,
-  } = useFlightStore();
-
-  const [isReturnLoading, setIsReturnLoading] = useState(false);
-
-  const {
+    selectedReturnIds,
+    toggleReturnSelection,
+    clearReturnSelection,
     returnResults,
     setReturnResults,
     isReturnMode,
@@ -44,6 +43,8 @@ export default function FlightResultsContainer() {
     originAirport,
     selectedRetreatSlug,
   } = useFlightStore();
+
+  const [isReturnLoading, setIsReturnLoading] = useState(false);
 
   if (isLoading) {
     return (
@@ -93,6 +94,24 @@ export default function FlightResultsContainer() {
   const flights = applyFilters(getFlights());
   const unlistedFlights = applyFilters(searchResults.unlisted);
 
+  // Get return flights (filtered + sorted)
+  const getReturnFlights = (): FlightOption[] => {
+    if (!returnResults) return [];
+    switch (sortMode) {
+      case 'cheapest': return returnResults.cheapest;
+      case 'fastest': return returnResults.fastest;
+      case 'best': default: return returnResults.best;
+    }
+  };
+  const returnFlights = returnResults ? applyFilters(getReturnFlights()) : [];
+
+  // Get selected departing flights for summary display
+  const getSelectedDepartingFlights = (): FlightOption[] => {
+    const allDepartingFlights = [...searchResults.best, ...searchResults.cheapest, ...searchResults.fastest];
+    const uniqueById = [...new Map(allDepartingFlights.map(f => [f.id, f])).values()];
+    return uniqueById.filter(f => selectedOutboundIds.includes(f.id));
+  };
+
   const handleViewReturnFlights = async () => {
     if (!originAirport || !selectedRetreatSlug) return;
     setIsReturnLoading(true);
@@ -120,6 +139,12 @@ export default function FlightResultsContainer() {
     }
   };
 
+  const handleBackToDeparting = () => {
+    setIsReturnMode(false);
+    setReturnResults(null);
+    clearReturnSelection();
+  };
+
   return (
     <div className="mt-8">
       {/* Header */}
@@ -128,7 +153,7 @@ export default function FlightResultsContainer() {
           {search.retreatName}
         </p>
         <h3 className="font-display text-xl text-salty-deep-teal">
-          {search.origin.city} → {search.destination.city}
+          {search.origin.city} &rarr; {search.destination.city}
         </h3>
       </div>
 
@@ -184,7 +209,7 @@ export default function FlightResultsContainer() {
             className="flex-1"
           />
           <span className="font-body text-xs text-salty-deep-teal font-bold w-12 text-right">
-            {filters.maxStops === null ? 'Any' : filters.maxStops === 0 ? 'Direct' : `≤${filters.maxStops}`}
+            {filters.maxStops === null ? 'Any' : filters.maxStops === 0 ? 'Direct' : `\u2264${filters.maxStops}`}
           </span>
         </div>
 
@@ -203,7 +228,7 @@ export default function FlightResultsContainer() {
             className="flex-1"
           />
           <span className="font-body text-xs text-salty-deep-teal font-bold w-12 text-right">
-            {filters.maxDuration === null ? 'Any' : `≤${Math.round(filters.maxDuration / 60)}h`}
+            {filters.maxDuration === null ? 'Any' : `\u2264${Math.round(filters.maxDuration / 60)}h`}
           </span>
         </div>
 
@@ -212,12 +237,12 @@ export default function FlightResultsContainer() {
           <input
             type="range"
             min={100}
-            max={2000}
-            step={50}
-            value={filters.maxPrice ?? 2000}
+            max={5000}
+            step={100}
+            value={filters.maxPrice ?? 5000}
             onChange={(e) => {
               const val = parseInt(e.target.value);
-              setFilters({ maxPrice: val >= 2000 ? null : val });
+              setFilters({ maxPrice: val >= 5000 ? null : val });
             }}
             className="flex-1"
           />
@@ -236,123 +261,167 @@ export default function FlightResultsContainer() {
         )}
       </div>
 
-      {/* Flight List with Checkboxes */}
-      {flights.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="font-display text-xl text-salty-deep-teal mb-2">No flights match your filters.</p>
-          <p className="font-body text-sm text-salty-deep-teal/50">Try loosening your filters or clearing alliance selection to see more options.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <p className="font-body text-xs text-salty-slate/40 mb-1">
-            Select flights to view return options, or tap ♡ to save favourites.
-          </p>
-          {flights.map((flight) => (
-            <FlightCard
-              key={flight.id}
-              flight={flight}
-
-              showCheckbox
-              originCode={search.origin.code}
-              destCode={search.destination.code}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Sticky Return Flight Button */}
-      {selectedOutboundIds.length > 0 && !isReturnMode && (
-        <div className="sticky bottom-4 mt-6 z-40">
-          <div className="bg-salty-deep-teal rounded-2xl p-4 shadow-lg flex items-center justify-between gap-4">
-            <div>
-              <p className="font-display text-sm text-white">
-                {selectedOutboundIds.length} flight{selectedOutboundIds.length > 1 ? 's' : ''} selected
-              </p>
-              <p className="font-body text-xs text-white/50">Search return flights</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={clearOutboundSelection}
-                className="font-body text-xs text-white/50 hover:text-white underline"
-              >
-                Clear
-              </button>
-              <Button onClick={handleViewReturnFlights} size="sm">
-                Search Return Flights
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Return flight loading */}
-      {isReturnLoading && (
-        <div className="mt-8 space-y-4">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 border-4 border-salty-seafoam border-t-transparent rounded-full animate-spin" />
-            <p className="font-body text-salty-deep-teal/60">Searching for return flights...</p>
-          </div>
-          {Array.from({ length: 3 }).map((_, i) => (
-            <FlightCardSkeleton key={i} />
-          ))}
-        </div>
-      )}
-
-      {/* Return flight results */}
-      {isReturnMode && !isReturnLoading && returnResults && (() => {
-        const getReturnFlights = (): FlightOption[] => {
-          switch (sortMode) {
-            case 'cheapest': return returnResults.cheapest;
-            case 'fastest': return returnResults.fastest;
-            case 'best': default: return returnResults.best;
-          }
-        };
-        const returnFlights = applyFilters(getReturnFlights());
-
-        return (
-          <div className="mt-8">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="font-body text-xs text-salty-seafoam font-bold uppercase tracking-wider mb-1">Return Flights</p>
-                <h4 className="font-display text-lg text-salty-deep-teal">
-                  {returnResults.search.origin.city} → {returnResults.search.destination.city}
-                </h4>
-              </div>
-              <button
-                onClick={() => { setIsReturnMode(false); setReturnResults(null); clearOutboundSelection(); }}
-                className="font-body text-xs text-salty-slate/50 hover:text-salty-slate underline"
-              >
-                Back to departing flights
-              </button>
-            </div>
-
-            {returnFlights.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="font-display text-lg text-salty-deep-teal mb-2">No return flights match your filters.</p>
-                <p className="font-body text-sm text-salty-deep-teal/50">Try loosening your filters to see more options.</p>
+      {/* Departing / Return Flight Views with Slide Animation */}
+      <AnimatePresence mode="wait">
+        {!isReturnMode ? (
+          <motion.div
+            key="departing"
+            initial={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Departing Flight List */}
+            {flights.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="font-display text-xl text-salty-deep-teal mb-2">No flights match your filters.</p>
+                <p className="font-body text-sm text-salty-deep-teal/50">Try loosening your filters or clearing alliance selection to see more options.</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {returnFlights.map((flight) => (
+                <p className="font-body text-xs text-salty-slate/40 mb-1">
+                  Select flights to search for return flight options.
+                </p>
+                {flights.map((flight) => (
                   <FlightCard
                     key={flight.id}
                     flight={flight}
-      
-                    originCode={returnResults.search.origin.code}
-                    destCode={returnResults.search.destination.code}
+                    showCheckbox
+                    originCode={search.origin.code}
+                    destCode={search.destination.code}
                   />
                 ))}
               </div>
             )}
-          </div>
-        );
-      })()}
+
+            {/* Sticky Return Flight Button */}
+            {selectedOutboundIds.length > 0 && (
+              <div className="sticky bottom-4 mt-6 z-40">
+                <div className="bg-salty-deep-teal rounded-2xl p-4 shadow-lg flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-display text-sm text-white">
+                      {selectedOutboundIds.length} flight{selectedOutboundIds.length > 1 ? 's' : ''} selected
+                    </p>
+                    <p className="font-body text-xs text-white/50">Search return flights</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={clearOutboundSelection}
+                      className="font-body text-xs text-white/50 hover:text-white underline"
+                    >
+                      Clear
+                    </button>
+                    <Button onClick={handleViewReturnFlights} size="sm">
+                      Search Return Flights
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Return flight loading (shows in departing view during transition) */}
+            {isReturnLoading && (
+              <div className="mt-8 space-y-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 border-4 border-salty-seafoam border-t-transparent rounded-full animate-spin" />
+                  <p className="font-body text-salty-deep-teal/60">Searching for return flights...</p>
+                </div>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <FlightCardSkeleton key={i} />
+                ))}
+              </div>
+            )}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="return"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Back to Departing Flights */}
+            <button
+              onClick={handleBackToDeparting}
+              className="flex items-center gap-1 font-body text-sm text-salty-orange-red font-bold hover:underline mb-6"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Departing Flights
+            </button>
+
+            {/* Selected Departing Flights Summary */}
+            {(() => {
+              const selectedDeparting = getSelectedDepartingFlights();
+              if (selectedDeparting.length === 0) return null;
+              return (
+                <div className="mb-6">
+                  <p className="font-body text-xs text-salty-orange-red font-bold uppercase tracking-wider mb-2">
+                    Your Selected Departing Flights
+                  </p>
+                  <div className="space-y-2 opacity-75">
+                    {selectedDeparting.map(flight => (
+                      <FlightCard
+                        key={flight.id}
+                        flight={flight}
+                        originCode={search.origin.code}
+                        destCode={search.destination.code}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Return Flights Header */}
+            {returnResults && (
+              <div className="mb-4">
+                <p className="font-body text-xs text-salty-seafoam font-bold uppercase tracking-wider mb-1">Return Flights</p>
+                <h4 className="font-display text-lg text-salty-deep-teal">
+                  {returnResults.search.origin.city} &rarr; {returnResults.search.destination.city}
+                </h4>
+              </div>
+            )}
+
+            {/* Return Flight List with Checkboxes */}
+            {returnResults && (
+              returnFlights.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="font-display text-lg text-salty-deep-teal mb-2">No return flights match your filters.</p>
+                  <p className="font-body text-sm text-salty-deep-teal/50">Try loosening your filters to see more options.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="font-body text-xs text-salty-slate/40 mb-1">
+                    Select return flights to include in your saved plans.
+                  </p>
+                  {returnFlights.map((flight) => (
+                    <FlightCard
+                      key={flight.id}
+                      flight={flight}
+                      showCheckbox
+                      isSelected={selectedReturnIds.includes(flight.id)}
+                      onToggleSelection={toggleReturnSelection}
+                      originCode={returnResults.search.origin.code}
+                      destCode={returnResults.search.destination.code}
+                    />
+                  ))}
+                </div>
+              )
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Unlisted Paths */}
       <UnlistedPathsSection flights={unlistedFlights} />
 
       {/* Share Panel */}
-      <ShareFlightPanel flights={flights} retreatName={search.retreatName} />
+      <ShareFlightPanel
+        departingFlights={flights}
+        returnFlights={returnFlights}
+        retreatName={search.retreatName}
+      />
 
       {/* Next Steps CTAs */}
       <div className="mt-8 flex flex-col sm:flex-row gap-3">

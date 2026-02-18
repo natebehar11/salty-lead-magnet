@@ -9,6 +9,7 @@ interface TripConfidenceScoreProps {
   beforeCities: PlannerCity[];
   afterCities: PlannerCity[];
   hasSuggestion: boolean;
+  hasExpandedCity: boolean;
   hasSubmittedLead: boolean;
   hasSearchedFlights: boolean;
   hasFavouritedFlights: boolean;
@@ -17,15 +18,14 @@ interface TripConfidenceScoreProps {
 
 interface Milestone {
   label: string;
-  weight: number;
   isComplete: boolean;
 }
 
 const tiers = [
-  { min: 0, max: 24, label: 'Exploring', color: 'text-salty-slate/50', ring: 'stroke-salty-beige' },
-  { min: 25, max: 49, label: 'Planning', color: 'text-salty-light-blue', ring: 'stroke-salty-light-blue' },
-  { min: 50, max: 79, label: 'Almost There', color: 'text-salty-gold', ring: 'stroke-salty-gold' },
-  { min: 80, max: 100, label: 'Ready to Book', color: 'text-salty-orange-red', ring: 'stroke-salty-orange-red' },
+  { min: 0, max: 24, label: 'Exploring', subtext: 'Pick a retreat to start', color: 'text-salty-slate/50', ring: 'stroke-salty-beige' },
+  { min: 25, max: 49, label: 'Planning', subtext: 'Your trip is taking shape', color: 'text-salty-light-blue', ring: 'stroke-salty-light-blue' },
+  { min: 50, max: 79, label: 'Almost There', subtext: 'A few more steps to go', color: 'text-salty-gold', ring: 'stroke-salty-gold' },
+  { min: 80, max: 100, label: 'Ready to Book', subtext: 'Lock in your spot', color: 'text-salty-orange-red', ring: 'stroke-salty-orange-red' },
 ] as const;
 
 export default function TripConfidenceScore({
@@ -33,25 +33,27 @@ export default function TripConfidenceScore({
   beforeCities,
   afterCities,
   hasSuggestion,
+  hasExpandedCity,
   hasSubmittedLead,
   hasSearchedFlights,
   hasFavouritedFlights,
   hasShared,
 }: TripConfidenceScoreProps) {
   const milestones: Milestone[] = useMemo(() => [
-    { label: 'Choose a retreat', weight: 15, isComplete: !!selectedRetreat },
-    { label: 'Add a destination before', weight: 10, isComplete: beforeCities.length > 0 },
-    { label: 'Add a destination after', weight: 10, isComplete: afterCities.length > 0 },
-    { label: 'Get city suggestions', weight: 10, isComplete: hasSuggestion },
-    { label: 'Name all your cities', weight: 10, isComplete: [...beforeCities, ...afterCities].every((c) => c.name.length > 0) && (beforeCities.length + afterCities.length > 0) },
-    { label: 'Search flights', weight: 15, isComplete: hasSearchedFlights },
-    { label: 'Save favourite flights', weight: 10, isComplete: hasFavouritedFlights },
-    { label: 'Save your contact info', weight: 10, isComplete: hasSubmittedLead },
-    { label: 'Share with friends', weight: 5, isComplete: hasShared },
-    { label: 'Book your spot', weight: 5, isComplete: false }, // Always pending until actual booking
-  ], [selectedRetreat, beforeCities, afterCities, hasSuggestion, hasSubmittedLead, hasSearchedFlights, hasFavouritedFlights, hasShared]);
+    { label: 'Choose a retreat', isComplete: !!selectedRetreat },
+    { label: 'Add a destination before or after', isComplete: beforeCities.length > 0 || afterCities.length > 0 },
+    { label: 'Get AI suggestions', isComplete: hasSuggestion },
+    { label: 'Explore suggested activities', isComplete: hasExpandedCity },
+    { label: 'Search flights', isComplete: hasSearchedFlights },
+    { label: 'Select flights to save', isComplete: hasFavouritedFlights },
+    { label: 'Save your contact info', isComplete: hasSubmittedLead },
+    { label: 'Share with friends', isComplete: hasShared },
+    { label: 'Book your spot', isComplete: false }, // Always pending until actual booking
+  ], [selectedRetreat, beforeCities, afterCities, hasSuggestion, hasExpandedCity, hasSubmittedLead, hasSearchedFlights, hasFavouritedFlights, hasShared]);
 
-  const score = milestones.reduce((sum, m) => sum + (m.isComplete ? m.weight : 0), 0);
+  // Scoring: each of first 8 milestones = 15% (capped at 90%). "Book your spot" adds final 10%.
+  const completedNonBook = milestones.slice(0, 8).filter((m) => m.isComplete).length;
+  const score = Math.min(Math.round(completedNonBook * (90 / 6)), 90);
   const completedCount = milestones.filter((m) => m.isComplete).length;
   const currentTier = tiers.find((t) => score >= t.min && score <= t.max) || tiers[0];
 
@@ -88,9 +90,14 @@ export default function TripConfidenceScore({
               strokeDashoffset={dashOffset}
             />
           </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className={cn('font-display text-3xl', currentTier.color)}>{score}</span>
-            <span className="font-body text-[10px] text-salty-slate/40 uppercase tracking-wider">/ 100</span>
+          {/* Tier label inside ring (replaces percentage) */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-2">
+            <span className={cn('font-display text-base leading-tight', currentTier.color)}>
+              {currentTier.label}
+            </span>
+            <span className="font-body text-[9px] text-salty-slate/40 mt-0.5 leading-tight">
+              {currentTier.subtext}
+            </span>
           </div>
         </div>
 

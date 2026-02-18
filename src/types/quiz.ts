@@ -3,7 +3,7 @@ import { Retreat } from './retreat';
 export type VibePreference = 'adventure' | 'culture' | 'party' | 'fitness' | 'rest';
 export type GroupStyle = 'solo' | 'couple' | 'small-group' | 'big-crew';
 export type ExperienceLevel = 'first-timer' | 'few-trips' | 'seasoned';
-export type BudgetRange = 'under-2000' | '2000-2500' | '2500-3000' | '3000-plus';
+export type BudgetRange = 'under-2000' | '2000-2400' | '2300-2800' | '2800-plus';
 export type RoomPreference = 'dorm' | 'triple' | 'premium' | 'single';
 
 export interface QuizAnswers {

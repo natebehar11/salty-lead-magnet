@@ -6,6 +6,9 @@
 // Alliance types
 export type { Alliance } from './alliances';
 
+// Country code types
+export type { CountryCode } from './country-codes';
+
 // City cost anchor types
 export type { CityAnchor, CityLineItem } from './city-cost-anchors';
 

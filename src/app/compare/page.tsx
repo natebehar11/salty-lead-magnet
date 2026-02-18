@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAllDIYComparisons } from '@/data/diy-pricing';
 import { DIYComparison, DIYLineItem } from '@/types';
@@ -16,7 +16,17 @@ import { useCurrencyStore } from '@/stores/currency-store';
 import { convertAmount } from '@/lib/currency';
 import { formatCurrency } from '@/lib/utils';
 
-function ComparisonCard({ comparison }: { comparison: DIYComparison }) {
+interface LinkStatus {
+  valid: boolean;
+  checkedAt: string;
+}
+
+interface LinkStatusData {
+  results: Record<string, LinkStatus>;
+  lastRun: string | null;
+}
+
+function ComparisonCard({ comparison, linkStatus }: { comparison: DIYComparison; linkStatus: LinkStatusData }) {
   const [expanded, setExpanded] = useState(false);
   const { selectedCurrency, rates } = useCurrencyStore();
   const rate = rates[selectedCurrency];
@@ -31,6 +41,7 @@ function ComparisonCard({ comparison }: { comparison: DIYComparison }) {
 
   return (
     <motion.div
+      id={comparison.retreatSlug}
       layout
       className="bg-salty-cream rounded-2xl border-2 border-salty-beige overflow-hidden shadow-sm hover:shadow-md transition-shadow"
     >
@@ -68,7 +79,7 @@ function ComparisonCard({ comparison }: { comparison: DIYComparison }) {
       {/* Savings Banner */}
       <div className="mx-6 mb-4 p-3 bg-salty-yellow/20 rounded-xl text-center">
         <p className="font-display text-lg text-salty-deep-teal">
-          Save {fmtConverted(savings)} with SALTY
+          Save {fmtConverted(savings)} and {comparison.estimatedPlanningHours}+ hours of planning with SALTY
         </p>
       </div>
 
@@ -113,16 +124,30 @@ function ComparisonCard({ comparison }: { comparison: DIYComparison }) {
                       <div>
                         <p className="font-body text-sm text-salty-charcoal">{item.category}</p>
                         <p className="font-body text-xs text-salty-slate/40">{item.description}</p>
-                        {item.sourceUrl && (
-                          <a
-                            href={item.sourceUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 font-body text-[11px] text-salty-orange-red font-bold hover:underline mt-0.5"
-                          >
-                            {item.sourceName || 'Verify'} &rarr;
-                          </a>
-                        )}
+                        {item.sourceUrl && (() => {
+                          const status = linkStatus.results[item.sourceUrl!];
+                          const isVerified = status?.valid === true;
+                          const isBroken = status?.valid === false;
+
+                          if (isBroken) {
+                            return (
+                              <span className="font-body text-[11px] text-salty-slate/30 mt-0.5">
+                                Source unavailable
+                              </span>
+                            );
+                          }
+
+                          return (
+                            <a
+                              href={item.sourceUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 font-body text-[11px] text-salty-orange-red font-bold hover:underline mt-0.5"
+                            >
+                              {item.sourceName || 'Verify'} {isVerified && <span className="text-green-600" title="Link verified">&#10003;</span>} &rarr;
+                            </a>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -153,15 +178,28 @@ function ComparisonCard({ comparison }: { comparison: DIYComparison }) {
         )}
       </AnimatePresence>
 
-      {/* Estimated date */}
+      {/* Estimated date & staleness warning */}
       <div className="px-6 pb-3">
+        {(() => {
+          const estimatedDate = new Date(comparison.estimatedDate);
+          const threeMonthsAgo = new Date();
+          threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+          const isStale = estimatedDate < threeMonthsAgo;
+          return isStale ? (
+            <div className="p-2 bg-amber-50 border border-amber-200 rounded-lg mb-2">
+              <p className="font-body text-[11px] text-amber-700 text-center">
+                These prices were estimated in {comparison.estimatedDate}. Click source links to verify current rates.
+              </p>
+            </div>
+          ) : null;
+        })()}
         <p className="font-body text-[11px] text-salty-slate/40 text-center">
           DIY prices estimated as of {comparison.estimatedDate}. Click source links to verify current rates.
         </p>
       </div>
 
       {/* CTA */}
-      <div className="px-6 pb-6">
+      <div className="px-6 pb-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <Button href={`/flights?retreat=${comparison.retreatSlug}`} variant="primary" size="sm" className="flex-1">
             Check Flights
@@ -170,6 +208,15 @@ function ComparisonCard({ comparison }: { comparison: DIYComparison }) {
             View Trip Details
           </Button>
         </div>
+      </div>
+
+      {/* Per-card Share */}
+      <div className="px-6 pb-6 text-center">
+        <ShareButton
+          title={`${comparison.destination} — DIY vs SALTY Price Comparison`}
+          text={`Check this out: a SALTY ${comparison.destination} retreat saves you $${savings.toLocaleString()} (${savingsPercent}%) compared to booking it yourself. Plus ${comparison.estimatedPlanningHours}+ hours of planning time.`}
+          url={`https://explore.getsaltyretreats.com/compare#${comparison.retreatSlug}`}
+        />
       </div>
     </motion.div>
   );
@@ -182,6 +229,24 @@ export default function ComparePage() {
     if (!retreat) return true;
     return new Date(retreat.endDate + 'T23:59:59') >= now;
   });
+
+  const [linkStatus, setLinkStatus] = useState<LinkStatusData>({ results: {}, lastRun: null });
+
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      setTimeout(() => {
+        const el = document.getElementById(hash);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 500);
+    }
+
+    // Fetch link verification status
+    fetch('/api/diy-link-status')
+      .then((res) => res.json())
+      .then((data) => setLinkStatus(data))
+      .catch(() => {/* ignore — will show links normally */});
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -205,9 +270,13 @@ export default function ComparePage() {
             <h1 className="font-display text-hero text-salty-deep-teal mb-4">
               Think you can do it cheaper?
             </h1>
+            <p className="font-body text-sm text-salty-slate/40 italic mb-3">
+              (Spoiler: probably not — and definitely not faster.)
+            </p>
             <p className="font-body text-lg text-salty-slate/60 max-w-lg mx-auto">
-              We compared the cost of our all-inclusive retreats against booking
-              the same quality trip yourself. The numbers don&apos;t lie.
+              We compared the cost AND the time of building the same quality trip yourself.
+              Between research, booking, coordination, and logistics, our retreats save you
+              weeks of planning and hundreds of dollars. The numbers don&apos;t lie.
             </p>
             <div className="mt-6">
               <ShareButton
@@ -230,7 +299,9 @@ export default function ComparePage() {
               <span className="font-bold">How we calculated: </span>
               DIY prices are based on comparable quality boutique accommodations,
               guided activities with certified instructors, and average meal costs
-              at quality restaurants in each destination. Your actual costs may vary.
+              at quality restaurants in each destination. Time estimates are based on
+              average booking and research hours for similar trips. Your actual costs
+              and time may vary.
             </p>
             <p className="font-body text-xs text-salty-deep-teal/50 text-center">
               Estimated as of February 2026. Prices fluctuate — click source links to verify current rates.
@@ -244,9 +315,15 @@ export default function ComparePage() {
         <div className="max-w-3xl mx-auto space-y-8">
           {comparisons.map((comparison, i) => (
             <ScrollReveal key={comparison.retreatSlug} delay={i * 0.1}>
-              <ComparisonCard comparison={comparison} />
+              <ComparisonCard comparison={comparison} linkStatus={linkStatus} />
             </ScrollReveal>
           ))}
+
+          {linkStatus.lastRun && (
+            <p className="font-body text-[11px] text-salty-slate/30 text-center">
+              Source links last verified: {new Date(linkStatus.lastRun).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </p>
+          )}
         </div>
       </section>
 

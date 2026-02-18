@@ -20,6 +20,7 @@ interface FlightState {
   // Favourites & selection
   favouriteFlightIds: string[];
   selectedOutboundIds: string[];
+  selectedReturnIds: string[];
   returnResults: FlightSearchResults | null;
   isReturnMode: boolean;
 
@@ -39,13 +40,15 @@ interface FlightState {
   setReturnResults: (results: FlightSearchResults | null) => void;
   setIsReturnMode: (value: boolean) => void;
   clearOutboundSelection: () => void;
+  toggleReturnSelection: (flightId: string) => void;
+  clearReturnSelection: () => void;
   reset: () => void;
 }
 
 const defaultFilters: FlightFilters = {
   maxStops: null,
   maxDuration: null,
-  maxPrice: null,
+  maxPrice: 3500,
   alliances: [],
 };
 
@@ -65,6 +68,7 @@ export const useFlightStore = create<FlightState>()(
       allResults: [],
       favouriteFlightIds: [],
       selectedOutboundIds: [],
+      selectedReturnIds: [],
       returnResults: null,
       isReturnMode: false,
 
@@ -95,6 +99,13 @@ export const useFlightStore = create<FlightState>()(
       setReturnResults: (results) => set({ returnResults: results }),
       setIsReturnMode: (value) => set({ isReturnMode: value }),
       clearOutboundSelection: () => set({ selectedOutboundIds: [] }),
+      toggleReturnSelection: (flightId) =>
+        set((state) => ({
+          selectedReturnIds: state.selectedReturnIds.includes(flightId)
+            ? state.selectedReturnIds.filter((id) => id !== flightId)
+            : [...state.selectedReturnIds, flightId],
+        })),
+      clearReturnSelection: () => set({ selectedReturnIds: [] }),
       reset: () =>
         set({
           originAirport: null,
@@ -107,6 +118,7 @@ export const useFlightStore = create<FlightState>()(
           compareAll: false,
           allResults: [],
           selectedOutboundIds: [],
+          selectedReturnIds: [],
           returnResults: null,
           isReturnMode: false,
         }),
@@ -119,6 +131,8 @@ export const useFlightStore = create<FlightState>()(
         filters: state.filters,
         favouriteFlightIds: state.favouriteFlightIds,
         selectedOutboundIds: state.selectedOutboundIds,
+        selectedReturnIds: state.selectedReturnIds,
+        isReturnMode: state.isReturnMode,
       }),
     }
   )

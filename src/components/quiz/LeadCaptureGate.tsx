@@ -8,6 +8,7 @@ import { retreats } from '@/data/retreats';
 import { calculateAllMatches } from '@/lib/matching';
 import Button from '@/components/shared/Button';
 import { cn } from '@/lib/utils';
+import { countryCodes } from '@/data/country-codes';
 
 interface FormData {
   firstName: string;
@@ -18,6 +19,7 @@ interface FormData {
 export default function LeadCaptureGate() {
   const { answers, setLeadData, setResults } = useQuizStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [countryCode, setCountryCode] = useState('+1');
   const router = useRouter();
 
   const {
@@ -29,11 +31,13 @@ export default function LeadCaptureGate() {
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
 
+    const fullWhatsApp = `${countryCode}${data.whatsappNumber.replace(/^0+/, '')}`;
+
     // Save lead data
     setLeadData({
       firstName: data.firstName,
       email: data.email,
-      whatsappNumber: data.whatsappNumber,
+      whatsappNumber: fullWhatsApp,
     });
 
     // Calculate matches
@@ -48,7 +52,7 @@ export default function LeadCaptureGate() {
         body: JSON.stringify({
           firstName: data.firstName,
           email: data.email,
-          whatsappNumber: data.whatsappNumber,
+          whatsappNumber: fullWhatsApp,
           source: 'quiz',
           quizAnswers: answers,
           topMatch: results[0]?.retreat.slug,
@@ -123,19 +127,38 @@ export default function LeadCaptureGate() {
           <label className="font-body text-sm font-bold text-salty-deep-teal block mb-1">
             WhatsApp number
           </label>
-          <input
-            {...register('whatsappNumber', {
-              required: 'We need your WhatsApp for trip updates',
-              minLength: { value: 7, message: 'That seems too short' },
-            })}
-            type="tel"
-            placeholder="+1 (555) 123-4567"
-            className={cn(
-              'w-full px-4 py-3 rounded-xl border-2 font-body text-sm bg-salty-cream',
-              'focus:outline-none focus:border-salty-orange-red transition-colors',
-              errors.whatsappNumber ? 'border-salty-burnt-red' : 'border-salty-beige'
-            )}
-          />
+          <div className="flex gap-2">
+            <select
+              value={countryCode}
+              onChange={(e) => setCountryCode(e.target.value)}
+              className={cn(
+                'w-28 px-2 py-3 rounded-xl border-2 border-salty-beige bg-salty-cream font-body text-sm',
+                'focus:outline-none focus:border-salty-orange-red transition-colors'
+              )}
+            >
+              {countryCodes.map((cc) => (
+                <option key={cc.code} value={cc.dialCode}>
+                  {cc.flag} {cc.dialCode}
+                </option>
+              ))}
+            </select>
+            <input
+              {...register('whatsappNumber', {
+                required: 'We need your WhatsApp for trip updates',
+                minLength: { value: 7, message: 'That seems too short' },
+              })}
+              type="tel"
+              placeholder="(555) 123-4567"
+              className={cn(
+                'flex-1 px-4 py-3 rounded-xl border-2 font-body text-sm bg-salty-cream',
+                'focus:outline-none focus:border-salty-orange-red transition-colors',
+                errors.whatsappNumber ? 'border-salty-burnt-red' : 'border-salty-beige'
+              )}
+            />
+          </div>
+          <p className="font-body text-[10px] text-salty-slate/40 mt-1">
+            Include your country code for WhatsApp.
+          </p>
           {errors.whatsappNumber && (
             <p className="font-body text-xs text-salty-burnt-red mt-1">{errors.whatsappNumber.message}</p>
           )}

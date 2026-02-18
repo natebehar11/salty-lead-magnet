@@ -144,6 +144,7 @@ export async function POST(request: NextRequest) {
             search: searchMeta,
             ...buckets,
             lastUpdated: new Date().toISOString(),
+            sourceCurrency: 'USD',
           };
 
           return NextResponse.json(results);
@@ -166,6 +167,7 @@ export async function POST(request: NextRequest) {
       search: searchMeta,
       ...mockFlights,
       lastUpdated: new Date().toISOString(),
+      sourceCurrency: 'USD',
     };
 
     return NextResponse.json(results);
