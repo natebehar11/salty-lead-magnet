@@ -1,4 +1,4 @@
-import { Coach } from '@/types/retreat';
+import { Coach } from '@/types';
 
 export const coaches: Coach[] = [
   {

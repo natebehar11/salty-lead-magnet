@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getAllDIYComparisons, DIYComparison, DIYLineItem } from '@/data/diy-pricing';
+import { getAllDIYComparisons } from '@/data/diy-pricing';
+import { DIYComparison, DIYLineItem } from '@/types';
 import { getRetreatBySlug } from '@/data/retreats';
 import Button from '@/components/shared/Button';
 import ScrollReveal from '@/components/shared/ScrollReveal';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuizStore } from '@/stores/quiz-store';
-import { BudgetRange, RoomPreference } from '@/types/quiz';
+import { BudgetRange, RoomPreference } from '@/types';
 import { useCurrencyStore } from '@/stores/currency-store';
 import { cn } from '@/lib/utils';
 

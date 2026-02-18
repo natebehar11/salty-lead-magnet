@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useFlightStore } from '@/stores/flight-store';
 import { searchAirports } from '@/data/airports';
 import { getUpcomingRetreats } from '@/data/retreats';
-import { Airport } from '@/types/flight';
+import { Airport } from '@/types';
 import { cn, formatDateRange } from '@/lib/utils';
 import Button from '@/components/shared/Button';
 

@@ -1,5 +1,4 @@
-import { Retreat, SaltyMeter } from '@/types/retreat';
-import { QuizAnswers, QuizResult, VibePreference, RoomPreference } from '@/types/quiz';
+import { Retreat, SaltyMeter, QuizAnswers, QuizResult, VibePreference, RoomPreference } from '@/types';
 import { getRegionForCountry } from '@/data/region-map';
 
 const vibeToMeterKey: Record<VibePreference, keyof Omit<SaltyMeter, 'groupSize'>> = {

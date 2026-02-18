@@ -1,5 +1,4 @@
-import { Testimonial } from '@/types/retreat';
-import { QuizAnswers, VibePreference } from '@/types/quiz';
+import { Testimonial, QuizAnswers, VibePreference } from '@/types';
 import { testimonials } from '@/data/testimonials';
 
 const vibeToMatchKey: Record<VibePreference, string> = {

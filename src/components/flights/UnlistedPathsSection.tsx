@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FlightOption } from '@/types/flight';
+import { FlightOption } from '@/types';
 import FlightCard from './FlightCard';
 import { cn } from '@/lib/utils';
 

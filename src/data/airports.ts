@@ -1,4 +1,4 @@
-import { Airport } from '@/types/flight';
+import { Airport } from '@/types';
 
 export const popularAirports: Airport[] = [
   // Canada

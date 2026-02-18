@@ -1,4 +1,4 @@
-import { Retreat } from '@/types/retreat';
+import { Retreat } from '@/types';
 
 export const retreats: Retreat[] = [
   // ── 1. Costa Rica v3 — Surf Sweat Flow v3 ──

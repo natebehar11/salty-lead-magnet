@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FlightOption } from '@/types/flight';
+import { FlightOption } from '@/types';
 import { useFlightStore } from '@/stores/flight-store';
 import { useCurrencyStore } from '@/stores/currency-store';
 import { convertAmount } from '@/lib/currency';

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { QUIZ_STEPS } from '@/types/quiz';
+import { QUIZ_STEPS } from '@/types';
 
 interface QuizProgressProps {
   currentStep: number;

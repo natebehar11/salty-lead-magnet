@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { FlightOption } from '@/types/flight';
+import { FlightOption } from '@/types';
 import { formatDuration } from '@/lib/utils';
 
 /**

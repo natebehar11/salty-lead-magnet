@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuizStore } from '@/stores/quiz-store';
-import { GroupStyle } from '@/types/quiz';
+import { GroupStyle } from '@/types';
 import { cn } from '@/lib/utils';
 
 const options: { value: GroupStyle; label: string; sublabel: string }[] = [

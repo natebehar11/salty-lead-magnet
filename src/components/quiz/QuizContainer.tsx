@@ -4,7 +4,7 @@ import { useCallback, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useQuizStore } from '@/stores/quiz-store';
 import { useFlightStore } from '@/stores/flight-store';
-import { QUIZ_STEPS } from '@/types/quiz';
+import { QUIZ_STEPS } from '@/types';
 import { retreats } from '@/data/retreats';
 import { calculateAllMatches } from '@/lib/matching';
 import { useRouter } from 'next/navigation';

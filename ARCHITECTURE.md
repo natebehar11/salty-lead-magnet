@@ -480,6 +480,27 @@ Each `ComparisonCard` contains:
 
 ## 4. Data Architecture
 
+### Type System Organization
+
+**Types vs Data Separation:**
+- **Types** (`src/types/`): Interface and type definitions only
+- **Data** (`src/data/`): Actual data constants and utility functions
+
+**Barrel Export Pattern:**
+All types are re-exported through `src/types/index.ts` for cleaner imports:
+```typescript
+// Instead of multiple imports from different files:
+import { Retreat } from '@/types/retreat';
+import { QuizAnswers } from '@/types/quiz';
+import { FlightOption } from '@/types/flight';
+
+// Use single import from barrel export:
+import { Retreat, QuizAnswers, FlightOption } from '@/types';
+```
+
+**Path Alias:**
+`@/` maps to `./src/` (configured in `tsconfig.json`), enabling consistent imports regardless of file depth.
+
 ### Retreat Data (`src/data/retreats.ts`)
 
 Central source of truth for all 7 retreats. Each retreat contains:
@@ -544,7 +565,9 @@ interface FlightSegment {
 }
 ```
 
-### DIY Pricing Data (`src/data/diy-pricing.ts`)
+### DIY Pricing Types (`src/types/diy-pricing.ts`)
+
+Types moved to `src/types/` folder. Data constants remain in `src/data/diy-pricing.ts`.
 
 ```typescript
 interface DIYLineItem {
@@ -794,9 +817,14 @@ src/
 │   ├── quiz-store.ts           # Quiz state (Zustand + persist)
 │   └── flight-store.ts         # Flight search state (Zustand + persist)
 └── types/
-    ├── retreat.ts              # Retreat, SaltyMeter, Location, Activity types
-    ├── quiz.ts                 # QuizAnswers, QuizResult, QUIZ_STEPS types
-    └── flight.ts               # FlightOption, FlightSegment, FlightSearchResults types
+    ├── index.ts                # Barrel export - single entry point for all types
+    ├── retreat.ts              # Retreat, SaltyMeter, Location, Activity, Coach, Testimonial types
+    ├── quiz.ts                 # QuizAnswers, QuizResult, QUIZ_STEPS, quiz enums
+    ├── flight.ts               # FlightOption, FlightSegment, FlightSearchResults, Airport types
+    ├── alliances.ts            # Alliance type
+    ├── diy-pricing.ts          # DIYLineItem, DIYComparison types
+    ├── city-cost-anchors.ts    # CityAnchor, CityLineItem types
+    └── mock-flights.ts         # MockFlightConfig type
 
 public/
 ├── fonts/

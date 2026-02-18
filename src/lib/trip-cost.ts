@@ -1,4 +1,4 @@
-import { FlightSearchResults } from '@/types/flight';
+import { FlightSearchResults } from '@/types';
 
 export interface FlightEstimate {
   amount: number;

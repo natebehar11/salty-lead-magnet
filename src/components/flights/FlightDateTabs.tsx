@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FlightDateOption } from '@/types/flight';
+import { FlightDateOption } from '@/types';
 import { cn } from '@/lib/utils';
 
 interface FlightDateTabsProps {

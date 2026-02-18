@@ -18,7 +18,7 @@ import AllianceFilter from '@/components/flights/AllianceFilter';
 import { flightMatchesAlliances } from '@/data/alliances';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { FlightSortMode } from '@/types/flight';
+import { FlightSortMode } from '@/types';
 import TripCostBar from '@/components/shared/TripCostBar';
 import { getFlightEstimate } from '@/lib/trip-cost';
 import { retreatValueSummaries } from '@/data/retreat-value-summaries';

@@ -4,28 +4,7 @@
 // Methodology: Real prices from Booking.com, studio websites, restaurant averages, local providers
 // All prices pre-tax unless noted. Source URLs provided for verification.
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-export interface CityAnchor {
-  cityId: string;
-  cityName: string;
-  province: string;
-  country: string;
-  currency: string;
-  lineItems: CityLineItem[];
-  totalCost: number;
-  funComparison: string;
-  sourceNote: string;
-}
-
-interface CityLineItem {
-  emoji: string;
-  category: string;
-  description: string;
-  cost: number;
-  source: string;
-  sourceUrl?: string;
-}
+import { CityAnchor } from '@/types';
 
 // ─── City Cost Data ──────────────────────────────────────────────────────────
 

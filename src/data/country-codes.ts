@@ -1,9 +1,6 @@
-export interface CountryCode {
-  name: string;
-  dialCode: string;
-  flag: string;
-  code: string;
-}
+import { CountryCode } from '@/types';
+
+export type { CountryCode };
 
 export const countryCodes: CountryCode[] = [
   { name: 'Canada', dialCode: '+1', flag: '\u{1F1E8}\u{1F1E6}', code: 'CA' },

@@ -1,4 +1,4 @@
-import { Testimonial } from '@/types/retreat';
+import { Testimonial } from '@/types';
 
 /**
  * 32 real SALTY testimonials from SALTY_Testimonials_Tagged.xlsx

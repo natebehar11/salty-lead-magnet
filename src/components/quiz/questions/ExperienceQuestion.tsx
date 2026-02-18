@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuizStore } from '@/stores/quiz-store';
-import { ExperienceLevel } from '@/types/quiz';
+import { ExperienceLevel } from '@/types';
 import { cn } from '@/lib/utils';
 
 const options: { value: ExperienceLevel; label: string; sublabel: string }[] = [

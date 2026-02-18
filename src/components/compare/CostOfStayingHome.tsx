@@ -6,8 +6,8 @@ import {
   mapAirportToCity,
   getCityAnchor,
   availableCities,
-  CityAnchor,
 } from '@/data/city-cost-anchors';
+import { CityAnchor } from '@/types';
 import { cn } from '@/lib/utils';
 import PriceDisplay from '@/components/shared/PriceDisplay';
 import { motion, AnimatePresence } from 'framer-motion';
