@@ -10,8 +10,10 @@ import FlightLeadGate from '@/components/flights/FlightLeadGate';
 import ScrollReveal from '@/components/shared/ScrollReveal';
 import HumanCTA from '@/components/shared/HumanCTA';
 import WaveDivider from '@/components/shared/WaveDivider';
-import CurrencySelector from '@/components/flights/CurrencySelector';
 import FlightCard from '@/components/flights/FlightCard';
+import { useCurrencyStore } from '@/stores/currency-store';
+import { convertAmount } from '@/lib/currency';
+import { formatCurrency } from '@/lib/utils';
 import AllianceFilter from '@/components/flights/AllianceFilter';
 import { flightMatchesAlliances } from '@/data/alliances';
 import { motion } from 'framer-motion';
@@ -53,6 +55,8 @@ function FlightsContent() {
     sortMode,
     setSortMode,
   } = useFlightStore();
+
+  const { selectedCurrency, rates } = useCurrencyStore();
 
   const [hasSearched, setHasSearched] = useState(false);
   const [showLeadGate, setShowLeadGate] = useState(false);
@@ -250,10 +254,6 @@ function FlightsContent() {
                         </button>
                       ))}
                     </div>
-                    <CurrencySelector
-                      selected={filters.currency}
-                      onChange={(currency) => setFilters({ currency })}
-                    />
                   </div>
 
                   {/* Inline Filters — Range Sliders */}
@@ -371,7 +371,7 @@ function FlightsContent() {
                             </p>
                             {cheapestPrice > 0 && (
                               <p className="font-display text-2xl text-salty-salmon mt-1">
-                                from ${cheapestPrice}
+                                from {formatCurrency(convertAmount(cheapestPrice, rates[selectedCurrency]), selectedCurrency)}
                               </p>
                             )}
                           </div>
@@ -382,7 +382,7 @@ function FlightsContent() {
                             ) : (
                               <>
                                 {displayFlights.map((flight) => (
-                                  <FlightCard key={flight.id} flight={flight} currency={filters.currency} />
+                                  <FlightCard key={flight.id} flight={flight} />
                                 ))}
                                 {filtered.length > 3 && (
                                   <button

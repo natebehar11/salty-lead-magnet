@@ -39,3 +39,23 @@ export function formatDuration(minutes: number): string {
   if (mins === 0) return `${hours}h`;
   return `${hours}h ${mins}m`;
 }
+
+export function convertAndFormatCurrency(
+  amountUSD: number,
+  targetCurrency: string,
+  rate: number
+): { converted: string; original: string; isConverted: boolean } {
+  if (amountUSD === 0) {
+    return { converted: 'TBD', original: 'TBD', isConverted: false };
+  }
+  if (targetCurrency === 'USD' || rate === 1) {
+    const formatted = formatCurrency(amountUSD, 'USD');
+    return { converted: formatted, original: formatted, isConverted: false };
+  }
+  const convertedAmount = Math.round(amountUSD * rate);
+  return {
+    converted: formatCurrency(convertedAmount, targetCurrency),
+    original: formatCurrency(amountUSD, 'USD'),
+    isConverted: true,
+  };
+}

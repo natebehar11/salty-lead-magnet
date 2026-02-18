@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { formatCurrency } from '@/lib/utils';
-import { cn } from '@/lib/utils';
+import { useCurrencyStore } from '@/stores/currency-store';
+import { convertAndFormatCurrency, cn } from '@/lib/utils';
 
 interface PaymentPlanToggleProps {
   totalPrice: number;
@@ -12,7 +12,10 @@ interface PaymentPlanToggleProps {
 
 export default function PaymentPlanToggle({ totalPrice, deposit, balanceDueDate }: PaymentPlanToggleProps) {
   const [showPlan, setShowPlan] = useState(false);
+  const { selectedCurrency, rates } = useCurrencyStore();
   const balance = totalPrice - deposit;
+
+  const fmt = (amount: number) => convertAndFormatCurrency(amount, selectedCurrency, rates[selectedCurrency]);
 
   return (
     <div className="rounded-xl border border-salty-beige overflow-hidden">
@@ -25,7 +28,7 @@ export default function PaymentPlanToggle({ totalPrice, deposit, balanceDueDate 
       >
         <div className="text-left">
           <p className="font-display text-sm text-salty-deep-teal">
-            Lock it in for {formatCurrency(deposit)} today
+            Lock it in for {fmt(deposit).converted} today
           </p>
           <p className="font-body text-xs text-salty-slate/50">
             Pay the rest before you go
@@ -54,7 +57,7 @@ export default function PaymentPlanToggle({ totalPrice, deposit, balanceDueDate 
               <div>
                 <p className="font-display text-sm text-salty-orange-red">Today</p>
                 <p className="font-body text-lg text-salty-deep-teal font-bold">
-                  {formatCurrency(deposit)} deposit
+                  {fmt(deposit).converted} deposit
                 </p>
                 <p className="font-body text-xs text-salty-slate/40">
                   Secures your spot instantly
@@ -65,7 +68,7 @@ export default function PaymentPlanToggle({ totalPrice, deposit, balanceDueDate 
                   {balanceDueDate || 'Before the trip'}
                 </p>
                 <p className="font-body text-lg text-salty-deep-teal font-bold">
-                  {formatCurrency(balance)} balance
+                  {fmt(balance).converted} balance
                 </p>
                 <p className="font-body text-xs text-salty-slate/40">
                   Due before departure. No surprises.
@@ -78,7 +81,10 @@ export default function PaymentPlanToggle({ totalPrice, deposit, balanceDueDate 
             <div className="flex justify-between items-baseline">
               <span className="font-body text-xs text-salty-slate/50">Total</span>
               <span className="font-display text-lg text-salty-deep-teal">
-                {formatCurrency(totalPrice)}
+                {fmt(totalPrice).converted}
+                {fmt(totalPrice).isConverted && (
+                  <span className="font-body text-xs text-salty-slate/40 ml-1">({fmt(totalPrice).original} USD)</span>
+                )}
               </span>
             </div>
           </div>

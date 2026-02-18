@@ -44,6 +44,9 @@ export type {
 // Quiz constants
 export { QUIZ_STEPS } from './quiz';
 
+// Planner types
+export type { PlannerCity, ItinerarySuggestion } from './planner';
+
 // Retreat types
 export type {
   Location,

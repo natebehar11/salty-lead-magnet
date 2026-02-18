@@ -63,6 +63,5 @@ export interface FlightFilters {
   maxStops: number | null;
   maxDuration: number | null;
   maxPrice: number | null;
-  currency: string;
   alliances: string[];
 }

@@ -1,204 +1,46 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getUpcomingRetreats } from '@/data/retreats';
-import { Retreat } from '@/types';
+import { getUpcomingRetreats, getRetreatBySlug } from '@/data/retreats';
 import { formatDateRange } from '@/lib/utils';
 import Button from '@/components/shared/Button';
 import ScrollReveal from '@/components/shared/ScrollReveal';
 import WaveDivider from '@/components/shared/WaveDivider';
 import HumanCTA from '@/components/shared/HumanCTA';
 import TripConfidenceScore from '@/components/planner/TripConfidenceScore';
+import CityAutocompleteInput from '@/components/planner/CityAutocompleteInput';
 import { useFlightStore } from '@/stores/flight-store';
-
-// ~80 popular travel cities for autocomplete
-const POPULAR_CITIES = [
-  'Amsterdam', 'Antigua', 'Athens', 'Auckland',
-  'Bali', 'Bangkok', 'Barcelona', 'Beijing', 'Berlin', 'Bogota', 'Bordeaux',
-  'Boston', 'Brisbane', 'Brussels', 'Budapest', 'Buenos Aires',
-  'Cairo', 'Cancun', 'Cape Town', 'Cartagena', 'Chiang Mai', 'Chicago',
-  'Copenhagen', 'Cusco',
-  'Dubai', 'Dublin', 'Dubrovnik',
-  'Edinburgh', 'Florence', 'Havana', 'Helsinki', 'Ho Chi Minh City', 'Hong Kong',
-  'Honolulu',
-  'Istanbul', 'Jaipur', 'Johannesburg',
-  'Kathmandu', 'Koh Samui', 'Kuala Lumpur', 'Kyoto',
-  'Lima', 'Lisbon', 'London', 'Los Angeles',
-  'Madrid', 'Marrakech', 'Medellín', 'Melbourne', 'Mexico City', 'Miami',
-  'Milan', 'Montreal', 'Mumbai', 'Munich',
-  'Nairobi', 'Naples', 'New York', 'Nice',
-  'Osaka', 'Oslo',
-  'Paris', 'Playa del Carmen', 'Porto', 'Prague', 'Phuket',
-  'Reykjavik', 'Rio de Janeiro', 'Rome',
-  'San Francisco', 'San Juan', 'Santiago', 'Santorini', 'São Paulo',
-  'Seoul', 'Seville', 'Shanghai', 'Singapore', 'Split', 'Stockholm', 'Sydney',
-  'Taipei', 'Tel Aviv', 'Tokyo', 'Toronto',
-  'Vancouver', 'Venice', 'Vienna',
-  'Zanzibar', 'Zürich',
-];
-
-interface PlannerCity {
-  id: string;
-  name: string;
-  country: string;
-  days: number;
-  type: 'before' | 'after';
-}
-
-interface ItinerarySuggestion {
-  cities: { name: string; country: string; days: number; highlights: string[] }[];
-  totalDays: number;
-  reasoning: string;
-}
-
-function CityAutocompleteInput({
-  value,
-  onChange,
-  placeholder,
-  className,
-}: {
-  value: string;
-  onChange: (val: string) => void;
-  placeholder: string;
-  className: string;
-}) {
-  const [isFocused, setIsFocused] = useState(false);
-  const [highlightIndex, setHighlightIndex] = useState(-1);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  const filtered = value.length >= 1
-    ? POPULAR_CITIES.filter((city) =>
-        city.toLowerCase().startsWith(value.toLowerCase())
-      ).slice(0, 8)
-    : [];
-
-  const showDropdown = isFocused && filtered.length > 0 && value.length >= 1;
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setIsFocused(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
-
-  // Reset highlight when filtered results change
-  useEffect(() => {
-    setHighlightIndex(-1);
-  }, [value]);
-
-  const selectCity = (city: string) => {
-    onChange(city);
-    setIsFocused(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!showDropdown) return;
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setHighlightIndex((prev) => (prev < filtered.length - 1 ? prev + 1 : 0));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setHighlightIndex((prev) => (prev > 0 ? prev - 1 : filtered.length - 1));
-    } else if (e.key === 'Enter' && highlightIndex >= 0) {
-      e.preventDefault();
-      selectCity(filtered[highlightIndex]);
-    } else if (e.key === 'Escape') {
-      setIsFocused(false);
-    }
-  };
-
-  return (
-    <div ref={wrapperRef} className="relative">
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setIsFocused(true)}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        className={className}
-      />
-      <AnimatePresence>
-        {showDropdown && (
-          <motion.ul
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.15 }}
-            className="absolute z-50 top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-salty-beige overflow-hidden"
-          >
-            {filtered.map((city, i) => (
-              <li key={city}>
-                <button
-                  type="button"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    selectCity(city);
-                  }}
-                  className={`w-full text-left px-3 py-2 font-body text-sm transition-colors ${
-                    i === highlightIndex
-                      ? 'bg-salty-orange-red/10 text-salty-deep-teal'
-                      : 'text-salty-slate/80 hover:bg-salty-beige/40'
-                  }`}
-                >
-                  {city}
-                </button>
-              </li>
-            ))}
-          </motion.ul>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
+import { usePlannerStore } from '@/stores/planner-store';
 
 export default function PlannerPage() {
   const retreats = getUpcomingRetreats().filter((r) => r.status !== 'sold_out');
-  const [selectedRetreat, setSelectedRetreat] = useState<Retreat | null>(null);
-  const [beforeCities, setBeforeCities] = useState<PlannerCity[]>([]);
-  const [afterCities, setAfterCities] = useState<PlannerCity[]>([]);
-  const [prompt, setPrompt] = useState('');
+
+  const {
+    selectedRetreatSlug,
+    beforeCities,
+    afterCities,
+    prompt,
+    suggestion,
+    formSubmitted,
+    setSelectedRetreatSlug,
+    addCity,
+    updateCity,
+    removeCity,
+    setPrompt,
+    setSuggestion,
+    setFormSubmitted,
+  } = usePlannerStore();
+
+  const selectedRetreat = selectedRetreatSlug ? getRetreatBySlug(selectedRetreatSlug) ?? null : null;
+
   const [isGenerating, setIsGenerating] = useState(false);
-  const [suggestion, setSuggestion] = useState<ItinerarySuggestion | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ firstName: '', email: '', whatsappNumber: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const hasAdditionalDestinations = beforeCities.length > 0 || afterCities.length > 0;
   const { hasSubmittedLead, favouriteFlightIds, searchResults: flightSearchResults } = useFlightStore();
-
-  const addCity = useCallback((type: 'before' | 'after') => {
-    const newCity: PlannerCity = {
-      id: `${type}-${Date.now()}`,
-      name: '',
-      country: '',
-      days: 3,
-      type,
-    };
-    if (type === 'before') {
-      setBeforeCities((prev) => [...prev, newCity]);
-    } else {
-      setAfterCities((prev) => [...prev, newCity]);
-    }
-  }, []);
-
-  const updateCity = useCallback((id: string, updates: Partial<PlannerCity>) => {
-    const updater = (cities: PlannerCity[]) =>
-      cities.map((c) => (c.id === id ? { ...c, ...updates } : c));
-    setBeforeCities(updater);
-    setAfterCities(updater);
-  }, []);
-
-  const removeCity = useCallback((id: string) => {
-    setBeforeCities((prev) => prev.filter((c) => c.id !== id));
-    setAfterCities((prev) => prev.filter((c) => c.id !== id));
-  }, []);
 
   const handleGenerate = async () => {
     if (!selectedRetreat) return;
@@ -275,11 +117,11 @@ export default function PlannerPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {retreats.map((retreat) => {
-              const isSelected = selectedRetreat?.slug === retreat.slug;
+              const isSelected = selectedRetreatSlug === retreat.slug;
               return (
                 <button
                   key={retreat.slug}
-                  onClick={() => { setSelectedRetreat(retreat); setSuggestion(null); }}
+                  onClick={() => setSelectedRetreatSlug(retreat.slug)}
                   className={`p-4 rounded-xl border-2 text-left transition-all ${
                     isSelected
                       ? 'border-salty-salmon bg-salty-salmon/10'
@@ -576,7 +418,7 @@ export default function PlannerPage() {
                               email: formData.email,
                               whatsappNumber: formData.whatsappNumber,
                               source: 'planner',
-                              retreatSlug: selectedRetreat?.slug,
+                              retreatSlug: selectedRetreatSlug,
                               citiesCount: totalCities,
                             }),
                           });

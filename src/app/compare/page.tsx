@@ -10,10 +10,17 @@ import ScrollReveal from '@/components/shared/ScrollReveal';
 import WaveDivider from '@/components/shared/WaveDivider';
 import HumanCTA from '@/components/shared/HumanCTA';
 import ShareButton from '@/components/shared/ShareButton';
+import PriceDisplay from '@/components/shared/PriceDisplay';
 import CostOfStayingHome from '@/components/compare/CostOfStayingHome';
+import { useCurrencyStore } from '@/stores/currency-store';
+import { convertAmount } from '@/lib/currency';
+import { formatCurrency } from '@/lib/utils';
 
 function ComparisonCard({ comparison }: { comparison: DIYComparison }) {
   const [expanded, setExpanded] = useState(false);
+  const { selectedCurrency, rates } = useCurrencyStore();
+  const rate = rates[selectedCurrency];
+  const fmtConverted = (usd: number) => formatCurrency(convertAmount(usd, rate), selectedCurrency);
 
   const diyTotal = comparison.items.reduce((sum, item) => sum + item.diyPrice, 0);
   const savings = diyTotal - comparison.saltyPriceFrom;
@@ -46,15 +53,13 @@ function ComparisonCard({ comparison }: { comparison: DIYComparison }) {
       <div className="grid grid-cols-2 divide-x divide-salty-beige">
         <div className="p-6 text-center">
           <p className="font-body text-xs text-salty-slate/50 uppercase tracking-wider mb-1">SALTY Price</p>
-          <p className="font-display text-3xl text-salty-orange-red">
-            ${comparison.saltyPriceFrom.toLocaleString()}
-          </p>
+          <PriceDisplay amountUSD={comparison.saltyPriceFrom} size="lg" />
           <p className="font-body text-xs text-salty-slate/40 mt-1">from / person</p>
         </div>
         <div className="p-6 text-center">
           <p className="font-body text-xs text-salty-slate/50 uppercase tracking-wider mb-1">DIY Cost</p>
           <p className="font-display text-3xl text-salty-slate line-through decoration-salty-burnt-red">
-            ${diyTotal.toLocaleString()}
+            {fmtConverted(diyTotal)}
           </p>
           <p className="font-body text-xs text-salty-slate/40 mt-1">estimated / person</p>
         </div>
@@ -63,7 +68,7 @@ function ComparisonCard({ comparison }: { comparison: DIYComparison }) {
       {/* Savings Banner */}
       <div className="mx-6 mb-4 p-3 bg-salty-yellow/20 rounded-xl text-center">
         <p className="font-display text-lg text-salty-deep-teal">
-          Save ${savings.toLocaleString()} with SALTY
+          Save {fmtConverted(savings)} with SALTY
         </p>
       </div>
 
@@ -122,7 +127,7 @@ function ComparisonCard({ comparison }: { comparison: DIYComparison }) {
                     </div>
                   </div>
                   <div className="col-span-3 text-right">
-                    <span className="font-body text-sm text-salty-slate">${item.diyPrice}</span>
+                    <span className="font-body text-sm text-salty-slate">{fmtConverted(item.diyPrice)}</span>
                   </div>
                   <div className="col-span-3 text-right">
                     <span className="font-body text-xs text-salty-forest-green font-bold bg-salty-seafoam/20 px-2 py-0.5 rounded-full">

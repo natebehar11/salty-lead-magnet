@@ -2,7 +2,7 @@
 
 import { useQuizStore } from '@/stores/quiz-store';
 import { QuizResult } from '@/types';
-import { formatCurrency, formatDateRange } from '@/lib/utils';
+import { formatDateRange } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import CompactSaltyMeter from './CompactSaltyMeter';
 import ScrollReveal from '@/components/shared/ScrollReveal';
@@ -14,6 +14,7 @@ import { getMatchedTestimonials } from '@/lib/testimonial-matching';
 import { Testimonial } from '@/types';
 import CostPerDay from '@/components/shared/CostPerDay';
 import PaymentPlanToggle from '@/components/shared/PaymentPlanToggle';
+import PriceDisplay from '@/components/shared/PriceDisplay';
 import SharePlanButton from '@/components/shared/SharePlanButton';
 
 function TestimonialCard({ testimonial, matchReason }: { testimonial: Testimonial; matchReason: string }) {
@@ -89,9 +90,9 @@ function HeroMatchCard({ result, answers }: { result: QuizResult; answers: impor
               {formatDateRange(retreat.startDate, retreat.endDate)} &middot; {retreat.duration.nights} nights
             </p>
             {retreat.lowestPrice > 0 && (
-              <p className="font-display text-2xl text-salty-orange-red mt-2">
-                From {formatCurrency(retreat.lowestPrice)}
-              </p>
+              <div className="mt-2">
+                <PriceDisplay amountUSD={retreat.lowestPrice} label="From" size="md" />
+              </div>
             )}
             {retreat.spotsRemaining !== null && retreat.spotsRemaining <= 15 && (
               <p className="font-body text-sm text-salty-burnt-red mt-1 font-semibold">
@@ -240,9 +241,9 @@ function AlsoConsiderCard({ result, answers }: { result: QuizResult; answers: im
                 {formatDateRange(retreat.startDate, retreat.endDate)} &middot; {retreat.duration.nights} nights
               </p>
               {retreat.lowestPrice > 0 && (
-                <p className="font-display text-lg text-salty-orange-red mt-1">
-                  From {formatCurrency(retreat.lowestPrice)}
-                </p>
+                <div className="mt-1">
+                  <PriceDisplay amountUSD={retreat.lowestPrice} label="From" size="sm" />
+                </div>
               )}
               {retreat.spotsRemaining !== null && retreat.spotsRemaining <= 10 && (
                 <p className="font-body text-xs text-salty-burnt-red mt-1">

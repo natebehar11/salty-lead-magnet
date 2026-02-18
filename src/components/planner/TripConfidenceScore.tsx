@@ -1,16 +1,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Retreat } from '@/types';
+import { Retreat, PlannerCity } from '@/types';
 import { cn } from '@/lib/utils';
-
-interface PlannerCity {
-  id: string;
-  name: string;
-  country: string;
-  days: number;
-  type: 'before' | 'after';
-}
 
 interface TripConfidenceScoreProps {
   selectedRetreat: Retreat | null;

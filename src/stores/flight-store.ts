@@ -46,7 +46,6 @@ const defaultFilters: FlightFilters = {
   maxStops: null,
   maxDuration: null,
   maxPrice: null,
-  currency: 'USD',
   alliances: [],
 };
 
@@ -119,6 +118,7 @@ export const useFlightStore = create<FlightState>()(
         hasSubmittedLead: state.hasSubmittedLead,
         filters: state.filters,
         favouriteFlightIds: state.favouriteFlightIds,
+        selectedOutboundIds: state.selectedOutboundIds,
       }),
     }
   )

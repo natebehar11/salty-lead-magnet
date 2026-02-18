@@ -7,10 +7,9 @@ import { cn } from '@/lib/utils';
 
 interface UnlistedPathsSectionProps {
   flights: FlightOption[];
-  currency: string;
 }
 
-export default function UnlistedPathsSection({ flights, currency }: UnlistedPathsSectionProps) {
+export default function UnlistedPathsSection({ flights }: UnlistedPathsSectionProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   if (flights.length === 0) return null;
@@ -57,7 +56,7 @@ export default function UnlistedPathsSection({ flights, currency }: UnlistedPath
 
           {/* Flight Cards */}
           {flights.map((flight) => (
-            <FlightCard key={flight.id} flight={flight} currency={currency} />
+            <FlightCard key={flight.id} flight={flight} />
           ))}
         </div>
       )}

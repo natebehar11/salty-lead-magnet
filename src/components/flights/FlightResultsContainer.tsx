@@ -7,7 +7,6 @@ import { flightMatchesAlliances } from '@/data/alliances';
 import FlightCard from './FlightCard';
 import FlightCardSkeleton from './FlightCardSkeleton';
 import FlightDateTabs from './FlightDateTabs';
-import CurrencySelector from './CurrencySelector';
 import AllianceFilter from './AllianceFilter';
 import UnlistedPathsSection from './UnlistedPathsSection';
 import ShareFlightPanel from './ShareFlightPanel';
@@ -140,10 +139,6 @@ export default function FlightResultsContainer() {
           onChange={setSelectedDate}
           dates={search.dates}
         />
-        <CurrencySelector
-          selected={filters.currency}
-          onChange={(currency) => setFilters({ currency })}
-        />
       </div>
 
       {/* Alliance Filter */}
@@ -256,7 +251,7 @@ export default function FlightResultsContainer() {
             <FlightCard
               key={flight.id}
               flight={flight}
-              currency={filters.currency}
+
               showCheckbox
               originCode={search.origin.code}
               destCode={search.destination.code}
@@ -342,7 +337,7 @@ export default function FlightResultsContainer() {
                   <FlightCard
                     key={flight.id}
                     flight={flight}
-                    currency={filters.currency}
+      
                     originCode={returnResults.search.origin.code}
                     destCode={returnResults.search.destination.code}
                   />
@@ -354,7 +349,7 @@ export default function FlightResultsContainer() {
       })()}
 
       {/* Unlisted Paths */}
-      <UnlistedPathsSection flights={unlistedFlights} currency={filters.currency} />
+      <UnlistedPathsSection flights={unlistedFlights} />
 
       {/* Share Panel */}
       <ShareFlightPanel flights={flights} retreatName={search.retreatName} />
