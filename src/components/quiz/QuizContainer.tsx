@@ -1,9 +1,10 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { useQuizStore } from '@/stores/quiz-store';
 import { useFlightStore } from '@/stores/flight-store';
+import { hydrateLeadFromOtherStores, getExistingLead } from '@/lib/lead-state';
 import { QUIZ_STEPS } from '@/types';
 import { retreats } from '@/data/retreats';
 import { calculateAllMatches } from '@/lib/matching';
@@ -33,18 +34,16 @@ const slideVariants = {
 };
 
 export default function QuizContainer() {
-  const { currentStep, nextStep, prevStep, answers, hasSubmittedLead, leadData, setLeadData, setResults } = useQuizStore();
+  const { currentStep, nextStep, prevStep, answers, hasSubmittedLead, setResults } = useQuizStore();
   const flightStore = useFlightStore();
   const router = useRouter();
 
   const hasExistingLead = hasSubmittedLead || flightStore.hasSubmittedLead;
 
-  // If lead data exists in flight store but not quiz store, copy it over
+  // Hydrate lead data from any other store (flights, planner) on mount
   useEffect(() => {
-    if (flightStore.leadData && !leadData) {
-      setLeadData(flightStore.leadData);
-    }
-  }, [flightStore.leadData, leadData, setLeadData]);
+    hydrateLeadFromOtherStores('quiz');
+  }, []);
 
   const handleNext = useCallback(() => {
     const nextStepIndex = currentStep + 1;
@@ -56,7 +55,7 @@ export default function QuizContainer() {
       setResults(results);
 
       // Submit to GHL as quiz_completed event (non-blocking)
-      const existingLead = leadData || flightStore.leadData;
+      const existingLead = getExistingLead();
       if (existingLead) {
         fetch('/api/leads/capture', {
           method: 'POST',
@@ -81,7 +80,7 @@ export default function QuizContainer() {
     if (currentStep < QUIZ_STEPS.length - 1) {
       nextStep();
     }
-  }, [currentStep, nextStep, hasExistingLead, answers, leadData, flightStore.leadData, setResults, router]);
+  }, [currentStep, nextStep, hasExistingLead, answers, setResults, router]);
 
   const handleBack = useCallback(() => {
     if (currentStep > 0) {
@@ -114,7 +113,7 @@ export default function QuizContainer() {
   const displayStep = Math.min(currentStep + 1, totalDisplaySteps);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className={`min-h-dvh flex flex-col transition-colors duration-500 ${currentStep % 2 === 0 ? 'bg-surface-base' : 'bg-surface-warm-light'}`}>
       <QuizProgress currentStep={currentStep} />
 
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">

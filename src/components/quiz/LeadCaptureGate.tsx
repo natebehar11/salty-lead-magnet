@@ -7,14 +7,7 @@ import { useRouter } from 'next/navigation';
 import { retreats } from '@/data/retreats';
 import { calculateAllMatches } from '@/lib/matching';
 import Button from '@/components/shared/Button';
-import { cn } from '@/lib/utils';
-import { countryCodes } from '@/data/country-codes';
-
-interface FormData {
-  firstName: string;
-  email: string;
-  whatsappNumber: string;
-}
+import LeadCaptureFields, { LeadFormData } from '@/components/shared/LeadCaptureFields';
 
 export default function LeadCaptureGate() {
   const { answers, setLeadData, setResults } = useQuizStore();
@@ -26,9 +19,9 @@ export default function LeadCaptureGate() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<LeadFormData>();
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: LeadFormData) => {
     setIsSubmitting(true);
 
     const fullWhatsApp = `${countryCode}${data.whatsappNumber.replace(/^0+/, '')}`;
@@ -80,89 +73,17 @@ export default function LeadCaptureGate() {
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-sm mx-auto space-y-4">
-        <div className="text-left">
-          <label className="font-body text-sm font-bold text-salty-deep-teal block mb-1">
-            First name
-          </label>
-          <input
-            {...register('firstName', { required: 'We need your name!' })}
-            placeholder="What should we call you?"
-            className={cn(
-              'w-full px-4 py-3 rounded-xl border-2 font-body text-sm bg-salty-cream',
-              'focus:outline-none focus:border-salty-orange-red transition-colors',
-              errors.firstName ? 'border-salty-burnt-red' : 'border-salty-beige'
-            )}
-          />
-          {errors.firstName && (
-            <p className="font-body text-xs text-salty-burnt-red mt-1">{errors.firstName.message}</p>
-          )}
-        </div>
-
-        <div className="text-left">
-          <label className="font-body text-sm font-bold text-salty-deep-teal block mb-1">
-            Email
-          </label>
-          <input
-            {...register('email', {
-              required: 'We need your email to send results',
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'That doesn\'t look like an email',
-              },
-            })}
-            type="email"
-            placeholder="you@example.com"
-            className={cn(
-              'w-full px-4 py-3 rounded-xl border-2 font-body text-sm bg-salty-cream',
-              'focus:outline-none focus:border-salty-orange-red transition-colors',
-              errors.email ? 'border-salty-burnt-red' : 'border-salty-beige'
-            )}
-          />
-          {errors.email && (
-            <p className="font-body text-xs text-salty-burnt-red mt-1">{errors.email.message}</p>
-          )}
-        </div>
-
-        <div className="text-left">
-          <label className="font-body text-sm font-bold text-salty-deep-teal block mb-1">
-            WhatsApp number
-          </label>
-          <div className="flex gap-2">
-            <select
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
-              className={cn(
-                'w-28 px-2 py-3 rounded-xl border-2 border-salty-beige bg-salty-cream font-body text-sm',
-                'focus:outline-none focus:border-salty-orange-red transition-colors'
-              )}
-            >
-              {countryCodes.map((cc) => (
-                <option key={cc.code} value={cc.dialCode}>
-                  {cc.flag} {cc.dialCode}
-                </option>
-              ))}
-            </select>
-            <input
-              {...register('whatsappNumber', {
-                required: 'We need your WhatsApp for trip updates',
-                minLength: { value: 7, message: 'That seems too short' },
-              })}
-              type="tel"
-              placeholder="(555) 123-4567"
-              className={cn(
-                'flex-1 px-4 py-3 rounded-xl border-2 font-body text-sm bg-salty-cream',
-                'focus:outline-none focus:border-salty-orange-red transition-colors',
-                errors.whatsappNumber ? 'border-salty-burnt-red' : 'border-salty-beige'
-              )}
-            />
-          </div>
-          <p className="font-body text-[10px] text-salty-slate/40 mt-1">
-            Include your country code for WhatsApp.
-          </p>
-          {errors.whatsappNumber && (
-            <p className="font-body text-xs text-salty-burnt-red mt-1">{errors.whatsappNumber.message}</p>
-          )}
-        </div>
+        <LeadCaptureFields
+          register={register}
+          errors={errors}
+          showLabels
+          countryCode={countryCode}
+          onCountryCodeChange={setCountryCode}
+          placeholders={{
+            firstName: 'What should we call you?',
+            email: 'you@example.com',
+          }}
+        />
 
         <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
           {isSubmitting ? 'Finding your matches...' : 'Show Me My Matches'}

@@ -65,10 +65,12 @@ describe('ShareFlightPanel', () => {
     expect(screen.getByText('Save These Flight Plans')).toBeInTheDocument();
   });
 
-  it('shows departing and return tabs', () => {
+  it('shows departing and return sections when flights are selected', () => {
     useFlightStore.setState({
       hasSubmittedLead: true,
       leadData: { firstName: 'Nate', email: 'nate@test.com', whatsappNumber: '+1' },
+      selectedOutboundIds: ['dep-1'],
+      selectedReturnIds: ['ret-1'],
     });
     render(
       <ShareFlightPanel departingFlights={departingFlights} returnFlights={returnFlights} retreatName="Costa Rica v4" />
@@ -81,13 +83,14 @@ describe('ShareFlightPanel', () => {
     useFlightStore.setState({
       hasSubmittedLead: true,
       leadData: { firstName: 'Nate', email: 'nate@test.com', whatsappNumber: '+1' },
-      selectedOutboundIds: ['dep-1'],
+      selectedOutboundIds: ['dep-1', 'dep-2'],
       selectedReturnIds: ['ret-1'],
     });
     render(
       <ShareFlightPanel departingFlights={departingFlights} returnFlights={returnFlights} retreatName="Costa Rica v4" />
     );
-    expect(screen.getByText(/1 departing, 1 return selected/)).toBeInTheDocument();
+    expect(screen.getByText(/Departing \(2\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Return \(1\)/)).toBeInTheDocument();
   });
 
   it('shows Email Me and WhatsApp Me buttons', () => {

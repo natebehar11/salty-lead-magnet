@@ -89,10 +89,10 @@ export default function AvailabilityQuestion({ onNext }: AvailabilityQuestionPro
       <button
         onClick={() => toggleMonth('flexible')}
         className={cn(
-          'mb-8 px-6 py-3 rounded-full border-2 font-body font-bold text-sm transition-all',
+          'mb-8 px-6 py-3 rounded-full border-[4px] font-body font-bold text-sm transition-all',
           isFlexible
             ? 'border-salty-gold bg-salty-gold/10 text-salty-deep-teal'
-            : 'border-salty-beige text-salty-deep-teal/60 hover:border-salty-deep-teal/20'
+            : 'border-salty-slate text-salty-deep-teal/60 hover:border-salty-deep-teal'
         )}
       >
         I&apos;m flexible — surprise me

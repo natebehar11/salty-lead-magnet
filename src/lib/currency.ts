@@ -36,6 +36,6 @@ export async function fetchExchangeRates(): Promise<{ rates: Record<CurrencyCode
   }
 }
 
-export function convertAmount(amountUSD: number, rate: number): number {
-  return Math.round(amountUSD * rate);
+export function convertAmount(amountUSD: number, rate: number | undefined): number {
+  return Math.round(amountUSD * (rate ?? 1));
 }

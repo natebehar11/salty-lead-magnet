@@ -1,7 +1,7 @@
 'use client';
 
 import { SaltyMeter } from '@/types';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 const categories = [
   { key: 'adventure' as const, label: 'ADV', color: 'bg-salty-orange-red' },

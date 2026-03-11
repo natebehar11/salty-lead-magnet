@@ -12,6 +12,7 @@ function isV2Configured(): boolean {
 }
 
 function formatFlightRow(f: FlightOption, index: number): string {
+  if (!f.segments || f.segments.length === 0) return '';
   const airline = [...new Set(f.segments.map((s) => s.airline))].join(' + ');
   const route = `${f.segments[0].departure.airport} → ${f.segments[f.segments.length - 1].arrival.airport}`;
   const times = `${f.segments[0].departure.time} – ${f.segments[f.segments.length - 1].arrival.time}`;
@@ -32,14 +33,49 @@ function formatFlightRow(f: FlightOption, index: number): string {
     </tr>`;
 }
 
+interface MultiCityFlightItem {
+  legLabel: string;
+  flight: FlightOption;
+}
+
+function formatMultiCityRow(item: MultiCityFlightItem, index: number): string {
+  const f = item.flight;
+  if (!f.segments || f.segments.length === 0) return '';
+  const airline = [...new Set(f.segments.map((s) => s.airline))].join(' + ');
+  const route = `${f.segments[0].departure.airport} → ${f.segments[f.segments.length - 1].arrival.airport}`;
+  const times = `${f.segments[0].departure.time} – ${f.segments[f.segments.length - 1].arrival.time}`;
+  const stops = f.stops === 0 ? 'Direct' : `${f.stops} stop${f.stops > 1 ? 's' : ''}`;
+  const duration = formatDuration(f.totalDuration);
+
+  return `
+    <tr style="border-bottom: 1px solid #F5F0E8;">
+      <td style="padding: 12px 8px; font-family: sans-serif; font-size: 14px; color: #1A3C34;">
+        <strong>${index + 1}. ${item.legLabel}</strong><br/>
+        <span style="font-size: 12px; color: #666;">${airline} · ${route} · ${times}</span><br/>
+        <span style="font-size: 12px; color: #666;">${duration} · ${stops}</span>
+      </td>
+      <td style="padding: 12px 8px; text-align: right; font-family: sans-serif; font-size: 18px; font-weight: bold; color: #E8836B;">
+        $${f.price}
+      </td>
+    </tr>`;
+}
+
 function buildEmailHtml(
   firstName: string,
   retreatName: string,
   departingFlights: FlightOption[],
   returnFlights: FlightOption[],
+  multiCityFlights?: MultiCityFlightItem[],
 ): string {
+  const isMultiCity = multiCityFlights && multiCityFlights.length > 0;
   const departingRows = departingFlights.map((f, i) => formatFlightRow(f, i)).join('');
   const returnRows = returnFlights.map((f, i) => formatFlightRow(f, i)).join('');
+  const multiCityRows = isMultiCity
+    ? multiCityFlights.map((item, i) => formatMultiCityRow(item, i)).join('')
+    : '';
+  const multiCityTotal = isMultiCity
+    ? multiCityFlights.reduce((sum, item) => sum + item.flight.price, 0)
+    : 0;
 
   return `
 <!DOCTYPE html>
@@ -49,7 +85,7 @@ function buildEmailHtml(
   <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; margin-top: 20px; margin-bottom: 20px;">
     <!-- Header -->
     <div style="background: #1A3C34; padding: 32px 24px; text-align: center;">
-      <h1 style="color: white; font-size: 24px; margin: 0 0 8px 0;">Your Flight Plans</h1>
+      <h1 style="color: white; font-size: 24px; margin: 0 0 8px 0;">Your ${isMultiCity ? 'Multi-City Itinerary' : 'Flight Plans'}</h1>
       <p style="color: #B8D4E3; font-size: 14px; margin: 0;">${retreatName}</p>
     </div>
 
@@ -57,14 +93,24 @@ function buildEmailHtml(
       <p style="font-size: 16px; color: #1A3C34; margin: 0 0 20px 0;">Hey ${firstName}!</p>
       <p style="font-size: 14px; color: #666; margin: 0 0 24px 0;">Here are the flight options you saved. Prices can change fast — we recommend booking soon if you see one you like.</p>
 
-      ${departingFlights.length > 0 ? `
+      ${isMultiCity ? `
+      <h2 style="font-size: 14px; color: #E8836B; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 12px 0;">Multi-City Itinerary</h2>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px;">
+        ${multiCityRows}
+      </table>
+      <p style="font-size: 16px; font-weight: bold; color: #1A3C34; text-align: right; margin: 0 0 24px 0;">
+        Total: $${multiCityTotal}
+      </p>
+      ` : ''}
+
+      ${!isMultiCity && departingFlights.length > 0 ? `
       <h2 style="font-size: 14px; color: #E8836B; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 12px 0;">Departing Flights</h2>
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
         ${departingRows}
       </table>
       ` : ''}
 
-      ${returnFlights.length > 0 ? `
+      ${!isMultiCity && returnFlights.length > 0 ? `
       <h2 style="font-size: 14px; color: #E8836B; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 12px 0;">Return Flights</h2>
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
         ${returnRows}
@@ -93,7 +139,7 @@ function buildEmailHtml(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { leadData, departingFlights, returnFlights, retreatName } = body;
+    const { leadData, departingFlights, returnFlights, multiCityFlights, retreatName } = body;
 
     if (!leadData?.email || !retreatName) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -126,6 +172,7 @@ export async function POST(request: NextRequest) {
           retreatName,
           departingFlights || [],
           returnFlights || [],
+          multiCityFlights,
         );
 
         const sendRes = await fetch(`${GHL_V2_BASE}/conversations/messages`, {
@@ -164,6 +211,7 @@ export async function POST(request: NextRequest) {
       retreatName,
       departingCount: (departingFlights as FlightOption[])?.length || 0,
       returnCount: (returnFlights as FlightOption[])?.length || 0,
+      multiCityCount: (multiCityFlights as MultiCityFlightItem[])?.length || 0,
     });
 
     return NextResponse.json({ success: false, fallback: 'mailto' });

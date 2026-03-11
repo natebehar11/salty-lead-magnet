@@ -22,8 +22,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Format flight data for messaging
-    const formattedFlights = (flightOptions as FlightOption[]).map((flight, i) => ({
+    // Format flight data for messaging — filter out any malformed flights without segments
+    const validFlights = (flightOptions as FlightOption[]).filter(
+      (f) => f.segments && f.segments.length > 0,
+    );
+    const formattedFlights = validFlights.map((flight, i) => ({
       rank: i + 1,
       airline: [...new Set(flight.segments.map((s) => s.airline))].join(' + '),
       route: `${flight.segments[0].departure.airport} → ${flight.segments[flight.segments.length - 1].arrival.airport}`,

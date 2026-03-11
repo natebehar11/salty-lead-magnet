@@ -58,7 +58,7 @@ async function ghlRequest(endpoint: string, method: string = 'GET', body?: any):
 export interface GHLContactData {
   firstName: string;
   email: string;
-  phone: string;
+  phone?: string;
   tags: string[];
   source?: string;
   customFields?: Record<string, string>;

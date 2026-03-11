@@ -12,11 +12,11 @@ vi.mock('next/link', () => ({
   ),
 }));
 
-// Mock framer-motion to avoid animation complexity in tests
-vi.mock('framer-motion', () => ({
+// Mock motion/react to avoid animation complexity in tests
+vi.mock('motion/react', () => ({
   motion: {
     div: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => {
-      // Filter out framer-motion specific props
+      // Filter out motion/react specific props
       const htmlProps: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(props)) {
         if (!['initial', 'animate', 'exit', 'transition', 'whileHover', 'whileTap', 'variants', 'layout'].includes(key)) {

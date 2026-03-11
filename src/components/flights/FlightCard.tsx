@@ -1,10 +1,9 @@
 'use client';
 
 import { FlightOption } from '@/types';
-import { formatCurrency, formatDuration, cn } from '@/lib/utils';
+import { convertAndFormatCurrency, formatDuration, formatShortDate, cn } from '@/lib/utils';
 import { useFlightStore } from '@/stores/flight-store';
 import { useCurrencyStore } from '@/stores/currency-store';
-import { convertAmount } from '@/lib/currency';
 import { generateGoogleFlightsUrl } from '@/lib/google-flights';
 
 interface FlightCardProps {
@@ -12,15 +11,21 @@ interface FlightCardProps {
   showCheckbox?: boolean;
   originCode?: string;
   destCode?: string;
+  returnDate?: string;
+  selectionMode?: 'checkbox' | 'radio';
   onToggleSelection?: (flightId: string) => void;
   isSelected?: boolean;
 }
 
-export default function FlightCard({ flight, showCheckbox = false, originCode, destCode, onToggleSelection, isSelected: isSelectedProp }: FlightCardProps) {
-  const firstSegment = flight.segments[0];
-  const lastSegment = flight.segments[flight.segments.length - 1];
+export default function FlightCard({ flight, showCheckbox = false, originCode, destCode, returnDate, selectionMode = 'checkbox', onToggleSelection, isSelected: isSelectedProp }: FlightCardProps) {
   const { selectedOutboundIds, toggleOutboundSelection } = useFlightStore();
   const { selectedCurrency, rates } = useCurrencyStore();
+
+  // Guard against malformed flights with empty segments array
+  if (!flight.segments || flight.segments.length === 0) return null;
+
+  const firstSegment = flight.segments[0];
+  const lastSegment = flight.segments[flight.segments.length - 1];
   const isSelected = isSelectedProp !== undefined ? isSelectedProp : selectedOutboundIds.includes(flight.id);
   const handleToggle = onToggleSelection || toggleOutboundSelection;
 
@@ -31,30 +36,50 @@ export default function FlightCard({ flight, showCheckbox = false, originCode, d
       : generateGoogleFlightsUrl(
           originCode || firstSegment.departure.airport,
           destCode || lastSegment.arrival.airport,
-          firstSegment.departure.date
+          firstSegment.departure.date,
+          returnDate,
         );
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't toggle if user clicked the "View flight" link or the checkbox itself
+    const target = e.target as HTMLElement;
+    if (target.closest('a') || target.closest('input[type="checkbox"]')) return;
+    if (showCheckbox) {
+      handleToggle(flight.id);
+    }
+  };
 
   return (
     <div
+      onClick={handleCardClick}
       className={cn(
-        'bg-salty-cream rounded-xl border-2 p-4 transition-shadow hover:shadow-md',
-        isSelected && showCheckbox && 'ring-2 ring-salty-orange-red/50',
-        flight.isSelfTransfer
-          ? 'border-salty-gold/50'
-          : flight.isAlternateAirport
-          ? 'border-salty-sky/50'
-          : 'border-salty-beige'
+        'bg-surface-base rounded-xl p-4 transition-all',
+        showCheckbox && 'cursor-pointer',
+        isSelected && showCheckbox && 'ring-2 ring-salty-coral/50 bg-salty-coral/[0.02]',
+        flight.isSelfTransfer && 'ring-1 ring-salty-gold/50',
+        flight.isAlternateAirport && 'ring-1 ring-salty-sky/50',
       )}
+      style={{ boxShadow: 'var(--shadow-card-resting)' }}
+      onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-card-resting)'; }}
     >
       {/* Top Row: Checkbox + Airlines */}
       <div className="flex items-center mb-2">
         <div className="flex items-center gap-2">
-          {showCheckbox && (
+          {showCheckbox && selectionMode === 'checkbox' && (
             <input
               type="checkbox"
               checked={isSelected}
               onChange={() => handleToggle(flight.id)}
-              className="w-4 h-4 rounded border-salty-beige text-salty-orange-red focus:ring-salty-orange-red accent-salty-orange-red"
+              className="w-4 h-4 rounded border-salty-sand text-salty-coral focus:ring-salty-coral accent-salty-coral"
+            />
+          )}
+          {showCheckbox && selectionMode === 'radio' && (
+            <input
+              type="radio"
+              checked={isSelected}
+              onChange={() => handleToggle(flight.id)}
+              className="w-4 h-4 border-salty-sand text-salty-coral focus:ring-salty-coral accent-salty-coral"
             />
           )}
           <span className="font-body text-xs font-bold text-salty-deep-teal/60 uppercase truncate">
@@ -96,26 +121,39 @@ export default function FlightCard({ flight, showCheckbox = false, originCode, d
           <p className="font-body text-[11px] text-salty-deep-teal/50 mt-0.5">
             {lastSegment.arrival.airport}
             {lastSegment.arrival.date !== firstSegment.departure.date && (
-              <span className="text-salty-orange-red ml-0.5">+1</span>
+              <span className="text-salty-coral ml-0.5">+1</span>
             )}
           </p>
         </div>
       </div>
 
       {/* Bottom Row: Date + Price + View Flight */}
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-salty-beige/50">
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-salty-sand/50">
         <p className="font-body text-xs text-salty-deep-teal/40">
-          {firstSegment.departure.date}
+          {formatShortDate(firstSegment.departure.date)}
         </p>
         <div className="flex items-center gap-3">
-          <p className="font-display text-xl text-salty-orange-red leading-none">
-            {formatCurrency(convertAmount(flight.price, rates[selectedCurrency]), selectedCurrency)}
-          </p>
+          {(() => {
+            const priceFmt = convertAndFormatCurrency(flight.price, selectedCurrency, rates[selectedCurrency]);
+            return (
+              <div className="text-right">
+                <p className="font-display text-xl text-salty-coral leading-none">
+                  {priceFmt.converted}
+                </p>
+                {priceFmt.isConverted && (
+                  <p className="font-body text-[10px] text-salty-deep-teal/40 mt-0.5">{priceFmt.original} USD</p>
+                )}
+                {flight.isRoundTrip && (
+                  <p className="font-body text-[10px] text-salty-deep-teal/40 mt-0.5">round-trip</p>
+                )}
+              </div>
+            );
+          })()}
           <a
             href={bookingUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-body text-xs font-bold text-salty-deep-teal/60 hover:text-salty-orange-red transition-colors underline underline-offset-2"
+            className="font-body text-xs font-bold text-salty-deep-teal/60 hover:text-salty-coral transition-colors underline underline-offset-2"
           >
             View flight &rarr;
           </a>

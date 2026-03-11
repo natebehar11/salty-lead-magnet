@@ -81,7 +81,7 @@ describe('convertAndFormatCurrency', () => {
     expect(result.isConverted).toBe(false);
   });
 
-  it('returns isConverted false when rate is 1 (USD)', () => {
+  it('returns isConverted false when currency is USD', () => {
     const result = convertAndFormatCurrency(2399, 'USD', 1);
     expect(result.isConverted).toBe(false);
     expect(result.converted).toBe('$2,399');
@@ -93,5 +93,28 @@ describe('convertAndFormatCurrency', () => {
     expect(result.isConverted).toBe(true);
     expect(result.converted).toContain('3,263');
     expect(result.original).toBe('$2,399');
+  });
+
+  it('treats non-USD currency with rate 1.0 as a real conversion', () => {
+    // If EUR had a rate of exactly 1.0, it should still show EUR symbol and be marked converted
+    const result = convertAndFormatCurrency(1500, 'EUR', 1);
+    expect(result.isConverted).toBe(true);
+    expect(result.converted).toContain('1,500');
+    // Should use EUR symbol, not USD
+    expect(result.converted).not.toBe('$1,500');
+  });
+
+  it('converts GBP correctly with sub-1 rate', () => {
+    const result = convertAndFormatCurrency(2000, 'GBP', 0.79);
+    expect(result.isConverted).toBe(true);
+    expect(result.converted).toContain('1,580');
+    expect(result.original).toBe('$2,000');
+  });
+
+  it('converts AUD correctly', () => {
+    const result = convertAndFormatCurrency(1000, 'AUD', 1.55);
+    expect(result.isConverted).toBe(true);
+    expect(result.converted).toContain('1,550');
+    expect(result.original).toBe('$1,000');
   });
 });

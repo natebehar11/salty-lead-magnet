@@ -14,7 +14,7 @@ describe('getFlightEstimate', () => {
     expect(result.label).toBe('');
   });
 
-  it('returns doubled cheapest price when flights are available', () => {
+  it('returns cheapest price directly (no doubling) when flights are available', () => {
     const searchResults: FlightSearchResults = {
       search: {
         origin: { code: 'YYZ', name: 'Toronto Pearson', city: 'Toronto', country: 'Canada' },
@@ -54,8 +54,8 @@ describe('getFlightEstimate', () => {
     };
 
     const result = getFlightEstimate(searchResults, false);
-    expect(result.amount).toBe(800);
-    expect(result.label).toBe('~$800');
+    expect(result.amount).toBe(400);
+    expect(result.label).toBe('~$400');
   });
 });
 

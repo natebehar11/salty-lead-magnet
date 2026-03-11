@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { FlightDateOption } from '@/types';
-import { cn } from '@/lib/utils';
+import { cn, formatShortDate } from '@/lib/utils';
 
 interface FlightDateTabsProps {
   selected: FlightDateOption;
@@ -76,7 +76,7 @@ export default function FlightDateTabs({ selected, onChange, dates }: FlightDate
               )}
             >
               {tab.label}
-              <span className="block text-[10px] font-normal mt-0.5">{dateMap[tab.value]}</span>
+              <span className="block text-[10px] font-normal mt-0.5">{formatShortDate(dateMap[tab.value])}</span>
             </button>
           ))}
         </div>
@@ -94,13 +94,13 @@ export default function FlightDateTabs({ selected, onChange, dates }: FlightDate
               { label: 'Last Day', date: dates.returnDayOf },
               { label: 'Day After', date: dates.returnDayAfter },
               { label: '2 Days After', date: dates.returnTwoDaysAfter },
-            ].map((tab) => (
+            ].filter((tab) => tab.date).map((tab) => (
               <div
                 key={tab.label}
-                className="px-4 py-2 rounded-full border-2 border-salty-beige font-body text-xs text-salty-slate/50 whitespace-nowrap"
+                className="px-4 py-2 rounded-full border-2 border-salty-beige font-body text-xs text-salty-deep-teal/50 whitespace-nowrap bg-salty-beige/20"
               >
                 {tab.label}
-                <span className="block text-[10px] font-normal mt-0.5">{tab.date}</span>
+                <span className="block text-[10px] font-normal mt-0.5">{formatShortDate(tab.date!)}</span>
               </div>
             ))}
           </div>

@@ -4,13 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useFlightStore } from '@/stores/flight-store';
 import Button from '@/components/shared/Button';
-import { cn } from '@/lib/utils';
-
-interface FormData {
-  firstName: string;
-  email: string;
-  whatsappNumber: string;
-}
+import LeadCaptureFields, { LeadFormData } from '@/components/shared/LeadCaptureFields';
 
 interface FlightLeadGateProps {
   onComplete: () => void;
@@ -19,20 +13,23 @@ interface FlightLeadGateProps {
 export default function FlightLeadGate({ onComplete }: FlightLeadGateProps) {
   const { setLeadData, originAirport, selectedRetreatSlug } = useFlightStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [countryCode, setCountryCode] = useState('+1');
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<LeadFormData>();
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: LeadFormData) => {
     setIsSubmitting(true);
+
+    const fullWhatsApp = `${countryCode}${data.whatsappNumber.replace(/^0+/, '')}`;
 
     setLeadData({
       firstName: data.firstName,
       email: data.email,
-      whatsappNumber: data.whatsappNumber,
+      whatsappNumber: fullWhatsApp,
     });
 
     // Submit to GHL
@@ -43,7 +40,7 @@ export default function FlightLeadGate({ onComplete }: FlightLeadGateProps) {
         body: JSON.stringify({
           firstName: data.firstName,
           email: data.email,
-          whatsappNumber: data.whatsappNumber,
+          whatsappNumber: fullWhatsApp,
           source: 'flights',
           flightSearch: {
             originCode: originAirport?.code,
@@ -89,58 +86,12 @@ export default function FlightLeadGate({ onComplete }: FlightLeadGateProps) {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-sm mx-auto space-y-4">
-        <div>
-          <input
-            {...register('firstName', { required: 'We need your name' })}
-            placeholder="First name"
-            className={cn(
-              'w-full px-4 py-3 rounded-xl border-2 font-body text-sm bg-salty-cream',
-              'focus:outline-none focus:border-salty-orange-red transition-colors',
-              errors.firstName ? 'border-salty-burnt-red' : 'border-salty-beige'
-            )}
-          />
-          {errors.firstName && (
-            <p className="font-body text-xs text-salty-burnt-red mt-1">{errors.firstName.message}</p>
-          )}
-        </div>
-
-        <div>
-          <input
-            {...register('email', {
-              required: 'We need your email',
-              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'That doesn\'t look like an email' },
-            })}
-            type="email"
-            placeholder="Email"
-            className={cn(
-              'w-full px-4 py-3 rounded-xl border-2 font-body text-sm bg-salty-cream',
-              'focus:outline-none focus:border-salty-orange-red transition-colors',
-              errors.email ? 'border-salty-burnt-red' : 'border-salty-beige'
-            )}
-          />
-          {errors.email && (
-            <p className="font-body text-xs text-salty-burnt-red mt-1">{errors.email.message}</p>
-          )}
-        </div>
-
-        <div>
-          <input
-            {...register('whatsappNumber', {
-              required: 'We need your WhatsApp',
-              minLength: { value: 7, message: 'Too short' },
-            })}
-            type="tel"
-            placeholder="WhatsApp number (with country code)"
-            className={cn(
-              'w-full px-4 py-3 rounded-xl border-2 font-body text-sm bg-salty-cream',
-              'focus:outline-none focus:border-salty-orange-red transition-colors',
-              errors.whatsappNumber ? 'border-salty-burnt-red' : 'border-salty-beige'
-            )}
-          />
-          {errors.whatsappNumber && (
-            <p className="font-body text-xs text-salty-burnt-red mt-1">{errors.whatsappNumber.message}</p>
-          )}
-        </div>
+        <LeadCaptureFields
+          register={register}
+          errors={errors}
+          countryCode={countryCode}
+          onCountryCodeChange={setCountryCode}
+        />
 
         <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
           {isSubmitting ? 'Loading flights...' : 'Show Me Flight Prices'}

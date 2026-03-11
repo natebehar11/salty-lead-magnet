@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { formatCurrency } from '@/lib/utils';
 import { useCurrencyStore } from '@/stores/currency-store';
 import { convertAmount } from '@/lib/currency';
@@ -52,13 +52,13 @@ export default function TripCostBar({
 
   if (variant === 'compact') {
     return (
-      <div className="pt-3 mt-3 border-t border-salty-beige/50">
+      <div className="pt-3 mt-3 border-t border-salty-sand/50">
         <div className="flex items-baseline justify-between">
           <span className="font-display text-sm text-salty-deep-teal/70">Total trip:</span>
           <span className="font-display text-lg text-salty-deep-teal font-bold">{totalLabel}</span>
         </div>
         {flightAmount > 0 && (
-          <p className="font-body text-xs text-salty-slate/50 mt-0.5">
+          <p className="font-body text-xs text-salty-deep-teal/50 mt-0.5">
             (retreat from {fmtConverted(retreatPrice)} + flights {flightDisplay})
           </p>
         )}
@@ -68,7 +68,7 @@ export default function TripCostBar({
 
   if (variant === 'inline') {
     return (
-      <div className="bg-salty-sand/60 rounded-xl p-5 border border-salty-beige/50">
+      <div className="bg-salty-sand/60 rounded-2xl p-5" style={{ boxShadow: 'var(--shadow-sm)' }}>
         <p className="font-display text-sm text-salty-deep-teal/80 uppercase tracking-wider mb-3">
           Your trip estimate
         </p>
@@ -101,7 +101,8 @@ export default function TripCostBar({
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="sticky bottom-0 z-30 bg-salty-sand border-t-2 border-salty-orange-red/30 px-6 py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
+      className="sticky bottom-0 z-30 bg-salty-sand border-t-2 border-salty-coral/30 px-6 py-4"
+      style={{ boxShadow: '0 -4px 20px rgba(30,25,20,0.08)' }}
     >
       <div className="max-w-4xl mx-auto">
         <p className="font-display text-sm text-salty-deep-teal/70 mb-1">

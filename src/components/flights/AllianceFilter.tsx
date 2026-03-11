@@ -84,31 +84,36 @@ export default function AllianceFilter({ selectedAlliances, onChange }: Alliance
           {alliances.map((alliance) => {
             const isSelected = selectedAlliances.includes(alliance.id);
             return (
-              <div key={alliance.id} className="relative">
+              <div key={alliance.id} className="relative flex items-center">
                 <button
                   onClick={() => toggleAlliance(alliance.id)}
                   className={cn(
-                    'px-3 py-1.5 rounded-full font-body text-xs font-bold transition-all flex items-center gap-1.5',
+                    'pl-3 pr-1.5 py-1.5 rounded-l-full font-body text-xs font-bold transition-all',
                     isSelected
                       ? 'text-white shadow-sm'
                       : 'bg-salty-beige/50 text-salty-slate/50 hover:bg-salty-beige'
                   )}
                   style={isSelected ? { backgroundColor: alliance.color } : undefined}
                 >
-                  <span>{alliance.name}</span>
-                  {/* Info icon */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setTooltipAlliance(tooltipAlliance === alliance.id ? null : alliance.id);
-                    }}
-                    className={cn(
-                      'w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors',
-                      isSelected ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-salty-slate/10 text-salty-slate/40 hover:bg-salty-slate/20'
-                    )}
-                  >
+                  {alliance.name}
+                </button>
+                <button
+                  onClick={() => setTooltipAlliance(tooltipAlliance === alliance.id ? null : alliance.id)}
+                  aria-label={`Info about ${alliance.name}`}
+                  className={cn(
+                    'pl-0.5 pr-2 py-1.5 rounded-r-full font-body transition-all flex items-center',
+                    isSelected
+                      ? 'text-white shadow-sm'
+                      : 'bg-salty-beige/50 text-salty-slate/50 hover:bg-salty-beige'
+                  )}
+                  style={isSelected ? { backgroundColor: alliance.color } : undefined}
+                >
+                  <span className={cn(
+                    'w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold',
+                    isSelected ? 'bg-white/20 text-white' : 'bg-salty-slate/10 text-salty-slate/40'
+                  )}>
                     i
-                  </button>
+                  </span>
                 </button>
 
                 {/* Tooltip */}

@@ -21,11 +21,15 @@ export type {
   FlightSegment,
   FlightOption,
   FlightSearch,
+  FlightBuckets,
   FlightSearchResults,
   FlightFilters,
   FlightSortMode,
   FlightDateOption,
   ReturnDateOption,
+  TripType,
+  MultiCityLeg,
+  MultiCityLegResult,
 } from './flight';
 
 // Mock flight types
@@ -47,8 +51,25 @@ export type {
 // Quiz constants
 export { QUIZ_STEPS } from './quiz';
 
-// Planner types
-export type { PlannerCity, ItinerarySuggestion } from './planner';
+// Vision Board types (v2 — chat-first planner)
+export type {
+  BoardItemCategory,
+  ActivityCategoryV2,
+  BoardItem,
+  BoardCityGroup,
+  RecommendationCard,
+  ChatMessageV2,
+  UserTravelProfile,
+} from './vision-board';
+
+// Shared plan types — canonical source is @/lib/shared-plans
+export type {
+  SharedBoardItemData,
+  SharedReaction,
+  SharedPlanFriend,
+  SharedPlanV2,
+  SharedPlanAny,
+} from '../lib/shared-plans';
 
 // Retreat types
 export type {

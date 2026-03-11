@@ -1,11 +1,151 @@
-# SALTY Design System — Rules
+## SALTY Design System — Rules
 
 **Read this file before writing any code.** Non-negotiable.
 
 **Source of truth:** `tokens.json` in this repo for values. This file for rules.
 **Products:** getsaltyretreats.com (brand site) + explore.getsaltyretreats.com (lead magnet app)
 **Stack:** Next.js 15, Tailwind CSS v4, Framer Motion, Sanity CMS, Vercel
-**Last updated:** 2026-02-21
+**Last updated:** 2026-03-01
+
+---
+
+## 0. ART DIRECTION — READ FIRST, OVERRIDE NOTHING BELOW
+
+This section defines HOW the design system should be interpreted visually. The token values, component specs, and color rules in the sections that follow are technically correct — but without this creative direction, the output will look like a competent template instead of an art-directed brand. Every section below must be built through the lens of these principles.
+
+### 0.1 Design Philosophy: "Analog Maximalism"
+
+SALTY's visual identity sits at the intersection of vintage travel ephemera, independent surf magazine editorial, and screen-printed poster culture. It is NOT a clean wellness brand. NOT a SaaS template. NOT minimalist luxury.
+
+**Reference points:** 1970s airline boarding passes × early-2000s surf magazine layouts × hand-printed gig posters × streetwear lookbooks.
+
+**The Non-Negotiable Feeling:** Every page should feel like something you'd pin to a corkboard, tear out of a zine, or find stuck to a fridge with a magnet. Physical, tactile, collected — like real objects photographed on a surface, not pixels arranged in a grid.
+
+### 0.2 Typography Behavior (Supplements Section 4)
+
+TAN Headline and Roca One are the correct typefaces. Section 4 has the scale values. This section defines how the type should BEHAVE in compositions:
+
+- **TAN Headline dominates compositions.** Headlines should fill 60–80% of the horizontal width on desktop. They command the frame.
+- **Type overlaps images, crosses section boundaries, runs edge-to-edge.** It does NOT sit politely inside a box at a polite size.
+- **Line-height on display type is tight** — letters stack and compress. This creates visual density and energy. Use the leading values in Section 4.2 as a floor, not a ceiling.
+- **TAN Headline italic is a signature move** — used for hero display text, pull quotes, and section headers where the brand needs to feel editorial and expressive.
+- If a headline feels "comfortable" or "reasonable" in the layout, it's probably too small. Push it up one scale step.
+
+### 0.3 Layout Philosophy: "Organized Chaos"
+
+Layouts should feel art-directed by a human with strong opinions, not assembled by a design system generator.
+
+**Core principles:**
+- **Asymmetric by default.** Section 4.3 says hero/display text is centered — that's correct for those specific contexts. But the overall page composition is asymmetric: left-heavy headlines next to right-offset photos, staggered elements, split layouts where one half bleeds and the other breathes. If every element on the page is centered, the design has failed.
+- **Overlap intentionally.** A starburst badge overlapping a photo. A headline crossing a section boundary. A card element peeking from behind another. Every major section should have at least one intentional overlap or break.
+- **Variable spacing creates rhythm.** Some elements packed tight, others breathing with generous whitespace. This contrast IS the visual energy — uniform spacing across an entire page kills it. Use the spacing tokens from Section 5 but vary them section to section.
+- **Break the grid** at least once per major section. Section 9 defines a 12-column grid — use it as the underlying structure, but let one element per section ignore it. An image that bleeds past the container max, a headline that spans wider than its content column, a graphic device that sits outside the expected bounds.
+- **Split layouts are a signature pattern.** Photo taking 50–60% of the viewport on one side, text content on the other — with the photo bleeding edge-to-edge (no padding, no margin on the bleed side) while the text side has comfortable interior margins. This appears on the About page origin story and should be a recurring pattern.
+
+**Section transitions are material changes, not color swaps:**
+- Section 14 defines the Swoop, Wave, and Double Line dividers — these are critical. They create the physical feeling that the page is made of layered surfaces, not flat screens.
+- Between dividers, the background shifts should feel like moving from one physical surface to another: warm cream paper → dark green painted wall → full-bleed photograph → cream paper again.
+- These transitions are the connective tissue of the whole design. They should never be skipped or replaced with hard horizontal lines.
+
+### 0.4 Signature Graphic Devices
+
+These recurring visual elements are as important to SALTY's identity as the color palette. They are what separate the brand from generic travel sites. Section numbers reference where specs live; this section defines the personality.
+
+**Boarding Pass / Ticket Cards (see Section 22):**
+The retreat listing cards are styled as physical airline boarding passes / event tickets. They include: a barcode strip on the left edge, airplane icon, perforated semicircle notches on card edges, QR code placeholder, destination name + trip dates, and the tagline "Life's too short not to take the trip." Background color rotates per retreat using the retreat color system (Section 2.7). The SALTY salt-shaker icon appears on each pass. These should feel like collectible physical objects — not flat rectangles. Subtle warm shadow (Section 7), slight implied physicality. Use SVG/CSS placeholders for graphic elements that will be swapped for final assets.
+
+**Starburst / Jagged Badge:**
+An irregular star shape (8–12 points, NOT perfectly symmetrical). Used for: coach names overlaid on photos, "EARLY BIRD" pricing tags, promotional callouts, personality descriptors. Typically terracotta/coral fill with golden or cream type, or golden fill with dark teal type. The badge overlaps the photo it belongs to, anchored to the top-left or top-right. The edges should feel hand-cut — slight irregularity is the point. The starburst is NOT a decorative ornament; it's a functional container for text that adds visual tension to a composition. Use CSS clip-path or SVG placeholder.
+
+**Thick Colored Borders / Frames (see Section 6, border/width/coach-frame and border/width/photo-frame):**
+Photos frequently get bold 4–8px colored strokes. This is NOT a subtle hairline — it makes images feel like framed printed photographs with a colored mat. Coach cards use 6–8px frames. Itinerary photos use 4px frames. The frame color is contextual — coach-specific accent, retreat palette color, or brand primary.
+
+**Organic Blob Shapes:**
+Text blocks sometimes sit on soft, amorphous background shapes with irregular organic edges — NOT rectangles, NOT circles, NOT perfectly rounded containers. These appear as text background highlights (the sky-blue blob behind "WE TRIED IT WITH FRIENDS" on the About page). They add a hand-crafted, collage-like quality. Think: watercolor wash or torn paper shape behind text.
+
+**Line-Art Icons:**
+Inclusions, features, and "What Is a SALTY Retreat?" sections use a consistent set of single-weight line-art icons (accommodations, meals, workouts, surf, experiences, cultural activities, transfers). These are drawn in a warm, rounded style — not sharp geometric. Rendered in the retreat accent color or rust red on light backgrounds, cream/paper-white on dark backgrounds. Displayed in grid formations (2×3 or 3×2) with TAN Headline labels and short Roca One descriptions beneath each.
+
+**Dashed Cut-Line Borders:**
+Purple/indigo dashed borders mimicking print-shop cut marks. Used sparingly on coach profile cards and trip listing cards. Adds tactile "this was printed and cut out" quality. Not on every card — reserved for specific physical-metaphor moments.
+
+**Highlighted Text / Marker Effect:**
+Testimonial or story headlines sit on a yellow or cream irregular brush-stroke shape — as if highlighted with a physical marker. Edges should be slightly torn/wavy, not a clean rectangle. This is the visual treatment for the "couple's testimonial" pattern: full-bleed candid photo with a highlighted headline overlaid.
+
+### 0.5 Coach Cards (Supplements Section 25 — CORRECTS prior assumptions)
+
+Coach cards follow a specific pattern visible on the live site:
+
+- **All cards are the same dimensions** — equal height and width in a uniform grid (3 per row desktop, per Section 9).
+- **Every card has a DIFFERENT accent color.** Each coach is assigned a unique color from the brand palette (teal frame, aquamarine frame, golden frame, coral frame, etc.). This color applies to both the thick photo frame border AND the specialty bar below the photo. No two coaches share a color.
+- **Starburst name badge** overlaps the top-left of the photo, sitting partially on and partially off the image. Coach name in TAN Headline inside the starburst.
+- **Specialty bar** below the photo: solid background in the coach's accent color, with disciplines listed pipe-separated in TAN Headline (e.g., "THE BOSS | YOGA | PILATES") plus a fun personality descriptor on a second line (e.g., "MARGARITA MASTER", "R&B CONNOISSEUR", "S-CLUB OWNER", "MOTIVATIONAL YELLER").
+- **Hover/tap state:** Photo side swaps to a Sand background with the coach's name and bio paragraph. Mobile uses a modal instead of an overlay.
+- **The uniformity of card SIZE combined with the variety of card COLOR is the design tension.** The grid is orderly; the color palette is not. This prevents the section from feeling like a template while maintaining structural clarity.
+
+### 0.6 Feature / Pillar Cards ("What Is a SALTY Retreat?" Pattern)
+
+When presenting 4–6 features or pillars in a grid (fitness, food, experiences, etc.):
+
+- Cards alternate between TWO background colors — typically coral and dark teal on dark sections, or coral and sand on light sections. The alternation creates a checkerboard energy that prevents the grid from feeling uniform.
+- Each card contains: a line-art icon at top, TAN Headline title, short Roca One description.
+- The grid sits alongside a vertical video or tall image on the opposite side — creating an asymmetric split (media on one side, card grid on the other).
+
+### 0.7 Photography Treatment (Supplements Section 26)
+
+Section 26 has the correct aspect ratios and optimization rules. This defines the art direction:
+
+- **Candid, sweaty, joyful, unposed.** Mid-laugh, water spraying, sand on skin. Tongue out. Eyes closed from smiling. Sunscreen on faces. These are real humans having the best week of their lives.
+- **No studio lighting.** Natural light — golden hour, tropical overcast, beach shade. The locations and the energy do the work.
+- **Real bodies, real mess, real fun.** Not aspirational fitness model imagery. Diverse body types, diverse backgrounds, universal joy.
+- **Photos are frequently partially obscured** by overlapping type, starburst badges, divider swoops, or section boundaries. They're part of a composition, not isolated in frames.
+- **Full-bleed is the default for hero and narrative sections.** Photos go edge-to-edge on at least one axis. The split-layout pattern (photo bleeds on one side, text breathes on the other) is a signature move.
+
+### 0.8 Motion & Interaction (Supplements Section 13)
+
+Section 13 has the correct tokens and inventory. This defines the creative intent:
+
+Motion should feel **physical and analog**, not slick and digital. Every animation should pass the test: "Could I imagine a physical object doing this?"
+
+- **Card hover:** Subtle lift (translateY per Section 13.2) + slightly deeper shadow. Like sliding a card forward on a table. No scale transforms.
+- **Boarding pass hover:** Very subtle rotation shift (0.5–1 degree). Like nudging a physical ticket sitting on a desk.
+- **Scroll reveals:** Elements enter from their natural reading direction with staggered delays. The stagger creates a sense of things being placed one-by-one, not appearing all at once.
+- **Divider transitions:** Swoops and waves should feel like a physical surface curling away to reveal the next layer. The organic shapes are the key — they make section changes feel dimensional.
+- **AVOID:** Parallax on backgrounds (text parallax per Section 12 is fine), elastic/bouncy easing (Section 13 already says no bounce), glassmorphism, neon glow effects, gradient mesh backgrounds, or any visual treatment that signals "modern web design trend" over "physical object with warmth."
+
+### 0.9 ⛔ ANTI-PATTERNS — If output exhibits these, rework immediately
+
+These are the most common failure modes when AI generates SALTY UI. Each one makes the output look like a template instead of a brand. Check every section against this list:
+
+1. **Uniform card grids with no color variation** — Three identical cards with the same background color, same padding, same border. The SIZE can be uniform (coach cards prove this); the COLOR and accent treatment must vary.
+2. **Everything centered on the page** — Hero display text centers (per Section 4.3). Beyond that, the brand is asymmetric. Left-heavy compositions, split layouts, offset elements. If every element on a page is centered, rework it.
+3. **Politely contained layouts** — Every element sitting neatly inside its box, nothing overlapping, nothing breaking the 12-column grid. Too safe. Too clean. Add an overlap, let a photo bleed, push a headline wider.
+4. **Flat solid-color section backgrounds with hard edges** — Background changes between sections should use the Swoop, Wave, or Double Line dividers from Section 14. Never a hard horizontal line where one color stops and another starts.
+5. **Excessive whitespace with no visual tension** — The "Apple-style" approach of floating a single element in vast emptiness. SALTY is layered, warm, and energetic. Whitespace is used for breathing room between dense moments, not as the default state.
+6. **Digital-looking drop shadows** — Harsh, dark, offset shadows. Section 7 defines warm neutral shadows with low opacity. Follow those values exactly.
+7. **Thin or light-weight typography** — TAN Headline is bold (700) always. Roca One Light is the body weight, but it's "light" in name only — it still has warmth and presence. Nothing on the site should look wispy or delicate.
+8. **Gradient backgrounds** — Linear or radial CSS gradients as section backgrounds. Not part of this visual language. Section transitions use the SVG divider system instead.
+9. **Headlines that feel "comfortable"** — If the display text doesn't feel like it's almost too big, push it up one step in the type scale. TAN Headline at the `type/display` scale (48px mobile / 72px desktop) is the floor for hero text, not the ceiling.
+10. **Missing graphic devices** — A coach card without a starburst badge, a retreat listing without the boarding pass treatment, a section transition without a swoop divider. These elements ARE the brand. Skipping them makes the output generic.
+11. **Icon grids rendered as text lists** — Inclusions and features should use the line-art icon grid pattern, not bullet point lists. The icons add visual variety and break up text-heavy sections.
+12. **Ignoring the split-layout pattern** — Defaulting to full-width centered content blocks when the design calls for asymmetric photo-bleed + text compositions.
+
+### 0.10 Quick Decision Guide
+
+When building any section, use this for rapid creative checks:
+
+| Question | SALTY Answer |
+|----------|-------------|
+| Center this element? | Only hero display text and section headings. Everything else: left-align or offset asymmetrically. |
+| Add more padding? | Less than instinct suggests. Let things get close. Density creates energy. |
+| Same background color on adjacent cards? | Never. Vary colors per card (coach cards) or alternate between two colors (feature cards). |
+| Make this type bigger? | Yes. If it feels reasonable, go one scale step up. |
+| Contain this photo in a box? | Only with a thick colored border (physical frame metaphor). Otherwise: bleed it. |
+| Should elements overlap? | Yes. At least one overlap or grid-break per major section. |
+| Hard edge between sections? | Never. Use Swoop, Wave, or Double Line dividers (Section 14). |
+| Animation on this element? | Only if it passes the "physical object" test. Card lift = yes. Elastic bounce = no. |
+| Background for this section? | Paper White or retreat surface. Then Dark Teal. Then full-bleed photo. Almost never a secondary/accent color as a flat fill (Section 2.5 rules apply). |
+| Does this section look "clean"? | Then it probably needs one more thing: an overlap, a larger headline, a starburst badge, an organic blob, or a grid-breaking photo bleed. |
 
 ---
 
@@ -14,6 +154,7 @@
 SALTY Retreats is an international fitness + adventure travel brand. Archetype: Free-Spirited Outlaw (Ted Lasso + Jack Sparrow + Anthony Bourdain). Slogan: "Make fun of wellness." Voice: energetic, grounded, human, funny, inclusive. Anti-woo, anti-corporate, anti-influencer.
 
 Everything in the UI should feel warm, organic, playful, and human. Never corporate, sharp, or template-y.
+
 
 ---
 

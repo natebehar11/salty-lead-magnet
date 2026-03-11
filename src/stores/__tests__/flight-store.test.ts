@@ -151,11 +151,11 @@ describe('useFlightStore', () => {
       expect(state.isReturnMode).toBe(false);
     });
 
-    it('does NOT clear favouriteFlightIds', () => {
+    it('clears favouriteFlightIds to avoid stale IDs from previous searches', () => {
       useFlightStore.getState().toggleFavourite('fav-1');
       useFlightStore.getState().toggleFavourite('fav-2');
       useFlightStore.getState().reset();
-      expect(useFlightStore.getState().favouriteFlightIds).toEqual(['fav-1', 'fav-2']);
+      expect(useFlightStore.getState().favouriteFlightIds).toEqual([]);
     });
 
     it('does NOT clear leadData or hasSubmittedLead', () => {
