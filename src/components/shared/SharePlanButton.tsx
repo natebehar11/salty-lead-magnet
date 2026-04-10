@@ -107,7 +107,7 @@ export default function SharePlanButton({ retreatSlug, retreatName, retreatDates
           {typeof navigator !== 'undefined' && 'share' in navigator && (
             <button
               onClick={handleNativeShare}
-              className="px-4 py-2 bg-salty-deep-teal text-white font-body text-xs font-bold rounded-full hover:bg-salty-deep-teal/80 transition-colors"
+              className="px-4 py-2 bg-salty-deep-teal text-white border-[4px] border-salty-salmon font-body text-xs font-bold rounded-full hover:bg-salty-deep-teal/80 transition-colors"
             >
               Share
             </button>
@@ -155,9 +155,9 @@ export default function SharePlanButton({ retreatSlug, retreatName, retreatDates
     <button
       onClick={() => setShowForm(true)}
       className={cn(
-        'w-full py-3 px-4 rounded-full border-2 border-salty-deep-teal/20',
+        'w-full py-3 px-4 rounded-full border-[4px] border-salty-slate',
         'font-body text-sm font-bold text-salty-deep-teal',
-        'hover:border-salty-deep-teal/40 hover:bg-salty-deep-teal/5 transition-all',
+        'hover:border-salty-deep-teal hover:bg-salty-deep-teal/5 transition-all',
         'flex items-center justify-center gap-2'
       )}
     >

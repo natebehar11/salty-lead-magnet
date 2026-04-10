@@ -51,7 +51,7 @@ export default function TripConfidenceScore({
     { label: 'Book your spot', isComplete: false }, // Always pending until actual booking
   ], [selectedRetreat, beforeCities, afterCities, hasSuggestion, hasExpandedCity, hasSubmittedLead, hasSearchedFlights, hasFavouritedFlights, hasShared]);
 
-  // Scoring: each of first 8 milestones = 15% (capped at 90%). "Book your spot" adds final 10%.
+  // Scoring: any 6 of the first 8 milestones fills to 90% (15 pts each, capped). "Book" adds final 10%.
   const completedNonBook = milestones.slice(0, 8).filter((m) => m.isComplete).length;
   const score = Math.min(Math.round(completedNonBook * (90 / 6)), 90);
   const completedCount = milestones.filter((m) => m.isComplete).length;

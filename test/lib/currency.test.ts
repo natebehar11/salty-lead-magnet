@@ -43,6 +43,22 @@ describe('convertAmount', () => {
   it('returns 0 for 0 amount regardless of rate', () => {
     expect(convertAmount(0, 1.36)).toBe(0);
   });
+
+  it('handles rate of 1 (identity conversion)', () => {
+    expect(convertAmount(1500, 1)).toBe(1500);
+  });
+
+  it('handles sub-1 rates (e.g. GBP)', () => {
+    expect(convertAmount(1500, 0.79)).toBe(1185);
+  });
+
+  it('handles very small amounts', () => {
+    expect(convertAmount(1, 1.36)).toBe(1);
+  });
+
+  it('handles large amounts without overflow', () => {
+    expect(convertAmount(50000, 1.36)).toBe(68000);
+  });
 });
 
 describe('fetchExchangeRates', () => {

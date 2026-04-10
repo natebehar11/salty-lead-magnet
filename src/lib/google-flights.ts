@@ -10,14 +10,23 @@
 export function generateGoogleFlightsUrl(
   originCode: string,
   destCode: string,
-  date: string
+  date: string,
+  returnDate?: string,
 ): string {
   const formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
   });
-  const query = `Flights from ${originCode} to ${destCode} on ${formattedDate}`;
+  let query = `Flights from ${originCode} to ${destCode} on ${formattedDate}`;
+  if (returnDate) {
+    const formattedReturn = new Date(returnDate + 'T00:00:00').toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+    query += ` returning ${formattedReturn}`;
+  }
   return `https://www.google.com/travel/flights?q=${encodeURIComponent(query)}`;
 }
 
@@ -29,10 +38,11 @@ export function getBookingUrl(
   bookingUrl: string | undefined,
   originCode: string,
   destCode: string,
-  date: string
+  date: string,
+  returnDate?: string,
 ): string {
   if (bookingUrl && bookingUrl.startsWith('http')) {
     return bookingUrl;
   }
-  return generateGoogleFlightsUrl(originCode, destCode, date);
+  return generateGoogleFlightsUrl(originCode, destCode, date, returnDate);
 }

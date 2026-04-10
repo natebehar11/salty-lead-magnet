@@ -75,7 +75,6 @@ export const cityAnchors: Record<string, CityAnchor> = {
         source: 'Your sanity',
       },
     ],
-    totalCost: 3369,
     funComparison: "And you didn't leave Ontario.",
     sourceNote: "Prices based on mid-range options in downtown Toronto, February 2026. We're not inflating these — if anything, we're being generous.",
   },
@@ -145,7 +144,6 @@ export const cityAnchors: Record<string, CityAnchor> = {
         source: 'Your sanity',
       },
     ],
-    totalCost: 2735,
     funComparison: "And you're still in Ottawa.",
     sourceNote: "Prices based on mid-range options in downtown Ottawa, February 2026. The Rideau Canal is nice, but it's not the Pacific.",
   },
@@ -215,7 +213,6 @@ export const cityAnchors: Record<string, CityAnchor> = {
         source: 'Your sanity',
       },
     ],
-    totalCost: 3065,
     funComparison: 'And it rained the whole time.',
     sourceNote: "Prices based on mid-range options in downtown Vancouver, February 2026. The mountains are beautiful. You can almost see them through the clouds.",
   },
@@ -285,7 +282,6 @@ export const cityAnchors: Record<string, CityAnchor> = {
         source: 'Your sanity',
       },
     ],
-    totalCost: 2450,
     funComparison: 'And the ocean was 4°C.',
     sourceNote: "Prices based on mid-range options in downtown Halifax, February 2026. You've got lobster, though. There's always lobster.",
   },
@@ -355,7 +351,6 @@ export const cityAnchors: Record<string, CityAnchor> = {
         source: 'Votre santé mentale',
       },
     ],
-    totalCost: 2952,
     funComparison: "Et vous n'avez même pas quitté le Québec.",
     sourceNote: "Prix basés sur des options mid-range au centre-ville de Montréal, février 2026. At least the bagels are world-class.",
   },
@@ -425,7 +420,6 @@ export const cityAnchors: Record<string, CityAnchor> = {
         source: 'Your sanity',
       },
     ],
-    totalCost: 3611,
     funComparison: 'And you never left the tristate area.',
     sourceNote: "Prices based on mid-range options in Manhattan, February 2026. We didn't even include the $18 cocktails.",
   },
@@ -470,6 +464,10 @@ export const flightEstimates: Record<string, number> = {
 };
 
 // ─── Helper Functions ────────────────────────────────────────────────────────
+
+export function computeCityTotal(anchor: CityAnchor): number {
+  return anchor.lineItems.reduce((sum, item) => sum + item.cost, 0);
+}
 
 export function getCityAnchor(cityId: string): CityAnchor {
   return cityAnchors[cityId] || cityAnchors['toronto'];

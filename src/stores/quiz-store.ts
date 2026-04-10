@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { safeStorage } from '@/lib/utils';
 import { QuizAnswers, QuizResult, LeadCaptureData, QUIZ_STEPS, QuizStep } from '@/types';
 
 interface QuizState {
@@ -83,6 +84,7 @@ export const useQuizStore = create<QuizState>()(
     }),
     {
       name: 'salty-quiz-state',
+      storage: safeStorage,
       partialize: (state) => ({
         answers: state.answers,
         leadData: state.leadData,

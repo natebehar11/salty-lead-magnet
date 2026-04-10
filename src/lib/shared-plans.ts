@@ -6,9 +6,8 @@
  * - Otherwise: uses an in-memory Map (development)
  *
  * To enable Vercel KV:
- * 1. `npm install @vercel/kv`
- * 2. Connect a KV store in your Vercel dashboard
- * 3. The KV_REST_API_URL and KV_REST_API_TOKEN env vars are auto-injected
+ * 1. Connect a KV store in your Vercel dashboard
+ * 2. The KV_REST_API_URL and KV_REST_API_TOKEN env vars are auto-injected
  */
 
 export interface SharedPlanFriend {
@@ -16,6 +15,26 @@ export interface SharedPlanFriend {
   status: 'interested' | 'in' | 'maybe' | 'out';
   originCity?: string;
   joinedAt: string;
+}
+
+export interface SharedPlanActivity {
+  name: string;
+  category: string;
+  description: string;
+}
+
+export interface SharedPlanCity {
+  name: string;
+  country: string;
+  days: number;
+  description?: string;
+  activities: SharedPlanActivity[];
+}
+
+export interface SharedPlanItinerary {
+  cities: SharedPlanCity[];
+  totalDays: number;
+  reasoning: string;
 }
 
 export interface SharedPlan {
@@ -34,8 +53,63 @@ export interface SharedPlan {
   }[];
   friends: SharedPlanFriend[];
   message?: string;
+  itinerary?: SharedPlanItinerary;
   createdAt: string;
   expiresAt: string;
+  /** Optimistic concurrency version — incremented on each mutation */
+  _version?: number;
+}
+
+// V2: Vision board based plan
+export interface SharedPlanV2 {
+  id: string;
+  version: 2;
+  creatorName: string;
+  creatorEmail?: string;
+  retreatSlug: string;
+  retreatName: string;
+  retreatDates: string;
+  boardItems: SharedBoardItemData[];
+  friends: SharedPlanFriend[];
+  reactions: SharedReaction[];
+  message?: string;
+  createdAt: string;
+  expiresAt: string;
+  /** Board view mode creator was using — optional for backward compat */
+  boardViewMode?: 'dream' | 'itinerary';
+  /** City before/after retreat assignments — optional for backward compat */
+  beforeAfterAssignment?: Record<string, 'before' | 'after'>;
+  /** Board country ordering — optional for backward compat with existing plans */
+  topLevelOrder?: ({ kind: 'country'; country: string } | { kind: 'retreat' })[];
+  /** City ordering within each country — optional for backward compat */
+  cityOrderByCountry?: Record<string, string[]>;
+  /** Optimistic concurrency version — incremented on each mutation */
+  _version?: number;
+}
+
+export interface SharedBoardItemData {
+  id: string;
+  type: string;
+  cityName: string;
+  country: string;
+  name: string;
+  description: string;
+  activityCategory?: string;
+  days?: number;
+  priceRange?: string;
+  imageUrl?: string | null;
+}
+
+export interface SharedReaction {
+  friendName: string;
+  itemId: string;
+  reaction: 'love' | 'interested' | 'meh';
+}
+
+export type SharedPlanAny = SharedPlan | SharedPlanV2;
+
+function isV2Plan(plan: SharedPlanAny): plan is SharedPlanV2 {
+  return 'version' in plan && plan.version === 2;
 }
 
 const PLAN_TTL = 60 * 60 * 24 * 30; // 30 days in seconds
@@ -76,7 +150,7 @@ async function kvSet(key: string, value: unknown, ttl: number): Promise<void> {
 }
 
 // In-memory store for development
-const memoryStore = new Map<string, SharedPlan>();
+const memoryStore = new Map<string, SharedPlanAny>();
 
 export function generatePlanId(): string {
   const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
@@ -87,10 +161,10 @@ export function generatePlanId(): string {
   return id;
 }
 
-export async function getPlan(id: string): Promise<SharedPlan | null> {
+export async function getPlan(id: string): Promise<SharedPlanAny | null> {
   if (isKVEnabled()) {
     try {
-      return await kvGet<SharedPlan>(`${KV_PREFIX}${id}`);
+      return await kvGet<SharedPlanAny>(`${KV_PREFIX}${id}`);
     } catch (error) {
       console.error('[KV] getPlan error:', error);
       return null;
@@ -99,7 +173,7 @@ export async function getPlan(id: string): Promise<SharedPlan | null> {
   return memoryStore.get(id) || null;
 }
 
-export async function savePlan(plan: SharedPlan): Promise<void> {
+export async function savePlan(plan: SharedPlanAny): Promise<void> {
   if (isKVEnabled()) {
     try {
       await kvSet(`${KV_PREFIX}${plan.id}`, plan, PLAN_TTL);
@@ -111,27 +185,101 @@ export async function savePlan(plan: SharedPlan): Promise<void> {
   memoryStore.set(plan.id, plan);
 }
 
-export async function addFriend(planId: string, friend: SharedPlanFriend): Promise<SharedPlan | null> {
+const MAX_MUTATION_RETRIES = 3;
+
+/**
+ * Optimistic concurrency wrapper for plan mutations.
+ * Reads the plan, applies the mutator, increments the version, saves,
+ * then verifies the saved version matches. Retries on version conflict.
+ */
+async function mutatePlan<T>(
+  planId: string,
+  mutator: (plan: SharedPlanAny) => T
+): Promise<{ plan: SharedPlanAny; result: T } | null> {
+  for (let attempt = 0; attempt < MAX_MUTATION_RETRIES; attempt++) {
+    const plan = await getPlan(planId);
+    if (!plan) return null;
+
+    const expectedVersion = plan._version ?? 0;
+    const result = mutator(plan);
+    plan._version = expectedVersion + 1;
+
+    await savePlan(plan);
+
+    // Verify our write stuck (detects concurrent overwrites)
+    const verify = await getPlan(planId);
+    if (verify && (verify._version ?? 0) === expectedVersion + 1) {
+      return { plan, result };
+    }
+
+    // Version mismatch — another write happened concurrently. Retry.
+    if (attempt < MAX_MUTATION_RETRIES - 1) {
+      // Small jitter to reduce contention on retry
+      await new Promise((r) => setTimeout(r, 50 * (attempt + 1)));
+    }
+  }
+
+  // Retries exhausted — fall back to last-write-wins
+  console.warn(`[shared-plans] mutatePlan retries exhausted for plan ${planId} after ${MAX_MUTATION_RETRIES} attempts — falling back to last-write-wins`);
   const plan = await getPlan(planId);
   if (!plan) return null;
-
-  plan.friends.push(friend);
+  const result = mutator(plan);
+  plan._version = (plan._version ?? 0) + 1;
   await savePlan(plan);
-  return plan;
+  return { plan, result };
+}
+
+export async function addFriend(planId: string, friend: SharedPlanFriend): Promise<{ plan: SharedPlanAny | null; alreadyJoined: boolean }> {
+  const result = await mutatePlan(planId, (plan) => {
+    // Prevent duplicate joins by name (case-insensitive)
+    const existing = plan.friends.find(
+      (f) => f.name.toLowerCase() === friend.name.toLowerCase()
+    );
+    if (existing) return { alreadyJoined: true };
+
+    plan.friends.push(friend);
+    return { alreadyJoined: false };
+  });
+
+  if (!result) return { plan: null, alreadyJoined: false };
+  return { plan: result.plan, alreadyJoined: result.result.alreadyJoined };
 }
 
 export async function updateFriendStatus(
   planId: string,
   friendName: string,
   status: SharedPlanFriend['status']
-): Promise<SharedPlan | null> {
-  const plan = await getPlan(planId);
-  if (!plan) return null;
+): Promise<SharedPlanAny | null> {
+  const result = await mutatePlan(planId, (plan) => {
+    // Case-insensitive match to handle name variations
+    const friend = plan.friends.find(
+      (f) => f.name.toLowerCase() === friendName.toLowerCase()
+    );
+    if (friend) {
+      friend.status = status;
+    }
+  });
 
-  const friend = plan.friends.find((f) => f.name === friendName);
-  if (friend) {
-    friend.status = status;
-    await savePlan(plan);
-  }
-  return plan;
+  return result?.plan ?? null;
+}
+
+export async function addReaction(
+  planId: string,
+  friendName: string,
+  itemId: string,
+  reaction: 'love' | 'interested' | 'meh'
+): Promise<SharedPlanV2 | null> {
+  const result = await mutatePlan(planId, (plan) => {
+    if (!isV2Plan(plan)) return;
+
+    // Remove existing reaction from this friend on this item
+    plan.reactions = plan.reactions.filter(
+      (r) => !(r.friendName.toLowerCase() === friendName.toLowerCase() && r.itemId === itemId)
+    );
+
+    plan.reactions.push({ friendName, itemId, reaction });
+  });
+
+  if (!result) return null;
+  return isV2Plan(result.plan) ? result.plan : null;
 }

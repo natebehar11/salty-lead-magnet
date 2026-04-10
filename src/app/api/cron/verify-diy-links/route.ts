@@ -67,13 +67,25 @@ export async function GET(request: NextRequest) {
     lastRun: new Date().toISOString(),
   };
 
-  // Store results in Vercel KV
-  try {
-    const kvModule = await (Function('return import("@vercel/kv")')() as Promise<{ kv: { set: (key: string, value: string) => Promise<void> } }>);
-    await kvModule.kv.set('diy-link-status', JSON.stringify(payload));
-  } catch {
-    // KV not configured — log but don't fail
-    console.warn('Vercel KV not available, link status not persisted');
+  // Persist results to Vercel KV via REST API (same storage as read endpoint)
+  const kvUrl = process.env.KV_REST_API_URL;
+  const kvToken = process.env.KV_REST_API_TOKEN;
+
+  if (kvUrl && kvToken) {
+    try {
+      await fetch(`${kvUrl}/set/diy-link-status`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${kvToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(JSON.stringify(payload)),
+      });
+    } catch (kvErr) {
+      console.warn('KV write failed, link status not persisted:', kvErr);
+    }
+  } else {
+    console.warn('KV_REST_API_URL or KV_REST_API_TOKEN not set, link status not persisted');
   }
 
   if (brokenCount > 0) {

@@ -1,17 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { getAllDIYComparisons } from '@/data/diy-pricing';
 import { DIYComparison, DIYLineItem } from '@/types';
 import { getRetreatBySlug } from '@/data/retreats';
 import Button from '@/components/shared/Button';
 import ScrollReveal from '@/components/shared/ScrollReveal';
-import WaveDivider from '@/components/shared/WaveDivider';
+import SwoopDivider from '@/components/shared/SwoopDivider';
+import StarburstBadge from '@/components/shared/StarburstBadge';
 import HumanCTA from '@/components/shared/HumanCTA';
 import ShareButton from '@/components/shared/ShareButton';
 import PriceDisplay from '@/components/shared/PriceDisplay';
 import CostOfStayingHome from '@/components/compare/CostOfStayingHome';
+import ConvinceYourCrew from '@/components/compare/ConvinceYourCrew';
 import { useCurrencyStore } from '@/stores/currency-store';
 import { convertAmount } from '@/lib/currency';
 import { formatCurrency } from '@/lib/utils';
@@ -26,15 +28,55 @@ interface LinkStatusData {
   lastRun: string | null;
 }
 
-function ComparisonCard({ comparison, linkStatus }: { comparison: DIYComparison; linkStatus: LinkStatusData }) {
+/** Methodology tooltip — shows how a price was researched */
+function MethodologyTooltip({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <span className="relative inline-block">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-salty-deep-teal/10 text-salty-deep-teal/40 text-[10px] font-bold hover:bg-salty-deep-teal/20 transition-colors ml-1"
+        aria-label="How we calculated this price"
+      >
+        ?
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            className="absolute z-20 left-0 top-full mt-1 w-64 p-3 bg-white rounded-lg shadow-lg border border-salty-sand text-left"
+          >
+            <p className="font-body text-[11px] text-salty-deep-teal/70 leading-relaxed">{text}</p>
+            <button
+              onClick={() => setOpen(false)}
+              className="mt-2 font-body text-[10px] text-salty-coral font-bold hover:underline"
+            >
+              Close
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </span>
+  );
+}
+
+function ComparisonCard({ comparison, linkStatus, linkStatusLoaded }: { comparison: DIYComparison; linkStatus: LinkStatusData; linkStatusLoaded: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const { selectedCurrency, rates } = useCurrencyStore();
   const rate = rates[selectedCurrency];
-  const fmtConverted = (usd: number) => formatCurrency(convertAmount(usd, rate), selectedCurrency);
+  const fmtConverted = useCallback((usd: number) => formatCurrency(convertAmount(usd, rate), selectedCurrency), [rate, selectedCurrency]);
+
+  // Derive SALTY price from retreat data, fall back to stored value
+  const retreat = getRetreatBySlug(comparison.retreatSlug);
+  const saltyPrice = retreat?.lowestPrice || comparison.saltyPriceFrom;
 
   const diyTotal = comparison.items.reduce((sum, item) => sum + item.diyPrice, 0);
-  const savings = diyTotal - comparison.saltyPriceFrom;
-  const savingsPercent = Math.round((savings / diyTotal) * 100);
+  const savings = diyTotal - saltyPrice;
+  const savingsPercent = diyTotal > 0 ? Math.round((savings / diyTotal) * 100) : 0;
 
   const includedItems = comparison.items.filter((item) => item.saltyIncluded && item.diyPrice > 0);
   const pricelessItems = comparison.items.filter((item) => item.diyPrice === 0);
@@ -43,7 +85,10 @@ function ComparisonCard({ comparison, linkStatus }: { comparison: DIYComparison;
     <motion.div
       id={comparison.retreatSlug}
       layout
-      className="bg-salty-cream rounded-2xl border-2 border-salty-beige overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+      className="bg-surface-base rounded-2xl overflow-hidden transition-shadow"
+      style={{ boxShadow: 'var(--shadow-card-resting)' }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-card-hover)'; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-card-resting)'; }}
     >
       {/* Header */}
       <div className="p-6 bg-salty-deep-teal text-white">
@@ -54,39 +99,63 @@ function ComparisonCard({ comparison, linkStatus }: { comparison: DIYComparison;
             <p className="font-body text-sm text-white/60">{comparison.nights} nights</p>
           </div>
           <div className="text-right">
-            <p className="font-body text-xs text-salty-seafoam uppercase tracking-wider">You save</p>
-            <p className="font-display text-3xl text-salty-yellow">{savingsPercent}%</p>
+            {savings > 0 ? (
+              <>
+                <p className="font-body text-xs text-salty-seafoam uppercase tracking-wider">You save</p>
+                <p className="font-display text-3xl text-salty-yellow">{savingsPercent}%</p>
+              </>
+            ) : (
+              <>
+                <p className="font-body text-xs text-salty-seafoam uppercase tracking-wider">Similar price</p>
+                <p className="font-display text-lg text-salty-yellow">Zero planning</p>
+              </>
+            )}
           </div>
         </div>
       </div>
 
+      {/* Room tier note */}
+      {comparison.roomTierNote && (
+        <div className="px-6 pt-3">
+          <p className="font-body text-[11px] text-salty-deep-teal/50 text-center italic">
+            {comparison.roomTierNote}
+          </p>
+        </div>
+      )}
+
       {/* Price Comparison Summary */}
-      <div className="grid grid-cols-2 divide-x divide-salty-beige">
+      <div className="grid grid-cols-2 divide-x divide-salty-sand">
         <div className="p-6 text-center">
-          <p className="font-body text-xs text-salty-slate/50 uppercase tracking-wider mb-1">SALTY Price</p>
-          <PriceDisplay amountUSD={comparison.saltyPriceFrom} size="lg" />
-          <p className="font-body text-xs text-salty-slate/40 mt-1">from / person</p>
+          <p className="font-body text-xs text-salty-deep-teal/50 uppercase tracking-wider mb-1">SALTY Price</p>
+          <PriceDisplay amountUSD={saltyPrice} size="lg" />
+          <p className="font-body text-xs text-salty-deep-teal/40 mt-1">from / person</p>
         </div>
         <div className="p-6 text-center">
-          <p className="font-body text-xs text-salty-slate/50 uppercase tracking-wider mb-1">DIY Cost</p>
-          <p className="font-display text-3xl text-salty-slate line-through decoration-salty-burnt-red">
+          <p className="font-body text-xs text-salty-deep-teal/50 uppercase tracking-wider mb-1">DIY Cost</p>
+          <p className="font-display text-3xl text-salty-deep-teal line-through decoration-salty-rust">
             {fmtConverted(diyTotal)}
           </p>
-          <p className="font-body text-xs text-salty-slate/40 mt-1">estimated / person</p>
+          <p className="font-body text-xs text-salty-deep-teal/40 mt-1">estimated / person</p>
         </div>
       </div>
 
       {/* Savings Banner */}
       <div className="mx-6 mb-4 p-3 bg-salty-yellow/20 rounded-xl text-center">
-        <p className="font-display text-lg text-salty-deep-teal">
-          Save {fmtConverted(savings)} and {comparison.estimatedPlanningHours}+ hours of planning with SALTY
-        </p>
+        {savings > 0 ? (
+          <p className="font-display text-lg text-salty-deep-teal">
+            Save {fmtConverted(savings)} and {comparison.estimatedPlanningHours}+ hours of planning with SALTY
+          </p>
+        ) : (
+          <p className="font-display text-lg text-salty-deep-teal">
+            Similar price, but with SALTY you get {includedItems.length}+ experiences included and {comparison.estimatedPlanningHours}+ hours of planning handled for you
+          </p>
+        )}
       </div>
 
       {/* Line Items */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full px-6 py-3 flex items-center justify-between font-body text-sm font-bold text-salty-deep-teal hover:text-salty-orange-red transition-colors"
+        className="w-full px-6 py-3 flex items-center justify-between font-body text-sm font-bold text-salty-deep-teal hover:text-salty-coral transition-colors"
       >
         <span>See full breakdown ({comparison.items.length} items)</span>
         <svg
@@ -102,15 +171,15 @@ function ComparisonCard({ comparison, linkStatus }: { comparison: DIYComparison;
       <AnimatePresence>
         {expanded && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
             <div className="px-6 pb-6">
               {/* Table Header */}
-              <div className="grid grid-cols-12 gap-2 py-2 border-b border-salty-beige text-xs font-bold text-salty-slate/50 uppercase tracking-wider">
+              <div className="grid grid-cols-12 gap-2 py-2 border-b border-salty-sand text-xs font-bold text-salty-deep-teal/50 uppercase tracking-wider">
                 <div className="col-span-6">Item</div>
                 <div className="col-span-3 text-right">DIY Cost</div>
                 <div className="col-span-3 text-right">SALTY</div>
@@ -118,20 +187,22 @@ function ComparisonCard({ comparison, linkStatus }: { comparison: DIYComparison;
 
               {/* Line Items */}
               {includedItems.map((item: DIYLineItem) => (
-                <div key={item.category} className="grid grid-cols-12 gap-2 py-3 border-b border-salty-beige/50 items-center">
+                <div key={item.category} className="grid grid-cols-12 gap-2 py-3 border-b border-salty-sand/50 items-center">
                   <div className="col-span-6">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-start gap-2">
                       <div>
-                        <p className="font-body text-sm text-salty-charcoal">{item.category}</p>
-                        <p className="font-body text-xs text-salty-slate/40">{item.description}</p>
-                        {item.sourceUrl && (() => {
+                        <p className="font-body text-sm text-salty-charcoal">
+                          {item.category}
+                          {item.methodology && <MethodologyTooltip text={item.methodology} />}
+                        </p>
+                        <p className="font-body text-xs text-salty-deep-teal/40">{item.description}</p>
+                        {item.sourceUrl && linkStatusLoaded && (() => {
                           const status = linkStatus.results[item.sourceUrl!];
-                          const isVerified = status?.valid === true;
                           const isBroken = status?.valid === false;
 
                           if (isBroken) {
                             return (
-                              <span className="font-body text-[11px] text-salty-slate/30 mt-0.5">
+                              <span className="font-body text-[11px] text-salty-deep-teal/30 mt-0.5">
                                 Source unavailable
                               </span>
                             );
@@ -142,17 +213,22 @@ function ComparisonCard({ comparison, linkStatus }: { comparison: DIYComparison;
                               href={item.sourceUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 font-body text-[11px] text-salty-orange-red font-bold hover:underline mt-0.5"
+                              className="inline-flex items-center gap-1 font-body text-[11px] text-salty-coral font-bold hover:underline mt-0.5"
                             >
-                              {item.sourceName || 'Verify'} {isVerified && <span className="text-green-600" title="Link verified">&#10003;</span>} &rarr;
+                              {item.sourceName || 'Verify'} &rarr;
                             </a>
                           );
                         })()}
+                        {item.sourceUrl && !linkStatusLoaded && (
+                          <span className="font-body text-[11px] text-salty-deep-teal/20 mt-0.5">
+                            Loading source...
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
                   <div className="col-span-3 text-right">
-                    <span className="font-body text-sm text-salty-slate">{fmtConverted(item.diyPrice)}</span>
+                    <span className="font-body text-sm text-salty-deep-teal">{fmtConverted(item.diyPrice)}</span>
                   </div>
                   <div className="col-span-3 text-right">
                     <span className="font-body text-xs text-salty-forest-green font-bold bg-salty-seafoam/20 px-2 py-0.5 rounded-full">
@@ -168,7 +244,7 @@ function ComparisonCard({ comparison, linkStatus }: { comparison: DIYComparison;
                   <p className="font-display text-sm text-salty-deep-teal mb-2">PRICELESS WITH SALTY</p>
                   {pricelessItems.map((item: DIYLineItem) => (
                     <div key={item.category} className="flex items-center gap-2 py-1">
-                      <span className="font-body text-sm text-salty-slate/70">{item.category}: {item.description}</span>
+                      <span className="font-body text-sm text-salty-deep-teal/70">{item.category}: {item.description}</span>
                     </div>
                   ))}
                 </div>
@@ -185,17 +261,19 @@ function ComparisonCard({ comparison, linkStatus }: { comparison: DIYComparison;
           const threeMonthsAgo = new Date();
           threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
           const isStale = estimatedDate < threeMonthsAgo;
+          const displayDate = estimatedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
           return isStale ? (
             <div className="p-2 bg-amber-50 border border-amber-200 rounded-lg mb-2">
               <p className="font-body text-[11px] text-amber-700 text-center">
-                These prices were estimated in {comparison.estimatedDate}. Click source links to verify current rates.
+                These prices were estimated in {displayDate}. Click source links to verify current rates.
               </p>
             </div>
-          ) : null;
+          ) : (
+            <p className="font-body text-[11px] text-salty-deep-teal/40 text-center">
+              DIY prices estimated as of {displayDate}. Click source links to verify current rates.
+            </p>
+          );
         })()}
-        <p className="font-body text-[11px] text-salty-slate/40 text-center">
-          DIY prices estimated as of {comparison.estimatedDate}. Click source links to verify current rates.
-        </p>
       </div>
 
       {/* CTA */}
@@ -214,7 +292,10 @@ function ComparisonCard({ comparison, linkStatus }: { comparison: DIYComparison;
       <div className="px-6 pb-6 text-center">
         <ShareButton
           title={`${comparison.destination} — DIY vs SALTY Price Comparison`}
-          text={`Check this out: a SALTY ${comparison.destination} retreat saves you $${savings.toLocaleString()} (${savingsPercent}%) compared to booking it yourself. Plus ${comparison.estimatedPlanningHours}+ hours of planning time.`}
+          text={savings > 0
+            ? `Check this out: a SALTY ${comparison.destination} retreat saves you ${fmtConverted(savings)} (${savingsPercent}%) compared to booking it yourself. Plus ${comparison.estimatedPlanningHours}+ hours of planning time.`
+            : `Check this out: a SALTY ${comparison.destination} retreat includes ${includedItems.length}+ experiences and saves you ${comparison.estimatedPlanningHours}+ hours of planning.`
+          }
           url={`https://explore.getsaltyretreats.com/compare#${comparison.retreatSlug}`}
         />
       </div>
@@ -226,54 +307,82 @@ export default function ComparePage() {
   const now = new Date();
   const comparisons = getAllDIYComparisons().filter((c) => {
     const retreat = getRetreatBySlug(c.retreatSlug);
-    if (!retreat) return true;
+    // Don't show comparisons for unknown retreats (bad slug = broken CTAs)
+    if (!retreat) return false;
     return new Date(retreat.endDate + 'T23:59:59') >= now;
   });
 
   const [linkStatus, setLinkStatus] = useState<LinkStatusData>({ results: {}, lastRun: null });
+  const [linkStatusLoaded, setLinkStatusLoaded] = useState(false);
+  const [deepLinkNotFound, setDeepLinkNotFound] = useState(false);
+
+  // Compute best savings across all comparisons for the ConvinceYourCrew CTA
+  const bestComparison = comparisons.reduce<{ savings: number; percent: number; slug: string }>(
+    (best, c) => {
+      const retreat = getRetreatBySlug(c.retreatSlug);
+      const saltyPrice = retreat?.lowestPrice || c.saltyPriceFrom;
+      const diyTotal = c.items.reduce((sum, item) => sum + item.diyPrice, 0);
+      const savings = diyTotal - saltyPrice;
+      const percent = diyTotal > 0 ? Math.round((savings / diyTotal) * 100) : 0;
+      return savings > best.savings ? { savings, percent, slug: c.retreatSlug } : best;
+    },
+    { savings: 0, percent: 0, slug: '' }
+  );
 
   useEffect(() => {
+    // Handle deep link scrolling
     const hash = window.location.hash.slice(1);
     if (hash) {
       setTimeout(() => {
         const el = document.getElementById(hash);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          // Deep link target not found (past retreat or bad link)
+          setDeepLinkNotFound(true);
+        }
       }, 500);
     }
 
     // Fetch link verification status
     fetch('/api/diy-link-status')
       .then((res) => res.json())
-      .then((data) => setLinkStatus(data))
-      .catch(() => {/* ignore — will show links normally */});
+      .then((data) => {
+        setLinkStatus(data);
+        setLinkStatusLoaded(true);
+      })
+      .catch(() => {
+        setLinkStatusLoaded(true); // Show links normally even if fetch fails
+      });
   }, []);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-dvh">
       {/* Hero */}
-      <section className="py-20 px-6 bg-salty-cream">
+      <section className="py-20 px-6 bg-surface-base">
         <div className="max-w-3xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="stamp-badge mx-auto mb-6">
-              <div className="stamp-badge-inner">
-                <span className="stamp-amount">SAVE UP TO</span>
-                <span className="stamp-amount">40%</span>
+            {bestComparison.percent > 0 && (
+              <div className="flex justify-center mb-6">
+                <StarburstBadge size="lg" bgColor="var(--color-salty-coral)" rotation={-8}>
+                  SAVE {bestComparison.percent}%
+                </StarburstBadge>
               </div>
-            </div>
-            <p className="font-body text-sm text-salty-orange-red font-bold uppercase tracking-widest mb-3">
+            )}
+            <p className="font-body text-sm text-salty-coral font-bold uppercase tracking-widest mb-3">
               DIY vs SALTY
             </p>
-            <h1 className="font-display text-hero text-salty-deep-teal mb-4">
+            <h1 className="font-display text-hero text-salty-deep-teal mb-4 text-balance">
               Think you can do it cheaper?
             </h1>
-            <p className="font-body text-sm text-salty-slate/40 italic mb-3">
+            <p className="font-body text-sm text-salty-deep-teal/40 italic mb-3">
               (Spoiler: probably not — and definitely not faster.)
             </p>
-            <p className="font-body text-lg text-salty-slate/60 max-w-lg mx-auto">
+            <p className="font-body text-lg text-salty-deep-teal/60 max-w-lg mx-auto">
               We compared the cost AND the time of building the same quality trip yourself.
               Between research, booking, coordination, and logistics, our retreats save you
               weeks of planning and hundreds of dollars. The numbers don&apos;t lie.
@@ -289,10 +398,10 @@ export default function ComparePage() {
         </div>
       </section>
 
-      <WaveDivider variant="warm" />
+      <SwoopDivider color="var(--color-surface-warm-light)" />
 
       {/* Disclaimer */}
-      <section className="py-8 px-6 bg-salty-beige/30">
+      <section className="py-8 px-6 bg-surface-warm-light">
         <div className="max-w-3xl mx-auto">
           <div className="p-4 bg-salty-light-blue/20 rounded-xl border border-salty-light-blue/30 space-y-2">
             <p className="font-body text-sm text-salty-deep-teal/70 text-center">
@@ -310,42 +419,107 @@ export default function ComparePage() {
         </div>
       </section>
 
+      {/* Deep link not found banner */}
+      <AnimatePresence>
+        {deepLinkNotFound && (
+          <motion.section
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="px-6 bg-surface-warm-light"
+          >
+            <div className="max-w-3xl mx-auto">
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-center">
+                <p className="font-body text-sm text-amber-700">
+                  This comparison is no longer available. See current retreats below.
+                </p>
+              </div>
+            </div>
+          </motion.section>
+        )}
+      </AnimatePresence>
+
       {/* Comparisons */}
-      <section className="py-12 px-6 bg-salty-beige/30">
+      <section className="py-12 px-6 bg-surface-warm-light">
         <div className="max-w-3xl mx-auto space-y-8">
-          {comparisons.map((comparison, i) => (
-            <ScrollReveal key={comparison.retreatSlug} delay={i * 0.1}>
-              <ComparisonCard comparison={comparison} linkStatus={linkStatus} />
-            </ScrollReveal>
-          ))}
+          {comparisons.length > 0 ? (
+            comparisons.map((comparison, i) => (
+              <ScrollReveal key={comparison.retreatSlug} delay={i * 0.1}>
+                <ComparisonCard
+                  comparison={comparison}
+                  linkStatus={linkStatus}
+                  linkStatusLoaded={linkStatusLoaded}
+                />
+              </ScrollReveal>
+            ))
+          ) : (
+            /* Empty state — all retreats past */
+            <div className="bg-surface-base rounded-2xl p-12 text-center" style={{ boxShadow: 'var(--shadow-card-resting)' }}>
+              <p className="font-display text-sm text-salty-coral uppercase tracking-widest mb-3">
+                Stay tuned
+              </p>
+              <h3 className="font-display text-section text-salty-deep-teal mb-4">
+                New retreats coming soon
+              </h3>
+              <p className="font-body text-salty-deep-teal/60 mb-6 max-w-md mx-auto">
+                We&apos;re cooking up the next round of adventures. Take the quiz to find your perfect match, and we&apos;ll let you know when comparisons are ready.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Button href="/quiz" size="lg">
+                  Take the Quiz
+                </Button>
+                <Button href="https://getsaltyretreats.com" variant="secondary" size="lg">
+                  Visit SALTY
+                </Button>
+              </div>
+            </div>
+          )}
 
           {linkStatus.lastRun && (
-            <p className="font-body text-[11px] text-salty-slate/30 text-center">
+            <p className="font-body text-[11px] text-salty-deep-teal/30 text-center">
               Source links last verified: {new Date(linkStatus.lastRun).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
             </p>
           )}
         </div>
       </section>
 
+      {/* Convince Your Crew CTA — always visible */}
+      <section className="py-8 px-6 bg-surface-warm-light">
+        <div className="max-w-3xl mx-auto">
+          <ConvinceYourCrew
+            isVisible={true}
+            bestSavingsAmount={bestComparison.savings}
+            bestSavingsPercent={bestComparison.percent}
+            bestRetreatSlug={bestComparison.slug}
+          />
+        </div>
+      </section>
+
       {/* Cost of Staying Home */}
-      <section className="py-12 px-6 bg-salty-beige/30">
+      <section className="py-12 px-6 bg-surface-warm-light">
         <div className="max-w-3xl mx-auto">
           <ScrollReveal>
             <CostOfStayingHome
-              retreatPrice={comparisons[0]?.saltyPriceFrom || 1999}
-              retreatName={comparisons[0]?.retreatName || 'SALTY Retreat'}
+              retreatPrice={comparisons.length > 0
+                ? Math.min(...comparisons.map(c => {
+                    const retreat = getRetreatBySlug(c.retreatSlug);
+                    return retreat?.lowestPrice || c.saltyPriceFrom;
+                  }))
+                : 1999}
+              retreatName="a SALTY Retreat"
             />
           </ScrollReveal>
         </div>
       </section>
 
-      <WaveDivider variant="cool" flip />
+      <SwoopDivider color="var(--color-salty-deep-teal)" />
 
       {/* Bottom CTA */}
       <section className="py-16 px-6 bg-salty-deep-teal">
         <div className="max-w-xl mx-auto text-center">
           <ScrollReveal>
-            <h2 className="font-display text-section text-salty-salmon mb-4">
+            <h2 className="font-display text-section text-salty-salmon mb-4 text-balance">
               Ready to save?
             </h2>
             <p className="font-body text-white/60 mb-8 leading-relaxed">

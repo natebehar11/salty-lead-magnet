@@ -2,31 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const POPULAR_CITIES = [
-  'Amsterdam', 'Antigua', 'Athens', 'Auckland',
-  'Bali', 'Bangkok', 'Barcelona', 'Beijing', 'Berlin', 'Bogota', 'Bordeaux',
-  'Boston', 'Brisbane', 'Brussels', 'Budapest', 'Buenos Aires',
-  'Cairo', 'Cancun', 'Cape Town', 'Cartagena', 'Chiang Mai', 'Chicago',
-  'Copenhagen', 'Cusco',
-  'Dubai', 'Dublin', 'Dubrovnik',
-  'Edinburgh', 'Florence', 'Havana', 'Helsinki', 'Ho Chi Minh City', 'Hong Kong',
-  'Honolulu',
-  'Istanbul', 'Jaipur', 'Johannesburg',
-  'Kathmandu', 'Koh Samui', 'Kuala Lumpur', 'Kyoto',
-  'Lima', 'Lisbon', 'London', 'Los Angeles',
-  'Madrid', 'Marrakech', 'Medellín', 'Melbourne', 'Mexico City', 'Miami',
-  'Milan', 'Montreal', 'Mumbai', 'Munich',
-  'Nairobi', 'Naples', 'New York', 'Nice',
-  'Osaka', 'Oslo',
-  'Paris', 'Playa del Carmen', 'Porto', 'Prague', 'Phuket',
-  'Reykjavik', 'Rio de Janeiro', 'Rome',
-  'San Francisco', 'San Juan', 'Santiago', 'Santorini', 'São Paulo',
-  'Seoul', 'Seville', 'Shanghai', 'Singapore', 'Split', 'Stockholm', 'Sydney',
-  'Taipei', 'Tel Aviv', 'Tokyo', 'Toronto',
-  'Vancouver', 'Venice', 'Vienna',
-  'Zanzibar', 'Zürich',
-];
+import { CITIES } from '@/data/cities';
 
 interface CityAutocompleteInputProps {
   value: string;
@@ -45,13 +21,15 @@ export default function CityAutocompleteInput({
   const [highlightIndex, setHighlightIndex] = useState(-1);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const filtered = value.length >= 1
-    ? POPULAR_CITIES.filter((city) =>
-        city.toLowerCase().startsWith(value.toLowerCase())
-      ).slice(0, 8)
+  const filtered = value.length >= 2
+    ? CITIES.filter((city) =>
+        city.name.toLowerCase().startsWith(value.toLowerCase())
+      )
+      .slice(0, 8)
+      .map((city) => `${city.name}, ${city.country}`)
     : [];
 
-  const showDropdown = isFocused && filtered.length > 0 && value.length >= 1;
+  const showDropdown = isFocused && filtered.length > 0 && value.length >= 2;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -69,8 +47,10 @@ export default function CityAutocompleteInput({
     setHighlightIndex(-1);
   }, [value]);
 
-  const selectCity = (city: string) => {
-    onChange(city);
+  const selectCity = (displayText: string) => {
+    // Extract city name (strip country suffix)
+    const cityName = displayText.includes(', ') ? displayText.split(', ')[0] : displayText;
+    onChange(cityName);
     setIsFocused(false);
   };
 
