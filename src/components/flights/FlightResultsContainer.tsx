@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useFlightStore } from '@/stores/flight-store';
 import { FlightOption, FlightSortMode } from '@/types';
-import { flightMatchesAlliances } from '@/data/alliances';
+import { applyFlightFilters } from '@/lib/flight-filters';
 import FlightCard from './FlightCard';
 import FlightCardSkeleton from './FlightCardSkeleton';
 import FlightDateTabs from './FlightDateTabs';
@@ -12,8 +12,11 @@ import UnlistedPathsSection from './UnlistedPathsSection';
 import ShareFlightPanel from './ShareFlightPanel';
 import HumanCTA from '@/components/shared/HumanCTA';
 import Button from '@/components/shared/Button';
-import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { cn, formatShortDate } from '@/lib/utils';
+import { useCurrencyStore } from '@/stores/currency-store';
+import { convertAmount } from '@/lib/currency';
+import { formatCurrency } from '@/lib/utils';
+import { motion, AnimatePresence } from 'motion/react';
 
 const sortModes: { value: FlightSortMode; label: string }[] = [
   { value: 'cheapest', label: 'Cheapest' },
@@ -42,9 +45,18 @@ export default function FlightResultsContainer() {
     setIsReturnMode,
     originAirport,
     selectedRetreatSlug,
+    tripType,
   } = useFlightStore();
 
+  const { selectedCurrency, rates } = useCurrencyStore();
   const [isReturnLoading, setIsReturnLoading] = useState(false);
+  const [returnError, setReturnError] = useState<string | null>(null);
+  const returnAbortRef = useRef<AbortController | null>(null);
+
+  // Abort in-flight return search on unmount
+  useEffect(() => {
+    return () => { returnAbortRef.current?.abort(); };
+  }, []);
 
   if (isLoading) {
     return (
@@ -64,35 +76,25 @@ export default function FlightResultsContainer() {
 
   const { search } = searchResults;
 
-  // Get flights by sort mode
+  // Get flights by sort mode, using per-date buckets when available
   const getFlights = (): FlightOption[] => {
+    const source = searchResults.byDate?.[selectedDate] || searchResults;
     switch (sortMode) {
       case 'cheapest':
-        return searchResults.cheapest;
+        return source.cheapest;
       case 'fastest':
-        return searchResults.fastest;
+        return source.fastest;
       case 'best':
       default:
-        return searchResults.best;
+        return source.best;
     }
   };
 
-  // Apply filters including alliance filter
-  const applyFilters = (flights: FlightOption[]): FlightOption[] => {
-    return flights.filter((f) => {
-      if (filters.maxStops !== null && f.stops > filters.maxStops) return false;
-      if (filters.maxDuration !== null && f.totalDuration > filters.maxDuration) return false;
-      if (filters.maxPrice !== null && f.price > filters.maxPrice) return false;
-      if (filters.alliances && filters.alliances.length > 0) {
-        const airlines = [...new Set(f.segments.map((s) => s.airline))];
-        if (!flightMatchesAlliances(airlines, filters.alliances)) return false;
-      }
-      return true;
-    });
-  };
-
-  const flights = applyFilters(getFlights());
-  const unlistedFlights = applyFilters(searchResults.unlisted);
+  const flights = applyFlightFilters(getFlights(), filters);
+  const unlistedFlights = applyFlightFilters(
+    searchResults.byDate?.[selectedDate]?.unlisted || searchResults.unlisted,
+    filters
+  );
 
   // Get return flights (filtered + sorted)
   const getReturnFlights = (): FlightOption[] => {
@@ -103,18 +105,45 @@ export default function FlightResultsContainer() {
       case 'best': default: return returnResults.best;
     }
   };
-  const returnFlights = returnResults ? applyFilters(getReturnFlights()) : [];
+  const returnFlights = returnResults ? applyFlightFilters(getReturnFlights(), filters) : [];
 
-  // Get selected departing flights for summary display
+  // Get selected departing flights for summary display — search all date buckets too
   const getSelectedDepartingFlights = (): FlightOption[] => {
     const allDepartingFlights = [...searchResults.best, ...searchResults.cheapest, ...searchResults.fastest];
+    // Also include flights from byDate buckets (user may have selected from a specific date)
+    if (searchResults.byDate) {
+      for (const dateBuckets of Object.values(searchResults.byDate)) {
+        allDepartingFlights.push(...dateBuckets.best, ...dateBuckets.cheapest, ...dateBuckets.fastest);
+      }
+    }
     const uniqueById = [...new Map(allDepartingFlights.map(f => [f.id, f])).values()];
     return uniqueById.filter(f => selectedOutboundIds.includes(f.id));
   };
 
+  // Extract departure_token from the first selected outbound flight (for round-trip chaining)
+  const getSelectedDepartureToken = (): string | undefined => {
+    if (selectedOutboundIds.length === 0) return undefined;
+    const allFlights = [...searchResults.best, ...searchResults.cheapest, ...searchResults.fastest];
+    if (searchResults.byDate) {
+      for (const dateBuckets of Object.values(searchResults.byDate)) {
+        allFlights.push(...dateBuckets.best, ...dateBuckets.cheapest, ...dateBuckets.fastest);
+      }
+    }
+    const unique = [...new Map(allFlights.map(f => [f.id, f])).values()];
+    const selected = unique.find(f => f.id === selectedOutboundIds[0]);
+    return selected?.departureToken ?? undefined;
+  };
+
   const handleViewReturnFlights = async () => {
     if (!originAirport || !selectedRetreatSlug) return;
+
+    // Abort any previous return search
+    returnAbortRef.current?.abort();
+    const controller = new AbortController();
+    returnAbortRef.current = controller;
+
     setIsReturnLoading(true);
+    setReturnError(null);
     setIsReturnMode(true);
 
     try {
@@ -128,12 +157,21 @@ export default function FlightResultsContainer() {
           originCountry: originAirport.country,
           retreatSlug: selectedRetreatSlug,
           direction: 'return',
+          tripType,
+          departureToken: tripType === 'round-trip' ? getSelectedDepartureToken() : undefined,
         }),
+        signal: controller.signal,
       });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Return flight search failed.');
+      }
       const data = await res.json();
       setReturnResults(data);
     } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
       console.error('Return flight search failed:', error);
+      setReturnError(error instanceof Error ? error.message : 'Could not find return flights. Please try again.');
     } finally {
       setIsReturnLoading(false);
     }
@@ -155,6 +193,29 @@ export default function FlightResultsContainer() {
         <h3 className="font-display text-xl text-salty-deep-teal">
           {search.origin.city} &rarr; {search.destination.city}
         </h3>
+        {/* Result summary */}
+        {flights.length > 0 && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+            <span className="font-body text-xs text-salty-deep-teal/50">
+              {flights.length} flight{flights.length !== 1 ? 's' : ''} found
+            </span>
+            <span className="font-body text-xs text-salty-deep-teal/50">
+              From{' '}
+              <span className="font-bold text-salty-orange-red">
+                {formatCurrency(
+                  convertAmount(
+                    Math.min(...flights.map((f) => f.price)),
+                    rates[selectedCurrency]
+                  ),
+                  selectedCurrency
+                )}
+              </span>
+            </span>
+            <span className="font-body text-xs text-salty-deep-teal/40">
+              {formatShortDate(search.dates.retreatStart)} &ndash; {formatShortDate(search.dates.retreatEnd)}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Controls Bar */}
@@ -279,7 +340,9 @@ export default function FlightResultsContainer() {
             ) : (
               <div className="space-y-3">
                 <p className="font-body text-xs text-salty-slate/40 mb-1">
-                  Select flights to search for return flight options.
+                  {tripType === 'one-way'
+                    ? 'Select flights to include in your saved plans.'
+                    : 'Select flights to search for return flight options.'}
                 </p>
                 {flights.map((flight) => (
                   <FlightCard
@@ -288,13 +351,14 @@ export default function FlightResultsContainer() {
                     showCheckbox
                     originCode={search.origin.code}
                     destCode={search.destination.code}
+                    returnDate={tripType === 'round-trip' ? search.dates.returnDayOf : undefined}
                   />
                 ))}
               </div>
             )}
 
-            {/* Sticky Return Flight Button */}
-            {selectedOutboundIds.length > 0 && (
+            {/* Sticky Return Flight Button — hidden for one-way trips */}
+            {tripType !== 'one-way' && selectedOutboundIds.length > 0 && (
               <div className="sticky bottom-4 mt-6 z-40">
                 <div className="bg-salty-deep-teal rounded-2xl p-4 shadow-lg flex items-center justify-between gap-4">
                   <div>
@@ -380,6 +444,22 @@ export default function FlightResultsContainer() {
                 <h4 className="font-display text-lg text-salty-deep-teal">
                   {returnResults.search.origin.city} &rarr; {returnResults.search.destination.city}
                 </h4>
+              </div>
+            )}
+
+            {/* Return Flight Error */}
+            {returnError && !isReturnLoading && (
+              <div className="p-4 mb-4 bg-salty-burnt-red/10 border-2 border-salty-burnt-red/30 rounded-xl flex items-start gap-3">
+                <svg className="w-5 h-5 text-salty-burnt-red flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <p className="font-body text-sm text-salty-deep-teal font-bold flex-1">{returnError}</p>
+                <button
+                  onClick={() => { setReturnError(null); handleViewReturnFlights(); }}
+                  className="font-body text-xs font-bold text-salty-orange-red hover:underline whitespace-nowrap"
+                >
+                  Try again
+                </button>
               </div>
             )}
 

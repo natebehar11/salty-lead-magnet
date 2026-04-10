@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import {
   generatePlanId,
   savePlan,
@@ -73,25 +74,47 @@ describe('addFriend', () => {
     const plan = { ...mockPlan, id: 'add-friend-test', friends: [] };
     await savePlan(plan);
 
-    const updated = await addFriend('add-friend-test', {
+    const { plan: updated, alreadyJoined } = await addFriend('add-friend-test', {
       name: 'Erin',
       status: 'interested',
       joinedAt: new Date().toISOString(),
     });
 
     expect(updated).not.toBeNull();
+    expect(alreadyJoined).toBe(false);
     expect(updated!.friends).toHaveLength(1);
     expect(updated!.friends[0].name).toBe('Erin');
     expect(updated!.friends[0].status).toBe('interested');
   });
 
-  it('returns null when adding to a nonexistent plan', async () => {
-    const result = await addFriend('does-not-exist', {
+  it('returns null plan when adding to a nonexistent plan', async () => {
+    const { plan, alreadyJoined } = await addFriend('does-not-exist', {
       name: 'Ghost',
       status: 'maybe',
       joinedAt: new Date().toISOString(),
     });
-    expect(result).toBeNull();
+    expect(plan).toBeNull();
+    expect(alreadyJoined).toBe(false);
+  });
+
+  it('prevents duplicate joins by name (case-insensitive)', async () => {
+    const plan = { ...mockPlan, id: 'dup-join-test', friends: [] };
+    await savePlan(plan);
+
+    await addFriend('dup-join-test', {
+      name: 'Erin',
+      status: 'interested',
+      joinedAt: new Date().toISOString(),
+    });
+
+    const { plan: updated, alreadyJoined } = await addFriend('dup-join-test', {
+      name: 'erin',
+      status: 'interested',
+      joinedAt: new Date().toISOString(),
+    });
+
+    expect(alreadyJoined).toBe(true);
+    expect(updated!.friends).toHaveLength(1);
   });
 });
 
@@ -109,5 +132,90 @@ describe('updateFriendStatus', () => {
     const updated = await updateFriendStatus('update-status-test', 'KP', 'in');
     expect(updated).not.toBeNull();
     expect(updated!.friends[0].status).toBe('in');
+  });
+});
+
+describe('mutatePlan concurrent writes', () => {
+  it('succeeds on first attempt when no conflicts', async () => {
+    const plan: SharedPlan = {
+      ...mockPlan,
+      id: 'no-conflict-test',
+      friends: [],
+      _version: 0,
+    };
+    await savePlan(plan);
+
+    const { plan: updated } = await addFriend('no-conflict-test', {
+      name: 'Lisa',
+      status: 'in',
+      joinedAt: new Date().toISOString(),
+    });
+
+    expect(updated).not.toBeNull();
+    expect(updated!.friends).toHaveLength(1);
+    expect(updated!._version).toBe(1);
+  });
+
+  it('version increments correctly with successive mutations', async () => {
+    const plan: SharedPlan = {
+      ...mockPlan,
+      id: 'version-inc-test',
+      friends: [],
+      _version: 0,
+    };
+    await savePlan(plan);
+
+    await addFriend('version-inc-test', {
+      name: 'Erin',
+      status: 'interested',
+      joinedAt: new Date().toISOString(),
+    });
+
+    const after1 = await getPlan('version-inc-test');
+    expect(after1!._version).toBe(1);
+
+    await addFriend('version-inc-test', {
+      name: 'KP',
+      status: 'maybe',
+      joinedAt: new Date().toISOString(),
+    });
+
+    const after2 = await getPlan('version-inc-test');
+    expect(after2!._version).toBe(2);
+    expect(after2!.friends).toHaveLength(2);
+  });
+
+  it('handles concurrent addFriend calls without data loss', async () => {
+    const plan: SharedPlan = {
+      ...mockPlan,
+      id: 'concurrent-add-test',
+      friends: [],
+      _version: 0,
+    };
+    await savePlan(plan);
+
+    // Fire two addFriend calls concurrently
+    const [result1, result2] = await Promise.all([
+      addFriend('concurrent-add-test', {
+        name: 'Erin',
+        status: 'in',
+        joinedAt: new Date().toISOString(),
+      }),
+      addFriend('concurrent-add-test', {
+        name: 'KP',
+        status: 'interested',
+        joinedAt: new Date().toISOString(),
+      }),
+    ]);
+
+    // Both should succeed
+    expect(result1.plan).not.toBeNull();
+    expect(result2.plan).not.toBeNull();
+
+    // Final state should have both friends
+    const final = await getPlan('concurrent-add-test');
+    expect(final!.friends).toHaveLength(2);
+    const names = final!.friends.map((f) => f.name).sort();
+    expect(names).toEqual(['Erin', 'KP']);
   });
 });

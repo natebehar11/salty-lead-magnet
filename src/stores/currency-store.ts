@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { safeStorage } from '@/lib/utils';
 import { CurrencyCode, FALLBACK_RATES, CACHE_DURATION, fetchExchangeRates } from '@/lib/currency';
 
 interface CurrencyState {
@@ -43,6 +44,7 @@ export const useCurrencyStore = create<CurrencyState>()(
     }),
     {
       name: 'salty-currency',
+      storage: safeStorage,
       partialize: (state) => ({
         selectedCurrency: state.selectedCurrency,
       }),

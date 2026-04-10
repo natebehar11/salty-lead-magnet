@@ -8,14 +8,14 @@ import { formatCurrency } from '@/lib/utils';
 import { FlightSearchResults, FlightOption } from '@/types/flight';
 import Button from '@/components/shared/Button';
 import ShareButton from '@/components/shared/ShareButton';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface CompareFlightSaveBarProps {
   allResults: FlightSearchResults[];
 }
 
 export default function CompareFlightSaveBar({ allResults }: CompareFlightSaveBarProps) {
-  const { selectedOutboundIds, clearOutboundSelection, hasSubmittedLead, leadData } = useFlightStore();
+  const { selectedOutboundIds, clearOutboundSelection, hasSubmittedLead, leadData, tripType } = useFlightStore();
   const { selectedCurrency, rates } = useCurrencyStore();
   const [showPanel, setShowPanel] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -31,7 +31,7 @@ export default function CompareFlightSaveBar({ allResults }: CompareFlightSaveBa
   allResults.forEach(result => {
     const allFlights = [...result.best, ...result.cheapest, ...result.fastest];
     const uniqueById = [...new Map(allFlights.map(f => [f.id, f])).values()];
-    const selected = uniqueById.filter(f => selectedOutboundIds.includes(f.id));
+    const selected = uniqueById.filter(f => selectedOutboundIds.includes(f.id) && f.segments?.length > 0);
     if (selected.length > 0) {
       retreatsWithSelections.add(result.search.retreatSlug);
       retreatsWithFlights.push({
@@ -47,7 +47,8 @@ export default function CompareFlightSaveBar({ allResults }: CompareFlightSaveBa
   };
 
   const buildShareText = (): string => {
-    const lines: string[] = ['Flight plans from SALTY', ''];
+    const tripLabel = tripType === 'round-trip' ? 'Round-Trip' : tripType === 'one-way' ? 'One-Way' : '';
+    const lines: string[] = [`${tripLabel ? tripLabel + ' ' : ''}Flight plans from SALTY`, ''];
     retreatsWithFlights.forEach(({ retreatName, flights }) => {
       lines.push(`${retreatName.toUpperCase()}:`);
       flights.forEach((f, i) => {

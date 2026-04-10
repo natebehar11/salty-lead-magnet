@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import './globals.css';
 import MinimalHeader from '@/components/layout/MinimalHeader';
+import Footer from '@/components/layout/Footer';
 
 export const metadata: Metadata = {
   title: {
@@ -18,14 +19,19 @@ export const metadata: Metadata = {
     siteName: 'SALTY Retreats',
     title: 'Find Your Trip | SALTY Retreats',
     description: 'Take our trip matcher quiz and find the cheapest flights to your dream retreat.',
-    images: [{ url: '/images/link-previews/og-image.png', width: 1200, height: 630 }],
+    images: [{ url: '/images/link-previews/og-image.png', width: 1200, height: 630, alt: 'SALTY Retreats — Find your perfect adventure retreat' }],
   },
   twitter: {
     card: 'summary_large_image',
+    title: 'Find Your Trip | SALTY Retreats',
+    description: 'Take our trip matcher quiz and find the cheapest flights to your dream retreat.',
+    images: [{ url: '/images/link-previews/og-image.png', alt: 'SALTY Retreats — Find your perfect adventure retreat' }],
   },
   icons: {
     icon: '/images/logos/favicon.png',
+    apple: '/images/logos/favicon.png',
   },
+  themeColor: '#F7F4ED',
 };
 
 export default function RootLayout({
@@ -84,6 +90,7 @@ fbq('track', 'PageView');`,
         )}
         <MinimalHeader />
         <main className="pt-16">{children}</main>
+        <Footer />
         {/* Elfsight Google Reviews Widget */}
         <Script src="https://elfsightcdn.com/platform.js" strategy="lazyOnload" />
       </body>

@@ -220,7 +220,7 @@ export const retreats: Retreat[] = [
     roomTiers: [],   // PRICING COMING SOON per FAQ
     deposit: 350,
     currency: 'USD',
-    lowestPrice: 0,
+    lowestPrice: 2249,
     saltyMeter: { adventure: 7, culture: 8, party: 7, sweat: 7, rest: 6, groupSize: { min: 35, max: 45 } },
     heroImage: '/images/lifestyle-4.jpg',
     cardImage: '/images/lifestyle-4.jpg',

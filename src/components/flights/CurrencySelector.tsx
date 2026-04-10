@@ -1,14 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-
-const currencies = [
-  { code: 'USD', label: 'USD' },
-  { code: 'CAD', label: 'CAD' },
-  { code: 'GBP', label: 'GBP' },
-  { code: 'EUR', label: 'EUR' },
-  { code: 'AUD', label: 'AUD' },
-];
+import { SUPPORTED_CURRENCIES } from '@/lib/currency';
 
 interface CurrencySelectorProps {
   selected: string;
@@ -18,7 +11,7 @@ interface CurrencySelectorProps {
 export default function CurrencySelector({ selected, onChange }: CurrencySelectorProps) {
   return (
     <div className="flex items-center gap-1">
-      {currencies.map((c) => (
+      {SUPPORTED_CURRENCIES.map((c) => (
         <button
           key={c.code}
           onClick={() => onChange(c.code)}
@@ -29,7 +22,7 @@ export default function CurrencySelector({ selected, onChange }: CurrencySelecto
               : 'bg-salty-beige/50 text-salty-deep-teal/50 hover:bg-salty-beige'
           )}
         >
-          {c.label}
+          {c.code}
         </button>
       ))}
     </div>

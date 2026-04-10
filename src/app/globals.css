@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 /* ========================================
-   SALTY RETREATS — Visual Style Guide
-   13-Color Palette · TAN Headline · Roca One
+   SALTY RETREATS — Design System
+   Shared tokens: getsaltyretreats.com + explore.getsaltyretreats.com
+   Source of truth: DESIGN-SYSTEM-RULES.md
    ======================================== */
 
 /* Custom Fonts */
@@ -39,31 +40,52 @@
 }
 
 /* ========================================
-   Tailwind Theme — SALTY 13-Color Palette
+   Tailwind Theme — Canonical Token Names
+   Matches salty-website for cross-product consistency.
+   Old --color-salty-* names kept below as aliases.
    ======================================== */
 @theme inline {
-  /* Warm & Energetic */
+  /* ---- Primary brand colors (canonical) ---- */
+  --color-teal: #0E3A2D;
+  --color-sand: #E7D7C0;
+  --color-paper-white: #F7F4ED;
+  --color-sky: #B6D4EA;
+  --color-coral: #F75A3D;
+  --color-golden: #FED260;
+
+  /* ---- Secondary brand colors (canonical) ---- */
+  --color-palm-green: #3A6B35;
+  --color-aquamarine: #A4E5D9;
+  --color-rust-red: #C74235;
+  --color-rust-dark: #A7372C;
+  --color-rose-stone: #CCB4B3;
+  --color-bright-coral: #FF7E70;
+  --color-slate-grey: #4A4E58;
+
+  /* ---- Surface tokens (canonical) ---- */
+  --color-surface-base: #F7F4ED;
+  --color-surface-warm-light: #F0E8DB;
+  --color-surface-warm: #E7D7C0;
+  --color-surface-dark: #0E3A2D;
+  --color-surface-dark-raised: #1F4638;
+  --color-surface-dark-deep: #0B3126;
+
+  /* ---- Legacy aliases (backward compat — migrate to canonical names) ---- */
   --color-salty-salmon: #FF7E70;
   --color-salty-yellow: #FED260;
   --color-salty-orange-red: #F75A3D;
   --color-salty-orange-red-dark: #E04A2D;
   --color-salty-burnt-red: #C74235;
   --color-salty-mauve: #CCB4B3;
-
-  /* Cool & Calming */
   --color-salty-light-blue: #B6D4EA;
   --color-salty-seafoam: #A4E5D9;
   --color-salty-deep-teal: #0E3A2D;
   --color-salty-deep-teal-light: #1A5A45;
   --color-salty-forest-green: #3A6B35;
-
-  /* Neutrals & Backgrounds */
   --color-salty-cream: #F7F4ED;
   --color-salty-beige: #E7D7C0;
   --color-salty-slate: #4A4E58;
   --color-salty-charcoal: #383838;
-
-  /* Legacy aliases for backward compatibility */
   --color-salty-teal: #0E3A2D;
   --color-salty-teal-light: #1A5A45;
   --color-salty-teal-dark: #0E3A2D;
@@ -78,9 +100,218 @@
   --color-salty-rust: #C74235;
   --color-salty-olive: #3A6B35;
 
-  /* Typography */
-  --font-display: 'TAN Headline', 'Cooper Black', Georgia, serif;
-  --font-body: 'Roca', 'Nunito', system-ui, sans-serif;
+  /* ---- Retreat theme tokens (defaults to Sri Lanka; overridden via [data-retreat]) ---- */
+  --color-retreat-primary: #0E3A2D;
+  --color-retreat-secondary: #FF7E70;
+  --color-retreat-accent: #F75A3D;
+  --color-retreat-surface: #E4E5DD;
+  --color-retreat-dark: #0E3A2D;
+  --color-retreat-text-on-primary: #F7F4ED;
+  --color-retreat-ticket-text: #FF7E70;
+
+  /* ---- Typography ---- */
+  --font-display: 'TAN Headline', Georgia, 'Times New Roman', serif;
+  --font-body: 'Roca', system-ui, -apple-system, sans-serif;
+}
+
+/* ========================================
+   Design Tokens — :root
+   Spacing, radius, borders, type scale,
+   z-index, shadows, motion
+   ======================================== */
+:root {
+  /* ---- Spacing — primitive scale (4px base) ---- */
+  --space-px: 1px;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* ---- Spacing — semantic (responsive via clamp) ---- */
+  --space-section-y: clamp(48px, 8vw, 96px);
+  --space-section-x: clamp(16px, 5vw, 80px);
+  --space-container-max: 1200px;
+  --space-component-y: clamp(16px, 3vw, 32px);
+  --space-component-x: clamp(16px, 3vw, 32px);
+  --space-card-padding: clamp(16px, 2vw, 24px);
+  --space-stack-sm: clamp(8px, 1.5vw, 12px);
+  --space-stack-md: clamp(16px, 2vw, 24px);
+  --space-stack-lg: clamp(24px, 4vw, 48px);
+  --space-inline-sm: 8px;
+  --space-inline-md: 16px;
+  --space-grid-gap: clamp(16px, 2vw, 24px);
+
+  /* ---- Border radius ---- */
+  --radius-button: 9999px;
+  --radius-card: 16px;
+  --radius-input: 8px;
+  --radius-badge: 9999px;
+  --radius-modal: 24px;
+  --radius-tag: 9999px;
+
+  /* ---- Border width ---- */
+  --border-thin: 1px;
+  --border-base: 2px;
+  --border-thick: 3px;
+  --border-photo-frame: 4px;
+  --border-coach-frame: 6px;
+
+  /* ---- Typography scale (responsive via clamp) ---- */
+  --type-display: clamp(2.5rem, 6vw, 4.5rem);
+  --type-h1: clamp(2.25rem, 5vw, 3.75rem);
+  --type-h2: clamp(1.75rem, 4vw, 3rem);
+  --type-h3: clamp(1.375rem, 2.5vw, 2rem);
+  --type-h4: clamp(1.125rem, 1.5vw, 1.375rem);
+  --type-h5: clamp(1rem, 1.2vw, 1.125rem);
+  --type-body-lg: clamp(1rem, 1.2vw, 1.125rem);
+  --type-body-base: clamp(0.875rem, 1vw, 1rem);
+  --type-body-sm: clamp(0.75rem, 0.9vw, 0.875rem);
+  --type-label: clamp(0.75rem, 0.9vw, 0.875rem);
+  --type-button: clamp(1rem, 1.2vw, 1.125rem);
+  --type-caption: clamp(0.6875rem, 0.8vw, 0.75rem);
+
+  /* ---- Z-index (matches website) ---- */
+  --z-base: 1;
+  --z-card-overlay: 50;
+  --z-sticky: 100;
+  --z-drawer: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+
+  /* ---- Shadows — warm neutral (never grey/black) ---- */
+  --shadow-sm: 0 1px 3px rgba(30,25,20,0.06), 0 1px 2px rgba(30,25,20,0.04);
+  --shadow-md: 0 4px 12px rgba(30,25,20,0.08), 0 2px 4px rgba(30,25,20,0.04);
+  --shadow-lg: 0 12px 32px rgba(30,25,20,0.12), 0 4px 8px rgba(30,25,20,0.06);
+
+  /* Card shadows */
+  --shadow-card-resting: 0 2px 6px rgba(30,25,20,0.06), 0 8px 24px rgba(30,25,20,0.10);
+  --shadow-card-hover: 4px 10px 10px rgba(247,90,61,0.12), 2px 18px 48px rgba(247,90,61,0.20);
+
+  /* Button hover shadows */
+  --shadow-btn-primary-hover: 1px 3px 6px 2px rgba(14,58,45,0.12);
+  --shadow-btn-secondary-hover: 2px 4px 6px 1px rgba(182,212,234,0.40);
+
+  /* ---- Motion ---- */
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-base: 250ms;
+  --duration-moderate: 300ms;
+  --duration-slow: 400ms;
+  --ease-default: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+  --ease-enter: cubic-bezier(0.0, 0.0, 0.2, 1.0);
+  --ease-exit: cubic-bezier(0.4, 0.0, 1.0, 1.0);
+
+  /* ---- Nav shadow (scrolled header state) ---- */
+  --shadow-nav: 0 1px 3px rgba(30,25,20,0.06), 0 1px 2px rgba(30,25,20,0.04);
+
+  /* ---- Misc ---- */
+  --color-whatsapp: #25D366;
+}
+
+/* ========================================
+   Retreat Theme Overrides
+   Each retreat sets its palette via [data-retreat="slug"]
+   ======================================== */
+[data-retreat="sri-lanka"] {
+  --color-retreat-primary: #0E3A2D;
+  --color-retreat-secondary: #FF7E70;
+  --color-retreat-accent: #F75A3D;
+  --color-retreat-surface: #E4E5DD;
+  --color-retreat-dark: #0E3A2D;
+  --color-retreat-text-on-primary: #F7F4ED;
+  --color-retreat-ticket-text: #FF7E70;
+}
+[data-retreat="panama"] {
+  --color-retreat-primary: #3A6B35;
+  --color-retreat-secondary: #B6D4EA;
+  --color-retreat-accent: #C74235;
+  --color-retreat-surface: #E7E9DE;
+  --color-retreat-dark: #3A6B35;
+  --color-retreat-text-on-primary: #F7F4ED;
+  --color-retreat-ticket-text: #F7F4ED;
+}
+[data-retreat="morocco"] {
+  --color-retreat-primary: #C74235;
+  --color-retreat-secondary: #E7D7C0;
+  --color-retreat-accent: #F75A3D;
+  --color-retreat-surface: #F3E5DE;
+  --color-retreat-dark: #A7372C;
+  --color-retreat-text-on-primary: #F7F4ED;
+  --color-retreat-ticket-text: #E7D7C0;
+}
+[data-retreat="sicily"] {
+  --color-retreat-primary: #FED260;
+  --color-retreat-secondary: #B6D4EA;
+  --color-retreat-accent: #C74235;
+  --color-retreat-surface: #F7F1E1;
+  --color-retreat-dark: #A7372C;
+  --color-retreat-text-on-primary: #F7F4ED;
+  --color-retreat-ticket-text: #0E3A2D;
+}
+[data-retreat="el-salvador"] {
+  --color-retreat-primary: #4A4E58;
+  --color-retreat-secondary: #CCB4B3;
+  --color-retreat-accent: #A4E5D9;
+  --color-retreat-surface: #E9E6E1;
+  --color-retreat-dark: #4A4E58;
+  --color-retreat-text-on-primary: #F7F4ED;
+  --color-retreat-ticket-text: #A4E5D9;
+}
+[data-retreat="costa-rica"] {
+  --color-retreat-primary: #3A6B35;
+  --color-retreat-secondary: #0E3A2D;
+  --color-retreat-accent: #B6D4EA;
+  --color-retreat-surface: #E7E9DE;
+  --color-retreat-dark: #0E3A2D;
+  --color-retreat-text-on-primary: #F7F4ED;
+  --color-retreat-ticket-text: #B6D4EA;
+}
+[data-retreat="nicaragua"] {
+  --color-retreat-primary: #B6D4EA;
+  --color-retreat-secondary: #3A6B35;
+  --color-retreat-accent: #FED260;
+  --color-retreat-surface: #F1F1EC;
+  --color-retreat-dark: #3A6B35;
+  --color-retreat-text-on-primary: #F7F4ED;
+  --color-retreat-ticket-text: #FED260;
+}
+
+/* ========================================
+   Boarding Pass / Ticket Notch
+   Circular cutouts on left and right edges
+   ======================================== */
+.ticket-notch {
+  --notch-size: 12px;
+  position: relative;
+}
+.ticket-notch::before,
+.ticket-notch::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: var(--notch-size);
+  height: calc(var(--notch-size) * 2);
+  border-radius: 0 var(--notch-size) var(--notch-size) 0;
+  background: var(--notch-bg, var(--color-surface-base));
+  transform: translateY(-50%);
+  z-index: 1;
+}
+.ticket-notch::before {
+  left: calc(-1 * var(--notch-size) / 2);
+}
+.ticket-notch::after {
+  right: calc(-1 * var(--notch-size) / 2);
+  border-radius: var(--notch-size) 0 0 var(--notch-size);
 }
 
 /* ========================================
@@ -92,22 +323,22 @@ html {
 
 body {
   font-family: var(--font-body);
-  background-color: var(--color-salty-cream);
-  color: var(--color-salty-slate);
+  background-color: var(--color-surface-base);
+  color: var(--color-teal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
 }
 
 ::selection {
-  background-color: var(--color-salty-orange-red);
+  background-color: var(--color-coral);
   color: white;
 }
 
 /* ========================================
    Typography — Style Guide Rules
    Headlines: TAN Headline, ALWAYS UPPERCASE
-   Body: Roca One, sentence case
+   Body: Roca, sentence case
    ======================================== */
 .font-display {
   font-family: var(--font-display);
@@ -117,11 +348,11 @@ body {
   font-family: var(--font-body);
 }
 
-h1, h2, h3, h4 {
+h1, h2, h3, h4, h5 {
   font-family: var(--font-display);
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  color: var(--color-salty-deep-teal);
+  color: var(--color-teal);
   line-height: 1.3;
 }
 
@@ -134,8 +365,9 @@ h2 {
 }
 
 /* Override heading color when light blue is explicitly set (e.g. Final CTA on deep teal) */
-h2.text-salty-light-blue {
-  color: var(--color-salty-light-blue);
+h2.text-salty-light-blue,
+h2.text-sky {
+  color: var(--color-sky);
 }
 
 /* Hero text sizing with clamp */
@@ -159,23 +391,23 @@ h2.text-salty-light-blue {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-salty-beige);
+  background: var(--color-sand);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-salty-deep-teal);
+  background: var(--color-teal);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-salty-forest-green);
+  background: var(--color-surface-dark-raised);
 }
 
 /* ========================================
    Decorative Elements — Stamp Frame (CSS)
    ======================================== */
 .stamp-frame {
-  background: var(--color-salty-cream);
+  background: var(--color-paper-white);
   padding: 2rem;
   --scallop-size: 10px;
   -webkit-mask:
@@ -196,7 +428,7 @@ h2.text-salty-light-blue {
 .star-badge {
   width: 120px;
   height: 120px;
-  background: var(--color-salty-forest-green);
+  background: var(--color-palm-green);
   clip-path: polygon(
     50% 0%, 63% 13%, 79% 5%, 82% 22%, 100% 25%,
     92% 40%, 100% 55%, 85% 62%, 85% 80%, 68% 78%,
@@ -217,12 +449,11 @@ h2.text-salty-light-blue {
 
 /* ========================================
    Stamp Badge — Scalloped postage stamp style
-   (matches SALTY brand element: forest-green outer, deep-teal inner, light-blue text)
    ======================================== */
 .stamp-badge {
   width: 140px;
   height: 140px;
-  background: var(--color-salty-forest-green);
+  background: var(--color-palm-green);
   padding: 6px;
   display: flex;
   align-items: center;
@@ -243,12 +474,12 @@ h2.text-salty-light-blue {
 .stamp-badge-inner {
   width: 100%;
   height: 100%;
-  background: var(--color-salty-deep-teal);
+  background: var(--color-teal);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--color-salty-light-blue);
+  color: var(--color-sky);
   font-family: var(--font-display);
   font-size: 0.8rem;
   font-weight: 700;
@@ -284,7 +515,7 @@ input[type="range"] {
   width: 100%;
   height: 8px;
   border-radius: 4px;
-  background: var(--color-salty-beige);
+  background: var(--color-sand);
   outline: none;
 }
 
@@ -294,7 +525,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--color-salty-orange-red);
+  background: var(--color-coral);
   cursor: pointer;
   border: 3px solid white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -304,7 +535,7 @@ input[type="range"]::-moz-range-thumb {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--color-salty-orange-red);
+  background: var(--color-coral);
   cursor: pointer;
   border: 3px solid white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -314,13 +545,13 @@ input[type="range"]::-moz-range-thumb {
    Swiper overrides
    ======================================== */
 .swiper-pagination-bullet {
-  background: var(--color-salty-deep-teal) !important;
+  background: var(--color-teal) !important;
   opacity: 0.3 !important;
 }
 
 .swiper-pagination-bullet-active {
   opacity: 1 !important;
-  background: var(--color-salty-orange-red) !important;
+  background: var(--color-coral) !important;
 }
 
 /* ========================================
@@ -349,4 +580,15 @@ input[type="range"]::-moz-range-thumb {
 }
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* ========================================
+   Accessibility — Reduced Motion
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

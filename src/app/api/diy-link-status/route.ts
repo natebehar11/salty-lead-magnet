@@ -13,18 +13,32 @@ interface LinkStatusPayload {
 }
 
 export async function GET() {
-  try {
-    const kvModule = await (Function('return import("@vercel/kv")')() as Promise<{ kv: { get: (key: string) => Promise<string | null> } }>);
-    const raw = await kvModule.kv.get('diy-link-status');
+  const kvUrl = process.env.KV_REST_API_URL;
+  const kvToken = process.env.KV_REST_API_TOKEN;
 
-    if (!raw) {
+  if (!kvUrl || !kvToken) {
+    return NextResponse.json({ results: {}, lastRun: null });
+  }
+
+  try {
+    const res = await fetch(`${kvUrl}/get/diy-link-status`, {
+      headers: { Authorization: `Bearer ${kvToken}` },
+    });
+
+    if (!res.ok) {
       return NextResponse.json({ results: {}, lastRun: null });
     }
 
-    const payload: LinkStatusPayload = typeof raw === 'string' ? JSON.parse(raw) : raw as LinkStatusPayload;
+    const data = await res.json();
+    if (!data.result) {
+      return NextResponse.json({ results: {}, lastRun: null });
+    }
+
+    const payload: LinkStatusPayload = typeof data.result === 'string'
+      ? JSON.parse(data.result)
+      : data.result as LinkStatusPayload;
     return NextResponse.json(payload);
   } catch {
-    // KV not configured or not available
     return NextResponse.json({ results: {}, lastRun: null });
   }
 }

@@ -1,31 +1,53 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface ShareButtonProps {
   title: string;
   text: string;
   url?: string;
   className?: string;
+  onShare?: () => void;
 }
 
-export default function ShareButton({ title, text, url, className = '' }: ShareButtonProps) {
+export default function ShareButton({ title, text, url, className = '', onShare }: ShareButtonProps) {
   const [showOptions, setShowOptions] = useState(false);
   const [copied, setCopied] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    if (!showOptions) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setShowOptions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showOptions]);
 
   const handleNativeShare = async () => {
     if (navigator.share) {
       try {
         await navigator.share({ title, text, url: shareUrl });
+        onShare?.();
       } catch {
-        // User cancelled or error
+        // User cancelled or error — don't fire onShare
       }
     } else {
       setShowOptions(!showOptions);
     }
+  };
+
+  const handleShareOption = () => {
+    setShowOptions(false);
+    onShare?.();
   };
 
   const handleCopyLink = async () => {
@@ -33,6 +55,7 @@ export default function ShareButton({ title, text, url, className = '' }: ShareB
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      onShare?.();
     } catch {
       // Fallback
       const textarea = document.createElement('textarea');
@@ -43,7 +66,9 @@ export default function ShareButton({ title, text, url, className = '' }: ShareB
       document.body.removeChild(textarea);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      onShare?.();
     }
+    setShowOptions(false);
   };
 
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n\n${shareUrl}`)}`;
@@ -51,7 +76,7 @@ export default function ShareButton({ title, text, url, className = '' }: ShareB
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
 
   return (
-    <div className={`relative inline-block ${className}`}>
+    <div ref={wrapperRef} className={`relative inline-block ${className}`}>
       <button
         onClick={handleNativeShare}
         className="inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 border-salty-beige bg-salty-cream font-body text-xs font-bold text-salty-deep-teal hover:border-salty-deep-teal/30 transition-all active:scale-95"
@@ -68,12 +93,13 @@ export default function ShareButton({ title, text, url, className = '' }: ShareB
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute z-50 top-full mt-2 right-0 bg-salty-cream border-2 border-salty-beige rounded-xl shadow-lg p-3 min-w-[200px]"
+            className="absolute z-50 bottom-full mb-2 right-0 bg-salty-cream border-2 border-salty-beige rounded-xl shadow-lg p-3 min-w-[200px]"
           >
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={handleShareOption}
               className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-salty-beige/50 transition-colors"
             >
               <svg viewBox="0 0 24 24" fill="#25D366" className="w-5 h-5">
@@ -83,6 +109,7 @@ export default function ShareButton({ title, text, url, className = '' }: ShareB
             </a>
             <a
               href={emailUrl}
+              onClick={handleShareOption}
               className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-salty-beige/50 transition-colors"
             >
               <svg className="w-5 h-5 text-salty-slate" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -94,6 +121,7 @@ export default function ShareButton({ title, text, url, className = '' }: ShareB
               href={twitterUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={handleShareOption}
               className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-salty-beige/50 transition-colors"
             >
               <svg className="w-5 h-5 text-salty-slate" fill="currentColor" viewBox="0 0 24 24">

@@ -85,7 +85,7 @@ export default function WaveDivider({ variant = 'sunset', flip = false, classNam
         viewBox="0 0 1440 120"
         xmlns="http://www.w3.org/2000/svg"
         preserveAspectRatio="none"
-        className="w-full h-[60px] sm:h-[80px] md:h-[100px] lg:h-[120px]"
+        className="w-full h-[48px] sm:h-[56px] md:h-[64px]"
       >
         {/* Layer 4 — back */}
         <path

@@ -17,6 +17,10 @@ export default function PaymentPlanToggle({ totalPrice, deposit, balanceDueDate 
 
   const fmt = (amount: number) => convertAndFormatCurrency(amount, selectedCurrency, rates[selectedCurrency]);
 
+  const depositFmt = fmt(deposit);
+  const balanceFmt = fmt(balance);
+  const totalFmt = fmt(totalPrice);
+
   return (
     <div className="rounded-xl border border-salty-beige overflow-hidden">
       <button
@@ -28,7 +32,7 @@ export default function PaymentPlanToggle({ totalPrice, deposit, balanceDueDate 
       >
         <div className="text-left">
           <p className="font-display text-sm text-salty-deep-teal">
-            Lock it in for {fmt(deposit).converted} today
+            Lock it in for {depositFmt.converted} today
           </p>
           <p className="font-body text-xs text-salty-slate/50">
             Pay the rest before you go
@@ -57,7 +61,7 @@ export default function PaymentPlanToggle({ totalPrice, deposit, balanceDueDate 
               <div>
                 <p className="font-display text-sm text-salty-orange-red">Today</p>
                 <p className="font-body text-lg text-salty-deep-teal font-bold">
-                  {fmt(deposit).converted} deposit
+                  {depositFmt.converted} deposit
                 </p>
                 <p className="font-body text-xs text-salty-slate/40">
                   Secures your spot instantly
@@ -68,7 +72,7 @@ export default function PaymentPlanToggle({ totalPrice, deposit, balanceDueDate 
                   {balanceDueDate || 'Before the trip'}
                 </p>
                 <p className="font-body text-lg text-salty-deep-teal font-bold">
-                  {fmt(balance).converted} balance
+                  {balanceFmt.converted} balance
                 </p>
                 <p className="font-body text-xs text-salty-slate/40">
                   Due before departure. No surprises.
@@ -81,9 +85,9 @@ export default function PaymentPlanToggle({ totalPrice, deposit, balanceDueDate 
             <div className="flex justify-between items-baseline">
               <span className="font-body text-xs text-salty-slate/50">Total</span>
               <span className="font-display text-lg text-salty-deep-teal">
-                {fmt(totalPrice).converted}
-                {fmt(totalPrice).isConverted && (
-                  <span className="font-body text-xs text-salty-slate/40 ml-1">({fmt(totalPrice).original} USD)</span>
+                {totalFmt.converted}
+                {totalFmt.isConverted && (
+                  <span className="font-body text-xs text-salty-slate/40 ml-1">({totalFmt.original} USD)</span>
                 )}
               </span>
             </div>

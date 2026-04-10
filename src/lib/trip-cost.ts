@@ -14,12 +14,14 @@ export function getFlightEstimate(
     return { amount: 0, label: 'Searching flights...', isEstimated: true };
   }
 
-  // Use cheapest result, estimate return as same price
+  // Use cheapest result price directly
+  // (round-trip searches already return total RT price; one-way is per-leg)
   if (searchResults?.cheapest?.[0]) {
     const cheapest = searchResults.cheapest[0].price;
+    const isRT = searchResults.cheapest[0].isRoundTrip;
     return {
-      amount: cheapest * 2,
-      label: `~$${(cheapest * 2).toLocaleString()}`,
+      amount: cheapest,
+      label: `~$${cheapest.toLocaleString()}${isRT ? ' RT' : ''}`,
       isEstimated: true,
     };
   }

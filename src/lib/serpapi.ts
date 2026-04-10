@@ -10,6 +10,7 @@
 
 import { FlightOption, FlightSegment } from '@/types';
 import { generateGoogleFlightsUrl } from './google-flights';
+import { getCachedFlights, cacheFlights } from './flight-cache';
 
 // ---------------------------------------------------------------------------
 // SerpApi response types (subset of what they return)
@@ -129,13 +130,13 @@ function convertFlight(
   originCode: string,
   destCode: string,
   date: string,
+  returnDate?: string,
 ): FlightOption {
   const segments = serpFlight.flights.map(convertSegment);
   const isSelfTransfer = detectSelfTransfer(serpFlight.flights);
 
   // Build a Google Flights URL as the booking link
-  // (The booking_token requires a POST-based redirect which is complex for a simple link)
-  const bookingUrl = generateGoogleFlightsUrl(originCode, destCode, date);
+  const bookingUrl = generateGoogleFlightsUrl(originCode, destCode, date, returnDate);
 
   return {
     id: `serp-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
@@ -151,6 +152,8 @@ function convertFlight(
       ? 'This itinerary involves a self-transfer between different airlines. You may need to re-check bags.'
       : undefined,
     isAlternateAirport: false,
+    departureToken: serpFlight.departure_token,
+    isRoundTrip: !!returnDate,
   };
 }
 
@@ -162,6 +165,8 @@ export interface SerpApiSearchParams {
   originCode: string;
   destCode: string;
   date: string; // YYYY-MM-DD
+  returnDate?: string; // YYYY-MM-DD — if provided, uses type=1 (round-trip)
+  departureToken?: string; // chains outbound→return or leg→next leg
   maxResults?: number;
 }
 
@@ -176,20 +181,36 @@ export interface SerpApiSearchResult {
 }
 
 /**
- * Search for one-way flights using SerpApi Google Flights.
+ * Search for flights using SerpApi Google Flights.
  * Returns structured FlightOption[] compatible with the rest of the app.
+ *
+ * type=1 (round-trip) when returnDate provided, type=2 (one-way) otherwise.
+ * departure_token chains outbound → return flights.
  *
  * Each call costs 1 SerpApi credit (250 free/month).
  */
 export async function searchFlightsSerpApi(
   params: SerpApiSearchParams,
 ): Promise<SerpApiSearchResult> {
+  // Check cache first (skip for token-chained searches — tokens are per-user-selection)
+  if (!params.departureToken) {
+    const cached = await getCachedFlights(
+      params.originCode,
+      params.destCode,
+      params.date,
+      params.returnDate,
+    );
+    if (cached) return cached;
+  }
+
   const apiKey = process.env.SERPAPI_KEY;
 
   if (!apiKey) {
     console.warn('SERPAPI_KEY not set, returning empty results');
     return { flights: [] };
   }
+
+  const isRoundTrip = !!params.returnDate;
 
   const url = new URL('https://serpapi.com/search');
   url.searchParams.set('engine', 'google_flights');
@@ -199,12 +220,20 @@ export async function searchFlightsSerpApi(
   url.searchParams.set('currency', 'USD');
   url.searchParams.set('hl', 'en');
   url.searchParams.set('gl', 'us');
-  url.searchParams.set('type', '2'); // 2 = one-way (1 = round trip)
+  url.searchParams.set('type', isRoundTrip ? '1' : '2');
   url.searchParams.set('api_key', apiKey);
+
+  if (params.returnDate) {
+    url.searchParams.set('return_date', params.returnDate);
+  }
+  if (params.departureToken) {
+    url.searchParams.set('departure_token', params.departureToken);
+  }
 
   try {
     const response = await fetch(url.toString(), {
-      next: { revalidate: 3600 }, // Cache for 1 hour
+      signal: AbortSignal.timeout(8000), // Fail fast — don't wait for Vercel's 10s limit
+      cache: 'no-store', // Redis is the caching layer — don't double-cache in Next.js
     });
 
     if (!response.ok) {
@@ -221,13 +250,16 @@ export async function searchFlightsSerpApi(
 
     // Combine best_flights and other_flights
     const bestFlights = (data.best_flights || []).map((f) =>
-      convertFlight(f, params.originCode, params.destCode, params.date),
+      convertFlight(f, params.originCode, params.destCode, params.date, params.returnDate),
     );
     const otherFlights = (data.other_flights || []).map((f) =>
-      convertFlight(f, params.originCode, params.destCode, params.date),
+      convertFlight(f, params.originCode, params.destCode, params.date, params.returnDate),
     );
 
-    const allFlights = [...bestFlights, ...otherFlights];
+    // Filter out any malformed flights with empty segments before bucketing
+    const allFlights = [...bestFlights, ...otherFlights].filter(
+      (f) => f.segments.length > 0,
+    );
 
     // Limit results if requested
     const maxResults = params.maxResults || 20;
@@ -246,11 +278,24 @@ export async function searchFlightsSerpApi(
       };
     }
 
-    return {
+    const result: SerpApiSearchResult = {
       flights,
       priceInsights,
       googleFlightsUrl: data.search_metadata?.google_flights_url,
     };
+
+    // Cache the result (fire-and-forget — don't block the response)
+    if (!params.departureToken) {
+      cacheFlights(
+        params.originCode,
+        params.destCode,
+        params.date,
+        result,
+        params.returnDate,
+      ).catch(() => {});
+    }
+
+    return result;
   } catch (error) {
     console.error('SerpApi fetch error:', error);
     return { flights: [] };
@@ -263,23 +308,148 @@ export async function searchFlightsSerpApi(
  *
  * WARNING: Each date is a separate SerpApi credit. Use sparingly.
  */
+export interface MultiDateSearchResult {
+  results: Map<string, SerpApiSearchResult>;
+  /** Dates that failed to fetch (timeout, network error, etc.) */
+  failedDates: string[];
+}
+
 export async function searchMultipleDatesSerpApi(
   originCode: string,
   destCode: string,
   dates: string[],
-): Promise<Map<string, SerpApiSearchResult>> {
+  returnDate?: string,
+): Promise<MultiDateSearchResult> {
   const results = new Map<string, SerpApiSearchResult>();
+  const failedDates: string[] = [];
 
-  // Run searches sequentially to avoid rate limits
-  for (const date of dates) {
-    const result = await searchFlightsSerpApi({
-      originCode,
-      destCode,
-      date,
-      maxResults: 10,
-    });
-    results.set(date, result);
+  // Run all date searches in parallel — SerpApi rate limits are per-month (250),
+  // not per-second, so concurrent requests are safe and cut latency ~60%.
+  const settled = await Promise.allSettled(
+    dates.map(async (date) => {
+      const result = await searchFlightsSerpApi({
+        originCode,
+        destCode,
+        date,
+        returnDate,
+        maxResults: 10,
+      });
+      return { date, result };
+    }),
+  );
+
+  for (let i = 0; i < settled.length; i++) {
+    const outcome = settled[i];
+    if (outcome.status === 'fulfilled') {
+      results.set(outcome.value.date, outcome.value.result);
+    } else {
+      console.error('SerpApi date search failed:', outcome.reason);
+      failedDates.push(dates[i]);
+    }
   }
 
-  return results;
+  return { results, failedDates };
+}
+
+// ---------------------------------------------------------------------------
+// Multi-city search
+// ---------------------------------------------------------------------------
+
+export interface MultiCitySerpParams {
+  legs: { departure_id: string; arrival_id: string; date: string }[];
+  legIndex: number;
+  departureToken?: string;
+  maxResults?: number;
+}
+
+export interface MultiCitySerpResult {
+  flights: FlightOption[];
+  /** Maps flightId → departure_token for chaining to the next leg */
+  departureTokens: Record<string, string>;
+}
+
+/**
+ * Search for multi-city flights using SerpApi Google Flights (type=3).
+ *
+ * For the first leg, sends all legs via multi_city_json.
+ * For subsequent legs, sends departure_token from the previous selection.
+ *
+ * Each call costs 1 SerpApi credit.
+ */
+export async function searchMultiCitySerpApi(
+  params: MultiCitySerpParams,
+): Promise<MultiCitySerpResult> {
+  const apiKey = process.env.SERPAPI_KEY;
+
+  if (!apiKey) {
+    console.warn('SERPAPI_KEY not set, returning empty results');
+    return { flights: [], departureTokens: {} };
+  }
+
+  const url = new URL('https://serpapi.com/search');
+  url.searchParams.set('engine', 'google_flights');
+  url.searchParams.set('type', '3');
+  url.searchParams.set('currency', 'USD');
+  url.searchParams.set('hl', 'en');
+  url.searchParams.set('gl', 'us');
+  url.searchParams.set('api_key', apiKey);
+
+  // First leg: provide full multi-city JSON
+  // Subsequent legs: provide departure_token
+  if (params.departureToken) {
+    url.searchParams.set('departure_token', params.departureToken);
+  }
+
+  // Always provide multi_city_json so SerpApi knows the full itinerary
+  url.searchParams.set('multi_city_json', JSON.stringify(params.legs));
+
+  try {
+    const response = await fetch(url.toString(), {
+      signal: AbortSignal.timeout(8000),
+      cache: 'no-store', // Redis is the caching layer — don't double-cache in Next.js
+    });
+
+    if (!response.ok) {
+      console.error(`SerpApi multi-city HTTP ${response.status}: ${response.statusText}`);
+      return { flights: [], departureTokens: {} };
+    }
+
+    const data: SerpApiResponse = await response.json();
+
+    if (data.error) {
+      console.error('SerpApi multi-city error:', data.error);
+      return { flights: [], departureTokens: {} };
+    }
+
+    const currentLeg = params.legs[params.legIndex];
+    const departureTokens: Record<string, string> = {};
+
+    const convert = (f: SerpFlight): FlightOption => {
+      const option = convertFlight(
+        f,
+        currentLeg.departure_id,
+        currentLeg.arrival_id,
+        currentLeg.date,
+      );
+      if (f.departure_token) {
+        departureTokens[option.id] = f.departure_token;
+      }
+      return option;
+    };
+
+    const bestFlights = (data.best_flights || []).map(convert);
+    const otherFlights = (data.other_flights || []).map(convert);
+    const allFlights = [...bestFlights, ...otherFlights].filter(
+      (f) => f.segments.length > 0,
+    );
+    const maxResults = params.maxResults || 20;
+
+    return {
+      flights: allFlights.slice(0, maxResults),
+      departureTokens,
+    };
+  } catch (error) {
+    console.error('SerpApi multi-city fetch error:', error);
+    return { flights: [], departureTokens: {} };
+  }
 }

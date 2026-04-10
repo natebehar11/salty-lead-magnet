@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 
-// Mock window.matchMedia for components that use framer-motion
+// Mock window.matchMedia for components that use motion/react
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation((query: string) => ({

@@ -92,10 +92,10 @@ export default function PlannerChat({ destination, retreatName }: PlannerChatPro
           )
         );
       } else {
-        addMessage(createMessage('assistant', 'Sorry, I had trouble generating suggestions. Try again in a moment!'));
+        addMessage(createMessage('assistant', "I couldn't generate itinerary suggestions right now. Try rephrasing your preferences or hit 'Suggest Plans' again in a moment."));
       }
     } catch {
-      addMessage(createMessage('assistant', 'Something went wrong. Please try again!'));
+      addMessage(createMessage('assistant', "Something went wrong generating your itinerary. Please try again!"));
     } finally {
       setIsGenerating(false);
       setInputValue('');
@@ -130,10 +130,10 @@ export default function PlannerChat({ destination, retreatName }: PlannerChatPro
         const data = await res.json();
         addMessage(createMessage('assistant', data.message));
       } else {
-        addMessage(createMessage('assistant', 'Sorry, I had trouble responding. Try again!'));
+        addMessage(createMessage('assistant', "I had trouble brainstorming just now. Try asking your question again!"));
       }
     } catch {
-      addMessage(createMessage('assistant', 'Something went wrong. Please try again!'));
+      addMessage(createMessage('assistant', "Oops, I lost my train of thought. Hit send again and I'll pick up where we left off!"));
     } finally {
       setIsGenerating(false);
       setInputValue('');
@@ -248,7 +248,7 @@ export default function PlannerChat({ destination, retreatName }: PlannerChatPro
         <button
           onClick={handleSendMessage}
           disabled={!inputValue.trim() || isGenerating}
-          className="w-10 h-10 rounded-full bg-salty-orange-red text-white flex items-center justify-center hover:bg-salty-burnt-red transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
+          className="w-10 h-10 rounded-full bg-salty-orange-red text-white border-[4px] border-salty-deep-teal flex items-center justify-center hover:bg-salty-burnt-red transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />

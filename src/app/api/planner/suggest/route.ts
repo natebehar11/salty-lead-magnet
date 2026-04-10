@@ -7,6 +7,44 @@ interface SuggestionResponse {
   reasoning: string;
 }
 
+async function callOpenAI(
+  messages: { role: string; content: string }[],
+  systemPrompt: string,
+  maxTokens: number
+): Promise<string | null> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        max_tokens: maxTokens,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...messages,
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`OpenAI API error: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || null;
+  } catch (error) {
+    console.error('OpenAI API call failed:', error);
+    return null;
+  }
+}
+
 const FALLBACK_SUGGESTIONS: Record<string, SuggestionResponse> = {
   'Costa Rica': {
     cities: [
@@ -305,11 +343,8 @@ export async function POST(request: NextRequest) {
 
     // Brainstorm mode
     if (mode === 'brainstorm') {
-      if (!apiKey) {
-        return NextResponse.json({
-          message: `You're heading to ${destination} — exciting! What kind of vibe are you going for? Are you more of a "lazy beach days with a good book" person, a "let's rent a scooter and explore hidden coves" type, or a "take me to every restaurant and bar" kind of traveler?`,
-        });
-      }
+      const brainstormSystemPrompt = buildBrainstormSystemPrompt(destination, retreatName);
+      const brainstormFallback = `You're heading to ${destination} — exciting! What kind of vibe are you going for? Are you more of a "lazy beach days with a good book" person, a "let's rent a scooter and explore hidden coves" type, or a "take me to every restaurant and bar" kind of traveler?`;
 
       const messages: { role: string; content: string }[] = [];
 
@@ -331,6 +366,116 @@ export async function POST(request: NextRequest) {
         });
       }
 
+      // Try Claude first
+      if (apiKey) {
+        try {
+          const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': apiKey,
+              'anthropic-version': '2023-06-01',
+            },
+            body: JSON.stringify({
+              model: 'claude-haiku-4-5-20251001',
+              max_tokens: 512,
+              system: brainstormSystemPrompt,
+              messages,
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const text = data.content?.[0]?.text;
+            if (text) {
+              return NextResponse.json({ message: text });
+            }
+          }
+          console.error(`Claude API error (brainstorm): ${response.status}`);
+        } catch (error) {
+          console.error('Claude brainstorm failed:', error);
+        }
+      }
+
+      // Try OpenAI fallback
+      const openAIResult = await callOpenAI(messages, brainstormSystemPrompt, 512);
+      if (openAIResult) {
+        return NextResponse.json({ message: openAIResult });
+      }
+
+      // Hardcoded fallback
+      return NextResponse.json({ message: brainstormFallback });
+    }
+
+    // Suggest mode — helper to get the hardcoded fallback
+    const getHardcodedFallback = () => FALLBACK_SUGGESTIONS[destination] || {
+      cities: [
+        {
+          id: `fallback-generic-1`,
+          name: 'Explore the capital',
+          country: destination,
+          days: 2,
+          description: 'Start your adventure by getting to know the local capital city.',
+          activities: [
+            { name: 'Local Markets', category: 'landmark' as const, description: 'Discover vibrant local markets and street food.', link: null },
+            { name: 'Historical Sites', category: 'landmark' as const, description: 'Visit the most important historical landmarks.', link: null },
+            { name: 'Food Scene', category: 'restaurant' as const, description: 'Sample the best local cuisine.', link: null, priceRange: '$$' as const },
+            { name: 'Local Gym', category: 'fitness' as const, description: 'Keep up your training at a local fitness facility.', link: null },
+            { name: 'Hidden Neighborhood', category: 'hidden-gem' as const, description: 'Explore the lesser-known neighborhoods like a local.', link: null },
+            { name: 'City Park', category: 'outdoor' as const, description: 'Enjoy green spaces and outdoor activities.', link: null },
+          ],
+          highlights: ['Local markets', 'Historical sites', 'Food scene'],
+        },
+      ],
+      totalDays: 2,
+      reasoning: `Explore ${destination} before or after your retreat to make the most of your trip!`,
+    };
+
+    // Build messages for suggest mode
+    const existingCitiesInfo = existingCities && existingCities.length > 0
+      ? `\nThe traveler has already added these cities to their itinerary: ${existingCities.join(', ')}. Suggest different cities that complement their existing plan.`
+      : '';
+
+    const suggestMessages: { role: string; content: string }[] = [];
+
+    // Add conversation history for context
+    for (const msg of conversationHistory.slice(-10)) {
+      suggestMessages.push({ role: msg.role, content: msg.content });
+    }
+
+    // Build user message
+    const userMessage = `The traveler is going to the ${retreatName} retreat in ${destination}.${existingCitiesInfo}${userPrompt ? `\n\nTheir preferences: "${userPrompt}"` : '\n\nSuggest your top picks for cities to explore before or after the retreat.'}`;
+
+    // If there's no conversation or the last message is from assistant, add the user message
+    if (suggestMessages.length === 0 || suggestMessages[suggestMessages.length - 1].role === 'assistant') {
+      suggestMessages.push({ role: 'user', content: userMessage });
+    }
+
+    // Helper to parse and validate AI suggestion JSON
+    const parseSuggestionJSON = (text: string): SuggestionResponse | null => {
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) return null;
+
+      try {
+        const suggestion: SuggestionResponse = JSON.parse(jsonMatch[0]);
+        if (!suggestion.cities || !Array.isArray(suggestion.cities) || suggestion.cities.length === 0) {
+          return null;
+        }
+        // Add IDs to cities and ensure activities arrays exist
+        const now = Date.now();
+        suggestion.cities = suggestion.cities.map((city, index) => ({
+          ...city,
+          id: city.id || `suggested-${now}-${index}`,
+          activities: Array.isArray(city.activities) ? city.activities : [],
+        }));
+        return suggestion;
+      } catch {
+        return null;
+      }
+    };
+
+    // Try Claude first
+    if (apiKey) {
       try {
         const response = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
@@ -341,150 +486,36 @@ export async function POST(request: NextRequest) {
           },
           body: JSON.stringify({
             model: 'claude-haiku-4-5-20251001',
-            max_tokens: 512,
-            system: buildBrainstormSystemPrompt(destination, retreatName),
-            messages,
+            max_tokens: 2048,
+            system: SUGGEST_SYSTEM_PROMPT,
+            messages: suggestMessages,
           }),
         });
 
-        if (!response.ok) {
-          console.error(`Claude API error (brainstorm): ${response.status}`);
-          return NextResponse.json({
-            message: `What kind of activities do you enjoy most when traveling? Are you more into food scenes, outdoor adventures, nightlife, or cultural experiences? That'll help me plan the perfect add-on to your ${destination} trip!`,
-          });
+        if (response.ok) {
+          const data = await response.json();
+          const text = data.content?.[0]?.text;
+          if (text) {
+            const suggestion = parseSuggestionJSON(text);
+            if (suggestion) return NextResponse.json(suggestion);
+          }
         }
-
-        const data = await response.json();
-        const text = data.content?.[0]?.text;
-
-        if (!text) {
-          return NextResponse.json({
-            message: `Tell me more about what you love doing when you travel! Are you a foodie, an adventurer, a culture buff, or all of the above?`,
-          });
-        }
-
-        return NextResponse.json({ message: text });
-      } catch {
-        return NextResponse.json({
-          message: `What kind of activities do you enjoy most when traveling? Are you more into food scenes, outdoor adventures, nightlife, or cultural experiences?`,
-        });
+        console.error(`Claude API error (suggest): ${response.status}`);
+      } catch (error) {
+        console.error('Claude suggest failed:', error);
       }
     }
 
-    // Suggest mode
-    if (!apiKey) {
-      console.log('[Planner AI] No ANTHROPIC_API_KEY set, using fallback suggestions');
-      const fallback = FALLBACK_SUGGESTIONS[destination] || {
-        cities: [
-          {
-            id: `fallback-generic-1`,
-            name: 'Explore the capital',
-            country: destination,
-            days: 2,
-            description: 'Start your adventure by getting to know the local capital city.',
-            activities: [
-              { name: 'Local Markets', category: 'landmark' as const, description: 'Discover vibrant local markets and street food.', link: null },
-              { name: 'Historical Sites', category: 'landmark' as const, description: 'Visit the most important historical landmarks.', link: null },
-              { name: 'Food Scene', category: 'restaurant' as const, description: 'Sample the best local cuisine.', link: null, priceRange: '$$' as const },
-              { name: 'Local Gym', category: 'fitness' as const, description: 'Keep up your training at a local fitness facility.', link: null },
-              { name: 'Hidden Neighborhood', category: 'hidden-gem' as const, description: 'Explore the lesser-known neighborhoods like a local.', link: null },
-              { name: 'City Park', category: 'outdoor' as const, description: 'Enjoy green spaces and outdoor activities.', link: null },
-            ],
-            highlights: ['Local markets', 'Historical sites', 'Food scene'],
-          },
-        ],
-        totalDays: 2,
-        reasoning: `Explore ${destination} before or after your retreat to make the most of your trip!`,
-      };
-      return NextResponse.json(fallback);
+    // Try OpenAI fallback
+    const openAIResult = await callOpenAI(suggestMessages, SUGGEST_SYSTEM_PROMPT, 2048);
+    if (openAIResult) {
+      const suggestion = parseSuggestionJSON(openAIResult);
+      if (suggestion) return NextResponse.json(suggestion);
+      console.error('OpenAI returned unparseable suggestion');
     }
 
-    // Build messages for Claude
-    const existingCitiesInfo = existingCities && existingCities.length > 0
-      ? `\nThe traveler has already added these cities to their itinerary: ${existingCities.join(', ')}. Suggest different cities that complement their existing plan.`
-      : '';
-
-    const messages: { role: string; content: string }[] = [];
-
-    // Add conversation history for context
-    for (const msg of conversationHistory.slice(-10)) {
-      messages.push({ role: msg.role, content: msg.content });
-    }
-
-    // Build user message
-    const userMessage = `The traveler is going to the ${retreatName} retreat in ${destination}.${existingCitiesInfo}${userPrompt ? `\n\nTheir preferences: "${userPrompt}"` : '\n\nSuggest your top picks for cities to explore before or after the retreat.'}`;
-
-    // If there's no conversation or the last message is from assistant, add the user message
-    if (messages.length === 0 || messages[messages.length - 1].role === 'assistant') {
-      messages.push({ role: 'user', content: userMessage });
-    }
-
-    try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-        },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 2048,
-          system: SUGGEST_SYSTEM_PROMPT,
-          messages,
-        }),
-      });
-
-      if (!response.ok) {
-        console.error(`Claude API error: ${response.status} ${response.statusText}`);
-        const fallback = FALLBACK_SUGGESTIONS[destination];
-        if (fallback) return NextResponse.json(fallback);
-        return NextResponse.json({ error: 'AI suggestion service unavailable' }, { status: 503 });
-      }
-
-      const data = await response.json();
-      const text = data.content?.[0]?.text;
-
-      if (!text) {
-        console.error('Claude returned empty response');
-        const fallback = FALLBACK_SUGGESTIONS[destination];
-        if (fallback) return NextResponse.json(fallback);
-        return NextResponse.json({ error: 'Empty AI response' }, { status: 500 });
-      }
-
-      // Parse the JSON response from Claude
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        console.error('Could not parse JSON from Claude response:', text);
-        const fallback = FALLBACK_SUGGESTIONS[destination];
-        if (fallback) return NextResponse.json(fallback);
-        return NextResponse.json({ error: 'Invalid AI response' }, { status: 500 });
-      }
-
-      const suggestion: SuggestionResponse = JSON.parse(jsonMatch[0]);
-
-      // Validate the response structure
-      if (!suggestion.cities || !Array.isArray(suggestion.cities) || suggestion.cities.length === 0) {
-        const fallback = FALLBACK_SUGGESTIONS[destination];
-        if (fallback) return NextResponse.json(fallback);
-        return NextResponse.json({ error: 'Invalid suggestion structure' }, { status: 500 });
-      }
-
-      // Add IDs to cities and ensure activities arrays exist
-      const now = Date.now();
-      suggestion.cities = suggestion.cities.map((city, index) => ({
-        ...city,
-        id: city.id || `suggested-${now}-${index}`,
-        activities: Array.isArray(city.activities) ? city.activities : [],
-      }));
-
-      return NextResponse.json(suggestion);
-    } catch (error) {
-      console.error('Claude API call failed:', error);
-      const fallback = FALLBACK_SUGGESTIONS[destination];
-      if (fallback) return NextResponse.json(fallback);
-      return NextResponse.json({ error: 'AI suggestion service unavailable' }, { status: 503 });
-    }
+    // Hardcoded fallback
+    return NextResponse.json(getHardcodedFallback());
   } catch (error) {
     console.error('Planner suggest error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

@@ -20,16 +20,18 @@ export default function SuggestedCityCard({ city, isChecked, onToggleChecked, on
 
   const hasActivities = city.activities && city.activities.length > 0;
 
-  // Verify links on first expand
+  // Verify links on first expand (retries on failure)
   useEffect(() => {
     if (!isExpanded || hasVerified.current || !hasActivities) return;
-    hasVerified.current = true;
 
     const urls = city.activities
-      .filter((a) => a.link)
+      .filter((a) => a.link && !a.link.includes('google.com/maps'))
       .map((a) => a.link as string);
 
-    if (urls.length === 0) return;
+    if (urls.length === 0) {
+      hasVerified.current = true;
+      return;
+    }
 
     // Set all to pending
     const pending: Record<string, 'pending'> = {};
@@ -47,10 +49,11 @@ export default function SuggestedCityCard({ city, isChecked, onToggleChecked, on
       .then((data) => {
         if (data.results) {
           setLinkStatuses(data.results);
+          hasVerified.current = true; // Only mark verified on success
         }
       })
       .catch(() => {
-        // Silently fail — links just won't show status
+        // Don't mark as verified — allow retry on next expand
         setLinkStatuses({});
       });
   }, [isExpanded, hasActivities, city.activities]);

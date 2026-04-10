@@ -19,7 +19,6 @@ export interface CityAnchor {
   country: string;
   currency: string;
   lineItems: CityLineItem[];
-  totalCost: number;
   funComparison: string;
   sourceNote: string;
 }
