@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import FlightSearchForm from '../FlightSearchForm';
+import FlightSearchForm from '@/components/flights/FlightSearchForm';
 import { useFlightStore } from '@/stores/flight-store';
 
 // Mock next/link

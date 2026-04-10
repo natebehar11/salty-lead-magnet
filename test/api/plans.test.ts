@@ -1,5 +1,5 @@
-import { POST, GET, PATCH } from '../route';
-import { createMockRequest } from '@/test/api-helpers';
+import { POST, GET, PATCH } from '@/app/api/plans/route';
+import { createMockRequest } from '@test/helpers/api-helpers';
 
 describe('POST /api/plans', () => {
   it('returns 400 when creatorName is missing', async () => {

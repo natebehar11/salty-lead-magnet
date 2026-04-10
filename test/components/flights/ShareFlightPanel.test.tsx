@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import ShareFlightPanel from '../ShareFlightPanel';
+import ShareFlightPanel from '@/components/flights/ShareFlightPanel';
 import { useFlightStore } from '@/stores/flight-store';
 import { useCurrencyStore } from '@/stores/currency-store';
 import { FALLBACK_RATES } from '@/lib/currency';
-import { createMockFlight } from '@/test/store-mocks';
+import { createMockFlight } from '@test/helpers/store-mocks';
 
 // Mock next/link
 vi.mock('next/link', () => ({

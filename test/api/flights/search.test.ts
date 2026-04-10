@@ -1,5 +1,5 @@
-import { POST } from '../route';
-import { createMockRequest } from '@/test/api-helpers';
+import { POST } from '@/app/api/flights/search/route';
+import { createMockRequest } from '@test/helpers/api-helpers';
 
 // Force mock data by ensuring no SERPAPI_KEY
 beforeAll(() => {

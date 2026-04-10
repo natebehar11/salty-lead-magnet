@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getFallbackResponse } from '../planner-fallback';
+import { getFallbackResponse } from '@/lib/planner-fallback';
 import { FALLBACK_POOLS } from '@/data/planner-fallbacks';
 
 const BASE_OPTS = {

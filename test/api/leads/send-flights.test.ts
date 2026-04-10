@@ -1,6 +1,6 @@
-import { POST } from '../route';
-import { createMockRequest } from '@/test/api-helpers';
-import { createMockFlight } from '@/test/store-mocks';
+import { POST } from '@/app/api/leads/send-flights/route';
+import { createMockRequest } from '@test/helpers/api-helpers';
+import { createMockFlight } from '@test/helpers/store-mocks';
 
 describe('POST /api/leads/send-flights', () => {
   it('returns 400 when email is missing', async () => {

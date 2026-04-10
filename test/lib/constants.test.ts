@@ -9,7 +9,7 @@ import {
   STATUS_COLORS,
   REGION_GRADIENTS,
   REGION_GRADIENT_FALLBACK,
-} from '../constants';
+} from '@/lib/constants';
 import type { ActivityCategoryV2 } from '@/types/vision-board';
 
 const ALL_CATEGORIES: ActivityCategoryV2[] = [

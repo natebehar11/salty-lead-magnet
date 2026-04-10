@@ -1,9 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import FlightResultsContainer from '../FlightResultsContainer';
+import FlightResultsContainer from '@/components/flights/FlightResultsContainer';
 import { useFlightStore } from '@/stores/flight-store';
 import { useCurrencyStore } from '@/stores/currency-store';
 import { FALLBACK_RATES } from '@/lib/currency';
-import { createMockSearchResults } from '@/test/store-mocks';
+import { createMockSearchResults } from '@test/helpers/store-mocks';
 
 // Mock next/link
 vi.mock('next/link', () => ({
@@ -36,19 +36,19 @@ vi.mock('@/data/alliances', () => ({
 }));
 
 // Mock child components that aren't being tested here
-vi.mock('../FlightDateTabs', () => ({
+vi.mock('@/components/flights/FlightDateTabs', () => ({
   default: () => <div data-testid="flight-date-tabs">DateTabs</div>,
 }));
 
-vi.mock('../AllianceFilter', () => ({
+vi.mock('@/components/flights/AllianceFilter', () => ({
   default: () => <div data-testid="alliance-filter">AllianceFilter</div>,
 }));
 
-vi.mock('../UnlistedPathsSection', () => ({
+vi.mock('@/components/flights/UnlistedPathsSection', () => ({
   default: () => null,
 }));
 
-vi.mock('../ShareFlightPanel', () => ({
+vi.mock('@/components/flights/ShareFlightPanel', () => ({
   default: () => null,
 }));
 

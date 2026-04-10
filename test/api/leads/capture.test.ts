@@ -1,5 +1,5 @@
-import { POST, PATCH } from '../route';
-import { createMockRequest } from '@/test/api-helpers';
+import { POST, PATCH } from '@/app/api/leads/capture/route';
+import { createMockRequest } from '@test/helpers/api-helpers';
 
 vi.mock('@/lib/ghl', () => ({
   createOrUpdateContact: vi.fn().mockResolvedValue('mock-contact-123'),

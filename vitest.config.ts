@@ -7,18 +7,19 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./src/test/setup.ts'],
-    include: ['src/**/*.test.{ts,tsx}'],
+    setupFiles: ['./test/setup.ts'],
+    include: ['test/**/*.test.{ts,tsx}'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
       include: ['src/lib/**', 'src/stores/**', 'src/app/api/**', 'src/components/**'],
-      exclude: ['src/test/**', 'src/data/**', 'src/types/**'],
+      exclude: ['test/helpers/**', 'src/data/**', 'src/types/**'],
     },
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@test': path.resolve(__dirname, './test'),
     },
   },
 });
