@@ -12,7 +12,7 @@ import {
   buildDiscoveryPrompt,
   getOptionLabel,
   ALL_TYPE_VALUES,
-} from '../discovery-messages';
+} from '@/lib/discovery-messages';
 
 // ---------------------------------------------------------------------------
 // Layer 1 — Location

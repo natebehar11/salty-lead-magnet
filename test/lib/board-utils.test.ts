@@ -8,7 +8,7 @@ import {
   getBoardTotalDays,
   getBoardCountryCount,
   splitBoardItemsByPosition,
-} from '../board-utils';
+} from '@/lib/board-utils';
 
 function makeItem(overrides: Partial<BoardItem> & { name: string; cityName: string; country: string }): BoardItem {
   return {
